@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CleverKeyboard</string>
+    <string name="keyboard_service_name">CleverKeyboard AI</string>
+    <string name="subtype_en_us">English (US)</string>
+    <string name="settings_title">CleverKeyboard Settings</string>
+    
+    <!-- Keyboard Key Labels -->
+    <string name="key_symbols_mode">\?123</string>
+    <string name="key_symbols_more">=\\&lt;</string>
+    <string name="key_question_mark">\?</string>
+
+    <!-- AI Features -->
+    <string name="ai_fix_grammar">Fix Grammar</string>
+    <string name="ai_tone_change">Tone Change</string>
+    <string name="ai_translate">Translate</string>
+    <string name="ai_smart_reply">Smart Reply</string>
+    <string name="ai_short_long">Short / Long</string>
+    
+    <!-- Tone Options -->
+    <string name="tone_professional">Professional</string>
+    <string name="tone_casual">Casual / Friendly</string>
+    <string name="tone_funny">Funny</string>
+    
+    <!-- Translation Options -->
+    <string name="translate_ta_en">Tamil → English</string>
+    <string name="translate_en_ta">English → Tamil</string>
+    
+    <!-- Length Options -->
+    <string name="length_short">Make Shorter</string>
+    <string name="length_long">Make Longer</string>
+    
+    <!-- Status & Alerts -->
+    <string name="no_api_key_error">Please set your Gemini API Key in CleverKeyboard settings</string>
+    <string name="select_text_prompt">Please select text in the app first</string>
+    <string name="ai_processing">Generating with Gemini AI…</string>
+    <string name="ai_success">AI text replaced!</string>
+    <string name="ai_error">AI Error: %1$s</string>
+    <string name="ai_failed_try_again">AI Failed, Try Again</string>
+</resources>
+

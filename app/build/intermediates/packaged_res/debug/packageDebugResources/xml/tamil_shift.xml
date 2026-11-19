@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    android:keyWidth="10%p"
+    android:keyHeight="54dp"
+    android:horizontalGap="0px"
+    android:verticalGap="4dp">
+
+    <!-- Row 1: Independent Vowels 1 (அ - ஊ + ஃ) -->
+    <Row>
+        <Key android:codes="2949" android:keyLabel="அ" android:keyEdgeFlags="left" />
+        <Key android:codes="2950" android:keyLabel="ஆ" />
+        <Key android:codes="2951" android:keyLabel="இ" />
+        <Key android:codes="2952" android:keyLabel="ஈ" />
+        <Key android:codes="2953" android:keyLabel="உ" />
+        <Key android:codes="2954" android:keyLabel="ஊ" />
+        <Key android:codes="2958" android:keyLabel="எ" />
+        <Key android:codes="2959" android:keyLabel="ஏ" />
+        <Key android:codes="2960" android:keyLabel="ஐ" />
+        <Key android:codes="2947" android:keyLabel="ஃ" android:keyEdgeFlags="right" />
+    </Row>
+
+    <!-- Row 2: Independent Vowels 2 + Grantha Consonants -->
+    <Row>
+        <Key android:codes="2962" android:keyLabel="ஒ" android:keyEdgeFlags="left" />
+        <Key android:codes="2963" android:keyLabel="ஓ" />
+        <Key android:codes="2964" android:keyLabel="ஔ" />
+        <Key android:codes="2972" android:keyLabel="ஜ" />
+        <Key android:codes="3000" android:keyLabel="ஸ" />
+        <Key android:codes="2999" android:keyLabel="ஷ" />
+        <Key android:codes="3001" android:keyLabel="ஹ" />
+        <Key android:codes="2965,3021,2999" android:keyLabel="க்ஷ" />
+        <Key android:codes="3018" android:keyLabel="ொ" />
+        <Key android:codes="3019" android:keyLabel="ோ" android:keyEdgeFlags="right" />
+    </Row>
+
+    <!-- Row 3: Shift active, extra diacritics & backspace -->
+    <Row>
+        <Key android:codes="-1"   android:keyLabel="⇧" android:keyWidth="12%p" android:isModifier="true" android:isSticky="true" android:keyEdgeFlags="left" />
+        <Key android:codes="3020" android:keyLabel="ௌ" android:keyWidth="10%p" />
+        <Key android:codes="3021" android:keyLabel="்" android:keyWidth="10%p" />
+        <Key android:codes="3006" android:keyLabel="ா" android:keyWidth="10%p" />
+        <Key android:codes="3007" android:keyLabel="ி" android:keyWidth="10%p" />
+        <Key android:codes="3008" android:keyLabel="ீ" android:keyWidth="10%p" />
+        <Key android:codes="3009" android:keyLabel="ு" android:keyWidth="10%p" />
+        <Key android:codes="3010" android:keyLabel="ூ" android:keyWidth="10%p" />
+        <Key android:codes="-5"   android:keyLabel="⌫" android:keyWidth="18%p" android:isRepeatable="true" android:keyEdgeFlags="right" />
+    </Row>
+
+    <!-- Row 4: Bottom Row [?123] [,] [Globe] [SPACE - தமிழ்] [.] [↵ Action] -->
+    <Row android:rowEdgeFlags="bottom">
+        <Key android:codes="-2"   android:keyLabel="@string/key_symbols_mode" android:keyWidth="12%p" android:keyEdgeFlags="left" />
+        <Key android:codes="44"   android:keyLabel="," android:keyWidth="8%p" />
+        <Key android:codes="-100" android:keyLabel="🌐" android:keyWidth="10%p" />
+        <Key android:codes="32"   android:keyLabel="தமிழ்" android:keyWidth="50%p" />
+        <Key android:codes="46"   android:keyLabel="." android:keyWidth="8%p" />
+        <Key android:codes="-4"   android:keyLabel="↵" android:keyWidth="12%p" android:keyEdgeFlags="right" />
+    </Row>
+
+</Keyboard>

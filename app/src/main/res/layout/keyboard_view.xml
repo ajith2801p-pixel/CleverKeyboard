@@ -1,0 +1,1586 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.cleverkeyboard.app.keyboard.KeyboardContainerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboard_container_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#000000">
+
+    <!-- PHOTO BACKGROUND (If Photo Theme is active) -->
+    <ImageView
+        android:id="@+id/keyboard_bg_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:contentDescription="Keyboard Photo Background" />
+
+    <!-- PHOTO DARK OVERLAY (40% Black overlay default) -->
+    <View
+        android:id="@+id/keyboard_bg_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0.40"
+        android:visibility="gone" />
+
+    <!-- MAIN KEYBOARD CONTENT ROOT -->
+    <LinearLayout
+        android:id="@+id/keyboard_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#000000"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <!-- ========================================================================= -->
+        <!-- ROW 0: AI TOOLBAR (Top Purple Bar - 52dp Height with Icon + Small Text)   -->
+        <!-- Left side: 5 AI buttons with Purple background (#6A5ACD)                   -->
+        <!-- Right side: 3 buttons (Emoji, More ..., Voice Mic with Purple background) -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/ai_toolbar_container"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:layout_marginBottom="3dp">
+
+            <!-- LEFT SIDE: 5 AI buttons with #6A5ACD Purple background -->
+            <LinearLayout
+                android:id="@+id/ai_toolbar_left"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- 1. Translate (A with arrows) -> Translate -->
+                <LinearLayout
+                    android:id="@+id/btn_ai_translate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_ai_translate"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_translate"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Translate" />
+
+                    <TextView
+                        android:id="@+id/text_ai_translate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Translate"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <!-- 2. Sparkle AI icon -> AI Write -->
+                <LinearLayout
+                    android:id="@+id/btn_ai_sparkle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_ai_sparkle"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_ai_sparkle"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="AI Write" />
+
+                    <TextView
+                        android:id="@+id/text_ai_sparkle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Write"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <!-- 3. Fix Grammar -> Fix -->
+                <LinearLayout
+                    android:id="@+id/btn_ai_chat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_ai_chat"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_reply"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Fix" />
+
+                    <TextView
+                        android:id="@+id/text_ai_chat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fix"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <!-- 4. Clipboard -> Clip -->
+                <LinearLayout
+                    android:id="@+id/btn_clipboard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_clipboard"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_clipboard"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Clipboard" />
+
+                    <TextView
+                        android:id="@+id/text_clipboard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clip"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <!-- 5. Chat Bubble icon -> AI Reply -->
+                <LinearLayout
+                    android:id="@+id/btn_ai_reply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp">
+
+                    <ImageView
+                        android:id="@+id/icon_ai_reply"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_chatgpt"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="AI Reply" />
+
+                    <TextView
+                        android:id="@+id/text_ai_reply"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Reply"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- RIGHT SIDE: 3 buttons (Emoji, More ..., Voice) -->
+            <LinearLayout
+                android:id="@+id/ai_toolbar_right"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- 1. Emoji icon (Smiley) -> Emoji -->
+                <LinearLayout
+                    android:id="@+id/btn_emoji"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_emoji"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_emoji"
+                        android:background="@drawable/key_background"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Emoji" />
+
+                    <TextView
+                        android:id="@+id/text_emoji"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Emoji"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <!-- 2. Three dots (...) -> More -->
+                <LinearLayout
+                    android:id="@+id/btn_more_dots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_more_dots"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_more_dots"
+                        android:background="@drawable/key_background"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="More" />
+
+                    <TextView
+                        android:id="@+id/text_more_dots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="More"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <!-- 3. Mic icon -> Voice (Purple background #6A5ACD) -->
+                <LinearLayout
+                    android:id="@+id/btn_mic_toolbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp">
+
+                    <ImageView
+                        android:id="@+id/icon_mic_toolbar"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_mic"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Voice" />
+
+                    <TextView
+                        android:id="@+id/text_mic_toolbar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Voice"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- LOADING / STATUS OVERLAY (Visible when AI / Voice is processing) -->
+        <LinearLayout
+            android:id="@+id/ai_loading_container"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/key_background"
+            android:visibility="gone"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="3dp">
+
+            <ProgressBar
+                android:id="@+id/ai_progress_bar"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:indeterminate="true" />
+
+            <TextView
+                android:id="@+id/ai_loading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ai_processing"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- SUB-PANEL / OPTIONS PANEL (Tone Change / Translate Options) -->
+        <LinearLayout
+            android:id="@+id/sub_options_panel"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:layout_marginBottom="3dp">
+
+            <HorizontalScrollView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/sub_options_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <Button
+                android:id="@+id/btn_close_sub_panel"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:text="✕"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:background="@drawable/key_background"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
+
+        <!-- AI RESULT PANEL (Shows AI result with Copy and Send buttons) -->
+        <LinearLayout
+            android:id="@+id/ai_result_panel"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:background="@drawable/key_background"
+            android:paddingStart="8dp"
+            android:paddingEnd="6dp"
+            android:layout_marginBottom="3dp">
+
+            <TextView
+                android:id="@+id/ai_result_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Generating..."
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:paddingEnd="6dp" />
+
+            <Button
+                android:id="@+id/btn_ai_copy"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:text="Copy"
+                android:textSize="10sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/key_background"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="6dp" />
+
+            <Button
+                android:id="@+id/btn_ai_send"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:text="Send ✈"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/key_background_accent"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+
+        <!-- ========================================================================= -->
+        <!-- ROW 1: SUGGESTION BAR (GBOARD STYLE: EXACTLY 5 SUGGESTIONS)                -->
+        <!-- Center suggestion (suggestion_3) is bold / best prediction                  -->
+        <!-- Horizontal scrolling prevents clipping on narrow screens                   -->
+        <!-- ========================================================================= -->
+        <HorizontalScrollView
+            android:id="@+id/suggestion_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:fillViewport="true"
+            android:scrollbars="none"
+            android:layout_marginBottom="3dp">
+
+            <LinearLayout
+                android:id="@+id/suggestion_bar_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp">
+
+                <!-- Suggestion 1 (Leftmost / Original typed text) -->
+                <TextView
+                    android:id="@+id/suggestion_1"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/key_background"
+                    android:text="I"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:layout_marginStart="1dp"
+                    android:layout_marginEnd="2dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Suggestion 2 -->
+                <TextView
+                    android:id="@+id/suggestion_2"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/key_background"
+                    android:text="you"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Suggestion 3 (CENTER BEST PREDICTION / PRIMARY CORRECTION) -->
+                <TextView
+                    android:id="@+id/suggestion_3"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1.2"
+                    android:gravity="center"
+                    android:background="@drawable/key_background"
+                    android:text="the"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:layout_marginEnd="2dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Suggestion 4 -->
+                <TextView
+                    android:id="@+id/suggestion_4"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/key_background"
+                    android:text="to"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Suggestion 5 -->
+                <TextView
+                    android:id="@+id/suggestion_5"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/key_background"
+                    android:text="and"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:layout_marginEnd="1dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- ========================================================================= -->
+        <!-- ROW 2: NUMBER ROW                                                         -->
+        <!-- 1 2 3 4 5 6 7 8 9 0 - 10 keys, Dark Grey keys, White numbers, rounded corners -->
+        <!-- Long press: 1=! 2=@ 3=# 4=$ 5=% 6=^ 7=& 8=* 9=( 0=)                       -->
+        <!-- Toggleable with "Show Number Row"                                         -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/number_row_container"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingStart="1dp"
+            android:paddingEnd="1dp"
+            android:layout_marginBottom="3dp">
+
+            <!-- 1 -->
+            <FrameLayout
+                android:id="@+id/btn_num_1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="1"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="!"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 2 -->
+            <FrameLayout
+                android:id="@+id/btn_num_2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="2"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="&#64;"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 3 -->
+            <FrameLayout
+                android:id="@+id/btn_num_3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="3"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="#"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 4 -->
+            <FrameLayout
+                android:id="@+id/btn_num_4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="4"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="$"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 5 -->
+            <FrameLayout
+                android:id="@+id/btn_num_5"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="5"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="%"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 6 -->
+            <FrameLayout
+                android:id="@+id/btn_num_6"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="6"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="^"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 7 -->
+            <FrameLayout
+                android:id="@+id/btn_num_7"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="7"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="&amp;"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 8 -->
+            <FrameLayout
+                android:id="@+id/btn_num_8"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="8"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="*"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 9 -->
+            <FrameLayout
+                android:id="@+id/btn_num_9"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="9"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text="("
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+            <!-- 0 -->
+            <FrameLayout
+                android:id="@+id/btn_num_0"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/key_background"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/text_num_0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="0"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="normal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginTop="1dp"
+                    android:text=")"
+                    android:textSize="8sp"
+                    android:textColor="#88FFFFFF" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- ========================================================================= -->
+        <!-- EMOJI KEYBOARD CONTAINER (Pure Emojis, Search, Categories, Scrollable)     -->
+        <!-- Placed above CustomKeyboardView so during search both can be visible       -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/emoji_container"
+            android:layout_width="match_parent"
+            android:layout_height="310dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#121212">
+
+            <!-- Search Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="34dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="#1E1E20"
+                android:layout_margin="3dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_search"
+                    android:tint="#88FFFFFF" />
+
+                <EditText
+                    android:id="@+id/emoji_search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Search emoji..."
+                    android:textColorHint="#88FFFFFF"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:singleLine="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:cursorVisible="true"
+                    android:inputType="textNoSuggestions" />
+
+                <ImageView
+                    android:id="@+id/btn_emoji_clear_search"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:tint="#CCCCCC"
+                    android:padding="2dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Categories Row -->
+            <HorizontalScrollView
+                android:id="@+id/emoji_categories_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:scrollbars="none">
+                <LinearLayout
+                    android:id="@+id/emoji_categories_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp" />
+            </HorizontalScrollView>
+
+            <!-- Scrollable Emoji Grid -->
+            <ScrollView
+                android:id="@+id/emoji_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="2dp">
+                <GridLayout
+                    android:id="@+id/emoji_grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="8"
+                    android:alignmentMode="alignMargins" />
+            </ScrollView>
+
+            <!-- Bottom Control Bar: [ABC] [Space] [Backspace] -->
+            <LinearLayout
+                android:id="@+id/emoji_bottom_bar"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="#18181A"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp">
+
+                <Button
+                    android:id="@+id/btn_emoji_back_abc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="ABC"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/btn_emoji_space"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="Space"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <FrameLayout
+                    android:id="@+id/btn_emoji_backspace"
+                    android:layout_width="48dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/key_background"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_backspace" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ========================================================================= -->
+        <!-- ROWS 3-6: CUSTOM KEYBOARD VIEW                                            -->
+        <!-- Row 3: QWERTY Row (Auto Capital starts with Q W E R T Y U I O P)           -->
+        <!-- Row 4: ASDF Row                                                           -->
+        <!-- Row 5: ZXCV Row [Shift ^] Z X C V B N M [Backspace X]                      -->
+        <!-- Row 6: Bottom Row [?123] [,] [Globe] [SPACE] [.] [Search Blue Button]     -->
+        <!-- ========================================================================= -->
+        <com.cleverkeyboard.app.keyboard.CustomKeyboardView
+            android:id="@+id/keyboard_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:keyBackground="@drawable/key_background"
+            android:keyTextColor="#FFFFFF"
+            android:labelTextSize="18sp"
+            android:keyTextSize="20sp"
+            android:shadowColor="#00000000"
+            android:shadowRadius="0" />
+
+        <!-- ========================================================================= -->
+        <!-- NUM KEYPAD CONTAINER (Calculator Style, Big Keys)                         -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/num_pad_container"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:padding="3dp">
+
+            <!-- Row 1: 1 2 3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+                <Button
+                    android:id="@+id/num_key_1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="1"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="2"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="3"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Row 2: 4 5 6 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+                <Button
+                    android:id="@+id/num_key_4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="4"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="5"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_6"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="6"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Row 3: 7 8 9 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+                <Button
+                    android:id="@+id/num_key_7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="7"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_8"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="8"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_9"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="9"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Row 4: + 0 Backspace -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+                <Button
+                    android:id="@+id/num_key_plus"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="+"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_0"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="0"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <FrameLayout
+                    android:id="@+id/num_key_backspace"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_backspace" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Row 5: [ABC] [SPACE] [Enter] -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/num_key_abc"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.2"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="ABC"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+                <Button
+                    android:id="@+id/num_key_space"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.8"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background"
+                    android:text="SPACE"
+                    android:textSize="13sp"
+                    android:textColor="#FFFFFF" />
+                <FrameLayout
+                    android:id="@+id/num_key_enter"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.2"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/key_background_accent"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_enter" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+        <!-- ========================================================================= -->
+        <!-- CLIPBOARD CONTAINER                                                       -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/clipboard_container"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#121214"
+            android:padding="3dp">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="34dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="📋 Clipboard"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/btn_clipboard_clear_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:text="Clear All"
+                    android:textSize="11sp"
+                    android:textColor="#FF6B6B"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btn_clipboard_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:text="ABC"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+            </LinearLayout>
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/clipboard_empty_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:src="@drawable/ic_clipboard"
+                    android:tint="#55FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Copy panna text inga varum"
+                    android:textSize="14sp"
+                    android:textColor="#AAAAAA"
+                    android:layout_marginTop="6dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tap any clip to paste directly into your message"
+                    android:textSize="11sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="3dp" />
+            </LinearLayout>
+
+            <!-- Scrollable Clips List -->
+            <ScrollView
+                android:id="@+id/clipboard_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <LinearLayout
+                    android:id="@+id/clipboard_items_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="2dp" />
+            </ScrollView>
+        </LinearLayout>
+
+        <!-- ========================================================================= -->
+        <!-- MORE MENU CONTAINER (All 14 functional options)                          -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/more_menu_container"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#121214"
+            android:padding="3dp">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚡ More Features"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/btn_more_menu_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:text="ABC"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp" />
+            </LinearLayout>
+
+            <!-- Scrollable 2-Row Grid of Actions -->
+            <HorizontalScrollView
+                android:id="@+id/more_grid_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/more_grid_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    android:padding="2dp">
+
+                    <!-- Row 1 -->
+                    <LinearLayout
+                        android:id="@+id/more_row_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp" />
+
+                    <!-- Row 2 -->
+                    <LinearLayout
+                        android:id="@+id/more_row_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Subpanel for Cursor or Language or Themes options -->
+            <LinearLayout
+                android:id="@+id/more_subpanel_container"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:visibility="gone"
+                android:background="#1C1C1E"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- ========================================================================= -->
+        <!-- BOTTOM DISMISS BAR (Visible ONLY on devices without default system dismiss) -->
+        <!-- Placed at the bottom-left, matching the system navigation down arrow ⌄     -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/keyboard_bottom_dismiss_bar"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:visibility="gone">
+
+            <!-- Dismiss / Hide Keyboard Button (⌄) at bottom-left -->
+            <FrameLayout
+                android:id="@+id/btn_keyboard_dismiss"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Dismiss Keyboard">
+
+                <ImageView
+                    android:id="@+id/icon_keyboard_dismiss"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_keyboard_hide"
+                    android:tint="#CCCCCC" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- Quick Switch Keyboard button on bottom-right -->
+            <FrameLayout
+                android:id="@+id/btn_bottom_switch_kb"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Switch Keyboard">
+
+                <ImageView
+                    android:id="@+id/icon_bottom_switch_kb"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_globe"
+                    android:tint="#777777" />
+            </FrameLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</com.cleverkeyboard.app.keyboard.KeyboardContainerLayout>

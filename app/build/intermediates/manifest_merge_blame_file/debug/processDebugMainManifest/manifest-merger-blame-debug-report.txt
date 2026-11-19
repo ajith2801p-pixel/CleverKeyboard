@@ -1,0 +1,213 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.cleverkeyboard.app"
+4    android:versionCode="20"
+5    android:versionName="2.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Permissions required for AI network calls, voice typing, and keyboard feedback -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:5:5-67
+12-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:5:22-64
+13    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+13-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:6:5-79
+13-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:6:22-76
+14    <uses-permission android:name="android.permission.VIBRATE" />
+14-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:7:5-66
+14-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:7:22-63
+15    <uses-permission android:name="android.permission.POST_NOTIFICATION" />
+15-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:8:5-76
+15-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:8:22-73
+16    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+16-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:9:5-71
+16-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:9:22-68
+17
+18    <permission
+18-->[androidx.core:core:1.13.1] /Users/ajith/.gradle/caches/transforms-4/435382d7347b5675e34443865d307a38/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+19        android:name="com.cleverkeyboard.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+19-->[androidx.core:core:1.13.1] /Users/ajith/.gradle/caches/transforms-4/435382d7347b5675e34443865d307a38/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+20        android:protectionLevel="signature" />
+20-->[androidx.core:core:1.13.1] /Users/ajith/.gradle/caches/transforms-4/435382d7347b5675e34443865d307a38/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+21
+22    <uses-permission android:name="com.cleverkeyboard.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+22-->[androidx.core:core:1.13.1] /Users/ajith/.gradle/caches/transforms-4/435382d7347b5675e34443865d307a38/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+22-->[androidx.core:core:1.13.1] /Users/ajith/.gradle/caches/transforms-4/435382d7347b5675e34443865d307a38/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+23
+24    <application
+24-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:11:5-54:19
+25        android:name="com.cleverkeyboard.app.CleverKeyboardApp"
+25-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:12:9-42
+26        android:allowBackup="true"
+26-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:13:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.13.1] /Users/ajith/.gradle/caches/transforms-4/435382d7347b5675e34443865d307a38/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
+28        android:debuggable="true"
+29        android:extractNativeLibs="false"
+30        android:icon="@mipmap/ic_launcher"
+30-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:14:9-43
+31        android:label="@string/app_name"
+31-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:15:9-41
+32        android:roundIcon="@mipmap/ic_launcher_round"
+32-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:16:9-54
+33        android:supportsRtl="true"
+33-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:17:9-35
+34        android:testOnly="true"
+35        android:theme="@style/Theme.CleverKeyboard" >
+35-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:18:9-52
+36
+37        <!-- Settings UI Activity (Jetpack Compose) -->
+38        <activity
+38-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:21:9-32:20
+39            android:name="com.cleverkeyboard.app.MainActivity"
+39-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:22:13-41
+40            android:exported="true"
+40-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:23:13-36
+41            android:label="@string/app_name"
+41-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:26:13-45
+42            android:launchMode="singleTask"
+42-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:24:13-44
+43            android:theme="@style/Theme.CleverKeyboard"
+43-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:27:13-56
+44            android:windowSoftInputMode="adjustResize" >
+44-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:25:13-55
+45            <intent-filter>
+45-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:28:13-31:29
+46                <action android:name="android.intent.action.MAIN" />
+46-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:29:17-69
+46-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:29:25-66
+47
+48                <category android:name="android.intent.category.LAUNCHER" />
+48-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:30:17-77
+48-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:30:27-74
+49            </intent-filter>
+50        </activity>
+51
+52        <!-- Transparent Permission Helper Activity for Voice Typing -->
+53        <activity
+53-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:35:9-38:71
+54            android:name="com.cleverkeyboard.app.voice.VoicePermissionActivity"
+54-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:36:13-58
+55            android:exported="false"
+55-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:37:13-37
+56            android:theme="@style/Theme.CleverKeyboard.Transparent" />
+56-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:38:13-68
+57
+58        <!-- Android Input Method Service (MyKeyboardService) -->
+59        <service
+59-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:41:9-52:19
+60            android:name="com.cleverkeyboard.app.keyboard.MyKeyboardService"
+60-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:42:13-55
+61            android:exported="true"
+61-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:45:13-36
+62            android:label="@string/keyboard_service_name"
+62-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:43:13-58
+63            android:permission="android.permission.BIND_INPUT_METHOD" >
+63-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:44:13-70
+64            <intent-filter>
+64-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:46:13-48:29
+65                <action android:name="android.view.InputMethod" />
+65-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:47:17-67
+65-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:47:25-64
+66            </intent-filter>
+67
+68            <meta-data
+68-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:49:13-51:50
+69                android:name="android.view.im"
+69-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:50:17-47
+70                android:resource="@xml/method" />
+70-->/Users/ajith/CleverClone/app/src/main/AndroidManifest.xml:51:17-47
+71        </service>
+72
+73        <activity
+73-->[androidx.compose.ui:ui-tooling-android:1.6.7] /Users/ajith/.gradle/caches/transforms-4/c909dd6a1825f66aaf6f25c08a50facb/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+74            android:name="androidx.compose.ui.tooling.PreviewActivity"
+74-->[androidx.compose.ui:ui-tooling-android:1.6.7] /Users/ajith/.gradle/caches/transforms-4/c909dd6a1825f66aaf6f25c08a50facb/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+75            android:exported="true" />
+75-->[androidx.compose.ui:ui-tooling-android:1.6.7] /Users/ajith/.gradle/caches/transforms-4/c909dd6a1825f66aaf6f25c08a50facb/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+76        <activity
+76-->[androidx.compose.ui:ui-test-manifest:1.6.7] /Users/ajith/.gradle/caches/transforms-4/ec81c582d3d81c44a5570f72d5caef73/transformed/ui-test-manifest-1.6.7/AndroidManifest.xml:23:9-25:39
+77            android:name="androidx.activity.ComponentActivity"
+77-->[androidx.compose.ui:ui-test-manifest:1.6.7] /Users/ajith/.gradle/caches/transforms-4/ec81c582d3d81c44a5570f72d5caef73/transformed/ui-test-manifest-1.6.7/AndroidManifest.xml:24:13-63
+78            android:exported="true" />
+78-->[androidx.compose.ui:ui-test-manifest:1.6.7] /Users/ajith/.gradle/caches/transforms-4/ec81c582d3d81c44a5570f72d5caef73/transformed/ui-test-manifest-1.6.7/AndroidManifest.xml:25:13-36
+79
+80        <provider
+80-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:24:9-32:20
+81            android:name="androidx.startup.InitializationProvider"
+81-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:25:13-67
+82            android:authorities="com.cleverkeyboard.app.androidx-startup"
+82-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:26:13-68
+83            android:exported="false" >
+83-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:27:13-37
+84            <meta-data
+84-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:29:13-31:52
+85                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+85-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:30:17-78
+86                android:value="androidx.startup" />
+86-->[androidx.lifecycle:lifecycle-process:2.8.1] /Users/ajith/.gradle/caches/transforms-4/a21eadb38cfed43a12598f8e8288c36b/transformed/lifecycle-process-2.8.1/AndroidManifest.xml:31:17-49
+87            <meta-data
+87-->[androidx.emoji2:emoji2:1.3.0] /Users/ajith/.gradle/caches/transforms-4/c7288a76863d739c3b795fdb763aeac7/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+88                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+88-->[androidx.emoji2:emoji2:1.3.0] /Users/ajith/.gradle/caches/transforms-4/c7288a76863d739c3b795fdb763aeac7/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+89                android:value="androidx.startup" />
+89-->[androidx.emoji2:emoji2:1.3.0] /Users/ajith/.gradle/caches/transforms-4/c7288a76863d739c3b795fdb763aeac7/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+90            <meta-data
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+91                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+92                android:value="androidx.startup" />
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+93        </provider>
+94
+95        <service
+95-->[androidx.room:room-runtime:2.6.1] /Users/ajith/.gradle/caches/transforms-4/f2444b1abadc2ce899f77a035686027a/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+96            android:name="androidx.room.MultiInstanceInvalidationService"
+96-->[androidx.room:room-runtime:2.6.1] /Users/ajith/.gradle/caches/transforms-4/f2444b1abadc2ce899f77a035686027a/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+97            android:directBootAware="true"
+97-->[androidx.room:room-runtime:2.6.1] /Users/ajith/.gradle/caches/transforms-4/f2444b1abadc2ce899f77a035686027a/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+98            android:exported="false" />
+98-->[androidx.room:room-runtime:2.6.1] /Users/ajith/.gradle/caches/transforms-4/f2444b1abadc2ce899f77a035686027a/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+99
+100        <receiver
+100-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+101            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+101-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+102            android:directBootAware="false"
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+103            android:enabled="true"
+103-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+104            android:exported="true"
+104-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+105            android:permission="android.permission.DUMP" >
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+106            <intent-filter>
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+107                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+108            </intent-filter>
+109            <intent-filter>
+109-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+110                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+110-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+110-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+111            </intent-filter>
+112            <intent-filter>
+112-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+113                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+113-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+113-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+114            </intent-filter>
+115            <intent-filter>
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+116                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+116-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+116-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/ajith/.gradle/caches/transforms-4/ce3f12628a714a7c7f46d268c79d56d8/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+117            </intent-filter>
+118        </receiver>
+119    </application>
+120
+121</manifest>

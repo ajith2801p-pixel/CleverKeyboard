@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.cleverkeyboard.app.EmojiManagerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-19T03:36:38" hostname="Ajith-Macbook-Air.local" time="0.03">
+  <properties/>
+  <testcase name="testCategoriesExist" classname="com.cleverkeyboard.app.EmojiManagerTest" time="0.022"/>
+  <testcase name="testSkinToneModifiers" classname="com.cleverkeyboard.app.EmojiManagerTest" time="0.001"/>
+  <testcase name="testKeywordSearch" classname="com.cleverkeyboard.app.EmojiManagerTest" time="0.004"/>
+  <testcase name="testEmptySearchReturnsSmileys" classname="com.cleverkeyboard.app.EmojiManagerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

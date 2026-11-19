@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-mergeDebugResources-64:/layout/keyboard_view.xml",
+        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/layout/keyboard_view.xml"
+    },
+    {
+        "merged": "com.cleverkeyboard.app-mergeDebugResources-64:/layout/keyboard_view.xml",
+        "source": "com.cleverkeyboard.app-main-67:/layout/keyboard_view.xml"
+    }
+]

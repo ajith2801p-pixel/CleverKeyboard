@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="error_color">#FF5252</color>
+    <color name="king_accent">#EC1C24</color>
+    <color name="king_bg">#0A1931</color>
+    <color name="king_key">#1A2A4A</color>
+    <color name="king_text">#FFFFFF</color>
+    <color name="midnight_accent">#D4AF37</color>
+    <color name="midnight_bg">#000000</color>
+    <color name="midnight_key">#1E1E1E</color>
+    <color name="midnight_text">#E0E0E0</color>
+    <color name="neon_accent">#00FF88</color>
+    <color name="neon_bg">#000000</color>
+    <color name="neon_key">#1A1A1A</color>
+    <color name="neon_text">#FFFFFF</color>
+    <color name="primary_accent">#6C63FF</color>
+    <color name="success_color">#00E676</color>
+    <color name="surface_card">#1E1E1E</color>
+    <color name="surface_card_stroke">#2E2E2E</color>
+    <color name="surface_dark">#121212</color>
+    <color name="text_primary">#F5F5F5</color>
+    <color name="text_secondary">#AAAAAA</color>
+    <string name="ai_error">AI Error: %1$s</string>
+    <string name="ai_failed_try_again">AI Failed, Try Again</string>
+    <string name="ai_fix_grammar">Fix Grammar</string>
+    <string name="ai_processing">Generating with Gemini AI…</string>
+    <string name="ai_short_long">Short / Long</string>
+    <string name="ai_smart_reply">Smart Reply</string>
+    <string name="ai_success">AI text replaced!</string>
+    <string name="ai_tone_change">Tone Change</string>
+    <string name="ai_translate">Translate</string>
+    <string name="app_name">CleverKeyboard</string>
+    <string name="key_question_mark">\?</string>
+    <string name="key_symbols_mode">\?123</string>
+    <string name="key_symbols_more">=\\&lt;</string>
+    <string name="keyboard_service_name">CleverKeyboard AI</string>
+    <string name="length_long">Make Longer</string>
+    <string name="length_short">Make Shorter</string>
+    <string name="no_api_key_error">Please set your Gemini API Key in CleverKeyboard settings</string>
+    <string name="select_text_prompt">Please select text in the app first</string>
+    <string name="settings_title">CleverKeyboard Settings</string>
+    <string name="subtype_en_us">English (US)</string>
+    <string name="tone_casual">Casual / Friendly</string>
+    <string name="tone_funny">Funny</string>
+    <string name="tone_professional">Professional</string>
+    <string name="translate_en_ta">English → Tamil</string>
+    <string name="translate_ta_en">Tamil → English</string>
+    <style name="Theme.CleverKeyboard" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:statusBarColor">#121212</item>
+        <item name="android:navigationBarColor">#121212</item>
+        <item name="android:windowBackground">#121212</item>
+        <item name="colorPrimary">@color/primary_accent</item>
+        <item name="colorSecondary">@color/midnight_accent</item>
+    </style>
+    <style name="Theme.CleverKeyboard.Transparent" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Midnight Black Preset -->
+    <color name="midnight_bg">#000000</color>
+    <color name="midnight_key">#1E1E1E</color>
+    <color name="midnight_text">#E0E0E0</color>
+    <color name="midnight_accent">#D4AF37</color>
+
+    <!-- King Blue Preset -->
+    <color name="king_bg">#0A1931</color>
+    <color name="king_key">#1A2A4A</color>
+    <color name="king_text">#FFFFFF</color>
+    <color name="king_accent">#EC1C24</color>
+
+    <!-- Neon Gamer Preset -->
+    <color name="neon_bg">#000000</color>
+    <color name="neon_key">#1A1A1A</color>
+    <color name="neon_text">#FFFFFF</color>
+    <color name="neon_accent">#00FF88</color>
+
+    <!-- App Dark Theme Palette -->
+    <color name="surface_dark">#121212</color>
+    <color name="surface_card">#1E1E1E</color>
+    <color name="surface_card_stroke">#2E2E2E</color>
+    <color name="primary_accent">#6C63FF</color>
+    <color name="text_primary">#F5F5F5</color>
+    <color name="text_secondary">#AAAAAA</color>
+    <color name="success_color">#00E676</color>
+    <color name="error_color">#FF5252</color>
+</resources>
+
