@@ -203,6 +203,63 @@ class AiService private constructor() {
                 - Return ONLY the reply message text, no explanations, no quotes.
             """.trimIndent()
 
+            "casual" -> """
+                Reply to this message in a relaxed, friendly, everyday casual conversational tone: "$inputText"
+                Rules:
+                - Relaxed, everyday chat with a friend or peer.
+                - Keep it short - 1 line like a WhatsApp chat message.
+                - Use 0-1 friendly emoji (e.g. 😊).
+                - Language MUST match user's language (Tanglish, English, or Tamil).
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "professional" -> """
+                Reply to this message in a polished, professional business tone: "$inputText"
+                Rules:
+                - Professional, courteous, business-ready, and respectful.
+                - Keep it short - 1 line.
+                - Strictly no emojis.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "friendly" -> """
+                Reply to this message in a warm, cheerful, and friendly tone: "$inputText"
+                Rules:
+                - Warm, kind, cheerful, and welcoming.
+                - Keep it short - 1 line like a WhatsApp chat message.
+                - Use 1 warm emoji (e.g. 😊, ✨).
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "confident" -> """
+                Reply to this message in a clear, decisive, and confident tone: "$inputText"
+                Rules:
+                - Confident, decisive, clear, and assured.
+                - Keep it short - 1 line.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "polite" -> """
+                Reply to this message in a gentle, diplomatic, and exceptionally polite tone: "$inputText"
+                Rules:
+                - Courteous, diplomatic, gentle, and respectful.
+                - Keep it short - 1 line.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "short and concise", "short & concise", "concise" -> """
+                Reply to this message in an ultra-short, crisp, and concise tone with zero fluff: "$inputText"
+                Rules:
+                - Direct, compact, crisp, maximum brevity.
+                - Exactly 1 short sentence or phrase.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
             "formal" -> """
                 Reply to this message in a professional, polite, formal tone suitable for work or a boss: "$inputText"
                 Rules:
@@ -337,6 +394,63 @@ class AiService private constructor() {
                 - Return ONLY the rewritten text, no explanations, no quotes.
             """.trimIndent()
 
+            "casual" -> """
+                Reply to this message in a relaxed, friendly, everyday casual conversational tone: "$inputText"
+                Rules:
+                - Relaxed, everyday chat with a friend or peer.
+                - Keep it short - 1 line like a WhatsApp chat message.
+                - Use 0-1 friendly emoji (e.g. 😊).
+                - Language MUST match user's language (Tanglish, English, or Tamil).
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "professional" -> """
+                Reply to this message in a polished, professional business tone: "$inputText"
+                Rules:
+                - Professional, courteous, business-ready, and respectful.
+                - Keep it short - 1 line.
+                - Strictly no emojis.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "friendly" -> """
+                Reply to this message in a warm, cheerful, and friendly tone: "$inputText"
+                Rules:
+                - Warm, kind, cheerful, and welcoming.
+                - Keep it short - 1 line like a WhatsApp chat message.
+                - Use 1 warm emoji (e.g. 😊, ✨).
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "confident" -> """
+                Reply to this message in a clear, decisive, and confident tone: "$inputText"
+                Rules:
+                - Confident, decisive, clear, and assured.
+                - Keep it short - 1 line.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "polite" -> """
+                Reply to this message in a gentle, diplomatic, and exceptionally polite tone: "$inputText"
+                Rules:
+                - Courteous, diplomatic, gentle, and respectful.
+                - Keep it short - 1 line.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
+            "short and concise", "short & concise", "concise" -> """
+                Reply to this message in an ultra-short, crisp, and concise tone with zero fluff: "$inputText"
+                Rules:
+                - Direct, compact, crisp, maximum brevity.
+                - Exactly 1 short sentence or phrase.
+                - Language MUST match user's language.
+                - Return ONLY the reply message text, no explanations, no quotes.
+            """.trimIndent()
+
             "formal" -> """
                 Rewrite this text in a professional, polite, formal tone suitable for work or a boss: "$inputText"
                 Rules:
@@ -436,10 +550,19 @@ class AiService private constructor() {
 
     /**
      * 4. Smart Reply
-     * Prompt: "Given this incoming message: {text}, generate 3 short, natural replies, return as JSON array"
      */
     suspend fun smartReply(text: String, apiKey: String): Result<List<String>> {
-        val prompt = "Given this incoming message: $text, generate 3 short, natural replies, return as JSON array"
+        val prompt = """
+            Given this incoming chat message: "$text"
+            Generate exactly 3 smart, natural, contextual replies suitable for a fast WhatsApp/SMS response:
+            1. An enthusiastic/positive response.
+            2. A polite/casual acknowledgment.
+            3. A short question or helpful follow-up.
+            Rules:
+            - Keep each reply very short (under 8 words).
+            - Language MUST match the input message: if Tanglish, reply in natural conversational Tanglish; if Tamil, in Tamil; if English, in natural English.
+            - Return ONLY a valid JSON array of 3 strings, e.g. ["Sure, let's do it!", "Sounds good to me", "What time works for you?"] with no markdown formatting and no explanations.
+        """.trimIndent()
         val rawResult = executePrompt(prompt, apiKey)
 
         return rawResult.mapCatching { rawText ->

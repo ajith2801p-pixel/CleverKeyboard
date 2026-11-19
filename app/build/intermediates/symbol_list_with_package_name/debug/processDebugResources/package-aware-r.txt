@@ -2987,6 +2987,9 @@ drawable ic_undo
 drawable indeterminate_static
 drawable key_background
 drawable key_background_accent
+drawable key_pill_accent
+drawable key_pill_background
+drawable key_preview_bubble_bg
 drawable keyboard_rounded_bg
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
@@ -3009,6 +3012,7 @@ drawable material_ic_keyboard_arrow_previous_black_24dp
 drawable material_ic_keyboard_arrow_right_black_24dp
 drawable material_ic_menu_arrow_down_black_24dp
 drawable material_ic_menu_arrow_up_black_24dp
+drawable more_menu_card_bg
 drawable mtrl_bottomsheet_drag_handle
 drawable mtrl_checkbox_button
 drawable mtrl_checkbox_button_checked_unchecked
@@ -3176,6 +3180,9 @@ id btn_emoji_back_abc
 id btn_emoji_backspace
 id btn_emoji_clear_search
 id btn_emoji_space
+id btn_emoji_to_gif
+id btn_gif_back_abc
+id btn_gif_clear_search
 id btn_keyboard_dismiss
 id btn_mic_toolbar
 id btn_more_dots
@@ -3293,6 +3300,12 @@ id fragment_container_view_tag
 id fullscreen_header
 id ghost_view
 id ghost_view_holder
+id gif_categories_container
+id gif_categories_scroll
+id gif_container
+id gif_grid_container
+id gif_scroll_view
+id gif_search_input
 id gone
 id graph
 id graph_wrap
@@ -3331,6 +3344,7 @@ id italic
 id item_touch_helper_previous_elevation
 id jumpToEnd
 id jumpToStart
+id key_preview_bubble
 id keyboard_bg_image
 id keyboard_bg_overlay
 id keyboard_bottom_dismiss_bar
@@ -3384,8 +3398,7 @@ id month_title
 id more_grid_container
 id more_grid_scroll
 id more_menu_container
-id more_row_1
-id more_row_2
+id more_quick_bar
 id more_subpanel_container
 id motion_base
 id mtrl_anchor_parent
@@ -3426,6 +3439,8 @@ id normal
 id notification_background
 id notification_main_column
 id notification_main_column_container
+id num_icon_backspace
+id num_icon_enter
 id num_key_0
 id num_key_1
 id num_key_2
@@ -3438,9 +3453,17 @@ id num_key_8
 id num_key_9
 id num_key_abc
 id num_key_backspace
+id num_key_comma
+id num_key_div
+id num_key_dot
 id num_key_enter
+id num_key_equal
+id num_key_minus
+id num_key_mul
+id num_key_percent
 id num_key_plus
 id num_key_space
+id num_key_sym
 id num_pad_container
 id number_row_container
 id off
@@ -3495,6 +3518,8 @@ id save_overlay_view
 id sawtooth
 id scale
 id screen
+id screenshot_chip_container
+id screenshot_chip_thumbnail
 id scroll
 id scrollIndicatorDown
 id scrollIndicatorUp

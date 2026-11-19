@@ -68,7 +68,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:layout_marginEnd="6dp">
@@ -104,7 +104,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:layout_marginEnd="6dp">
@@ -140,7 +140,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:layout_marginEnd="6dp">
@@ -176,7 +176,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:layout_marginEnd="6dp">
@@ -212,7 +212,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp">
 
@@ -256,7 +256,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:layout_marginEnd="6dp">
@@ -292,7 +292,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:layout_marginEnd="6dp">
@@ -328,7 +328,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp">
 
@@ -497,6 +497,39 @@
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp">
 
+                <!-- RECENT SCREENSHOT CHIP (Shown for ~5 seconds when screenshot was taken recently) -->
+                <LinearLayout
+                    android:id="@+id/screenshot_chip_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/key_pill_accent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/screenshot_chip_thumbnail"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:scaleType="centerCrop"
+                        android:background="#33FFFFFF"
+                        android:contentDescription="Screenshot Thumbnail" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Recent screenshot"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
                 <!-- Suggestion 1 (Leftmost / Original typed text) -->
                 <TextView
                     android:id="@+id/suggestion_1"
@@ -515,7 +548,7 @@
                     android:layout_marginStart="1dp"
                     android:layout_marginEnd="2dp"
                     android:clickable="true"
-                    android:focusable="true" />
+                    android:focusable="false" android:focusableInTouchMode="false" />
 
                 <!-- Suggestion 2 -->
                 <TextView
@@ -534,7 +567,7 @@
                     android:paddingEnd="4dp"
                     android:layout_marginEnd="2dp"
                     android:clickable="true"
-                    android:focusable="true" />
+                    android:focusable="false" android:focusableInTouchMode="false" />
 
                 <!-- Suggestion 3 (CENTER BEST PREDICTION / PRIMARY CORRECTION) -->
                 <TextView
@@ -554,7 +587,7 @@
                     android:paddingEnd="6dp"
                     android:layout_marginEnd="2dp"
                     android:clickable="true"
-                    android:focusable="true" />
+                    android:focusable="false" android:focusableInTouchMode="false" />
 
                 <!-- Suggestion 4 -->
                 <TextView
@@ -573,7 +606,7 @@
                     android:paddingEnd="4dp"
                     android:layout_marginEnd="2dp"
                     android:clickable="true"
-                    android:focusable="true" />
+                    android:focusable="false" android:focusableInTouchMode="false" />
 
                 <!-- Suggestion 5 -->
                 <TextView
@@ -592,7 +625,7 @@
                     android:paddingEnd="4dp"
                     android:layout_marginEnd="1dp"
                     android:clickable="true"
-                    android:focusable="true" />
+                    android:focusable="false" android:focusableInTouchMode="false" />
 
             </LinearLayout>
         </HorizontalScrollView>
@@ -609,9 +642,9 @@
             android:layout_height="36dp"
             android:orientation="horizontal"
             android:gravity="center"
-            android:paddingStart="1dp"
-            android:paddingEnd="1dp"
-            android:layout_marginBottom="3dp">
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:layout_marginBottom="2dp">
 
             <!-- 1 -->
             <FrameLayout
@@ -619,29 +652,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="1"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="!"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 2 -->
@@ -650,29 +672,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="2"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="&#64;"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 3 -->
@@ -681,29 +692,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="3"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="#"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 4 -->
@@ -712,29 +712,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="4"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="$"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 5 -->
@@ -743,29 +732,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="5"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="%"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 6 -->
@@ -774,29 +752,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="6"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="^"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 7 -->
@@ -805,29 +772,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="7"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="&amp;"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 8 -->
@@ -836,29 +792,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="8"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="*"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 9 -->
@@ -867,29 +812,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_9"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="9"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text="("
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
             <!-- 0 -->
@@ -898,29 +832,18 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/key_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="false" android:focusableInTouchMode="false">
                 <TextView
                     android:id="@+id/text_num_0"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="0"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="normal" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="1dp"
-                    android:text=")"
-                    android:textSize="8sp"
-                    android:textColor="#88FFFFFF" />
             </FrameLayout>
 
         </LinearLayout>
@@ -980,7 +903,7 @@
                     android:tint="#CCCCCC"
                     android:padding="2dp"
                     android:clickable="true"
-                    android:focusable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
                     android:visibility="gone" />
             </LinearLayout>
 
@@ -1037,6 +960,19 @@
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp" />
 
+                <Button
+                    android:id="@+id/btn_emoji_to_gif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="GIF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginStart="4dp" />
+
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="1dp"
@@ -1064,7 +1000,7 @@
                     android:layout_height="32dp"
                     android:background="@drawable/key_background"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="false" android:focusableInTouchMode="false">
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
@@ -1075,7 +1011,102 @@
         </LinearLayout>
 
         <!-- ========================================================================= -->
-        <!-- ROWS 3-6: CUSTOM KEYBOARD VIEW                                            -->
+        <!-- GIF KEYBOARD CONTAINER (Gboard GIF Search & Catalog)                      -->
+        <!-- ========================================================================= -->
+        <LinearLayout
+            android:id="@+id/gif_container"
+            android:layout_width="match_parent"
+            android:layout_height="265dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#121214">
+
+            <!-- Search Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="#1E1E22"
+                android:layout_margin="4dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_search"
+                    android:tint="#88FFFFFF" />
+
+                <EditText
+                    android:id="@+id/gif_search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Search GIFs..."
+                    android:textColorHint="#88FFFFFF"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:singleLine="true"
+                    android:inputType="textNoSuggestions" />
+
+                <ImageView
+                    android:id="@+id/btn_gif_clear_search"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:tint="#CCCCCC"
+                    android:padding="2dp"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_gif_back_abc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:text="ABC"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/key_background"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <!-- Categories Horizontal Scroll -->
+            <HorizontalScrollView
+                android:id="@+id/gif_categories_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:scrollbars="none">
+                <LinearLayout
+                    android:id="@+id/gif_categories_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp" />
+            </HorizontalScrollView>
+
+            <!-- Scrollable GIF Grid -->
+            <ScrollView
+                android:id="@+id/gif_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="3dp">
+                <LinearLayout
+                    android:id="@+id/gif_grid_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
         <!-- Row 3: QWERTY Row (Auto Capital starts with Q W E R T Y U I O P)           -->
         <!-- Row 4: ASDF Row                                                           -->
         <!-- Row 5: ZXCV Row [Shift ^] Z X C V B N M [Backspace X]                      -->
@@ -1093,245 +1124,403 @@
             android:shadowRadius="0" />
 
         <!-- ========================================================================= -->
-        <!-- NUM KEYPAD CONTAINER (Calculator Style, Big Keys)                         -->
+        <!-- NUM KEYPAD CONTAINER (Gboard Calculator Style matching Screenshot 2)       -->
         <!-- ========================================================================= -->
         <LinearLayout
             android:id="@+id/num_pad_container"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="265dp"
             android:orientation="vertical"
             android:visibility="gone"
-            android:padding="3dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="4dp">
 
-            <!-- Row 1: 1 2 3 -->
+            <!-- Top Grid: Left Rail (+ - * /) + Number Grid (1-9, %, space, backspace) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
-                <Button
-                    android:id="@+id/num_key_1"
+                android:layout_weight="3"
+                android:orientation="horizontal">
+
+                <!-- Left Operator Rail: + - * / -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="1"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_2"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/num_key_plus"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:text="+"
+                        android:textSize="22sp"
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/num_key_minus"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:text="-"
+                        android:textSize="22sp"
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/num_key_mul"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:text="*"
+                        android:textSize="22sp"
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/num_key_div"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:text="/"
+                        android:textSize="22sp"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <!-- Right Number Grid: 4 columns x 3 rows (Col 1: 1,4,7; Col 2: 2,5,8; Col 3: 3,6,9; Col 4: %,␣,⌫) -->
+                <!-- Total weight = 6 (4 columns of 1.5 each, matching 1.0 + 4*1.5 = 7.0 total width!) -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="2"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_3"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="3"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+                    android:layout_weight="6"
+                    android:orientation="vertical">
+
+                    <!-- Row 1: 1 2 3 % -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/num_key_1"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="1"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_2"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="2"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_3"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="3"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_percent"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="%"
+                            android:textSize="22sp"
+                            android:textColor="#FFFFFF" />
+                    </LinearLayout>
+
+                    <!-- Row 2: 4 5 6 ␣ -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/num_key_4"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="4"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_5"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="5"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_6"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="6"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_space"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="␣"
+                            android:textSize="22sp"
+                            android:textColor="#FFFFFF" />
+                    </LinearLayout>
+
+                    <!-- Row 3: 7 8 9 ⌫ -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/num_key_7"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="7"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_8"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="8"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/num_key_9"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:text="9"
+                            android:textSize="26sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#FFFFFF" />
+
+                        <FrameLayout
+                            android:id="@+id/num_key_backspace"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="false" android:focusableInTouchMode="false">
+                            <ImageView
+                                android:id="@+id/num_icon_backspace"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_backspace" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- Row 2: 4 5 6 -->
+            <!-- Bottom Row: [ABC Pill] [,] [!?#] [0] [=] [.] [↵ Blue Pill] -->
+            <!-- Total weight = 1.0 + 0.7 + 0.8 + 1.5 + 0.75 + 0.75 + 1.5 = 7.0 ! PERFECT GRID ALIGNMENT -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
-                <Button
-                    android:id="@+id/num_key_4"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="4"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_5"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="5"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_6"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="6"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp">
 
-            <!-- Row 3: 7 8 9 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
-                <Button
-                    android:id="@+id/num_key_7"
+                <!-- ABC Pill Button -->
+                <TextView
+                    android:id="@+id/num_key_abc"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="40dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="7"
-                    android:textSize="22sp"
+                    android:gravity="center"
+                    android:background="@drawable/key_pill_background"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="ABC"
+                    android:textSize="13sp"
                     android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_8"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="8"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_9"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="9"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    android:textStyle="bold"
+                    android:layout_marginEnd="3dp" />
 
-            <!-- Row 4: + 0 Backspace -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
-                <Button
-                    android:id="@+id/num_key_plus"
+                <!-- Comma -->
+                <TextView
+                    android:id="@+id/num_key_comma"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="+"
+                    android:layout_weight="0.7"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text=","
                     android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
+                    android:textColor="#FFFFFF" />
+
+                <!-- !?# Symbols -->
+                <TextView
+                    android:id="@+id/num_key_sym"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.8"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="!?#"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF" />
+
+                <!-- 0 (Directly under 2, 5, 8!) -->
+                <TextView
                     android:id="@+id/num_key_0"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="0"
-                    android:textSize="22sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <FrameLayout
-                    android:id="@+id/num_key_backspace"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
+                    android:layout_weight="1.5"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
-                    android:focusable="true">
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_backspace" />
-                </FrameLayout>
-            </LinearLayout>
-
-            <!-- Row 5: [ABC] [SPACE] [Enter] -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/num_key_abc"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.2"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="ABC"
-                    android:textSize="14sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/num_key_space"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.8"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background"
-                    android:text="SPACE"
-                    android:textSize="13sp"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="0"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
                     android:textColor="#FFFFFF" />
+
+                <!-- = (Directly under 3, 6, 9 with period) -->
+                <TextView
+                    android:id="@+id/num_key_equal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.75"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="="
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
+
+                <!-- . -->
+                <TextView
+                    android:id="@+id/num_key_dot"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.75"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="."
+                    android:textSize="24sp"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Enter Blue Pill Button -->
                 <FrameLayout
                     android:id="@+id/num_key_enter"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.2"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/key_background_accent"
+                    android:layout_height="40dp"
+                    android:layout_weight="1.5"
+                    android:background="@drawable/key_pill_accent"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:layout_marginStart="3dp">
                     <ImageView
+                        android:id="@+id/num_icon_enter"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_enter" />
                 </FrameLayout>
+
             </LinearLayout>
         </LinearLayout>
 
@@ -1440,79 +1629,74 @@
         </LinearLayout>
 
         <!-- ========================================================================= -->
-        <!-- MORE MENU CONTAINER (All 14 functional options)                          -->
+        <!-- MORE MENU CONTAINER (Gboard Card Grid matching Screenshot 2)              -->
         <!-- ========================================================================= -->
         <LinearLayout
             android:id="@+id/more_menu_container"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="265dp"
             android:orientation="vertical"
             android:visibility="gone"
-            android:background="#121214"
-            android:padding="3dp">
+            android:background="#1B1E22"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
 
-            <!-- Header -->
+            <!-- Top Header Bar with Close (X) and Quick Action Icons -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="40dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp">
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="⚡ More Features"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF" />
-
-                <Button
+                <!-- Close X / Back Button -->
+                <FrameLayout
                     android:id="@+id/btn_more_menu_close"
-                    android:layout_width="wrap_content"
-                    android:layout_height="26dp"
-                    android:text="ABC"
-                    android:textSize="11sp"
-                    android:textColor="#FFFFFF"
-                    android:background="@drawable/key_background"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp" />
+                    android:layout_width="38dp"
+                    android:layout_height="34dp"
+                    android:background="@drawable/key_pill_background"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:tint="#FFFFFF" />
+                </FrameLayout>
+
+                <!-- Quick Icon Strip -->
+                <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:scrollbars="none"
+                    android:layout_marginStart="6dp">
+                    <LinearLayout
+                        android:id="@+id/more_quick_bar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical" />
+                </HorizontalScrollView>
             </LinearLayout>
 
-            <!-- Scrollable 2-Row Grid of Actions -->
-            <HorizontalScrollView
+            <!-- 2-Column Vertical Scrollable Grid of Cards -->
+            <ScrollView
                 android:id="@+id/more_grid_scroll"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:paddingTop="4dp"
                 android:scrollbars="none">
 
                 <LinearLayout
                     android:id="@+id/more_grid_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center_vertical"
-                    android:padding="2dp">
-
-                    <!-- Row 1 -->
-                    <LinearLayout
-                        android:id="@+id/more_row_1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="6dp" />
-
-                    <!-- Row 2 -->
-                    <LinearLayout
-                        android:id="@+id/more_row_2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" />
-                </LinearLayout>
-            </HorizontalScrollView>
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
 
             <!-- Subpanel for Cursor or Language or Themes options -->
             <LinearLayout
@@ -1546,7 +1730,7 @@
                 android:layout_width="48dp"
                 android:layout_height="32dp"
                 android:clickable="true"
-                android:focusable="true"
+                android:focusable="false" android:focusableInTouchMode="false"
                 android:contentDescription="Dismiss Keyboard">
 
                 <ImageView
@@ -1569,7 +1753,7 @@
                 android:layout_width="48dp"
                 android:layout_height="32dp"
                 android:clickable="true"
-                android:focusable="true"
+                android:focusable="false" android:focusableInTouchMode="false"
                 android:contentDescription="Switch Keyboard">
 
                 <ImageView
@@ -1583,4 +1767,19 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- FLOATING KEY PRESS POPUP / PREVIEW BUBBLE (~0.25s) -->
+    <TextView
+        android:id="@+id/key_preview_bubble"
+        android:layout_width="54dp"
+        android:layout_height="62dp"
+        android:gravity="top|center_horizontal"
+        android:paddingTop="6dp"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:background="@drawable/key_preview_bubble_bg"
+        android:visibility="gone"
+        android:elevation="24dp" />
+
 </com.cleverkeyboard.app.keyboard.KeyboardContainerLayout>

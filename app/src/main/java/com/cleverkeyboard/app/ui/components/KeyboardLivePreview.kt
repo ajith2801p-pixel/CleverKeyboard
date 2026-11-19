@@ -257,18 +257,23 @@ fun KeyboardLivePreview(
             }
 
             // =========================================================================
-            // ROW 3: QWERTY Row (Auto Capital starts with Q W E R T Y U I O P)
             // =========================================================================
-            val row1 = listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P")
+            // ROW 3: QWERTY Row (with secondary symbols %, ', |, =, [, ], <, >, {, })
+            // =========================================================================
+            val row1 = listOf(
+                "Q" to "%", "W" to "'", "E" to "|", "R" to "=", "T" to "[",
+                "Y" to "]", "U" to "<", "I" to ">", "O" to "{", "P" to "}"
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                row1.forEach { letter ->
+                row1.forEach { (letter, sec) ->
                     PreviewKey(
                         label = letter,
+                        secondary = sec,
                         keyBg = keyBg,
                         keyText = keyText,
                         hasBorder = bordersActive,
@@ -280,18 +285,22 @@ fun KeyboardLivePreview(
             }
 
             // =========================================================================
-            // ROW 4: ASDF Row (Centered)
+            // ROW 4: ASDF Row (with secondary symbols @, #, ₹, _, &, -, +, (, ))
             // =========================================================================
-            val row2 = listOf("A", "S", "D", "F", "G", "H", "J", "K", "L")
+            val row2 = listOf(
+                "A" to "@", "S" to "#", "D" to "₹", "F" to "_", "G" to "&",
+                "H" to "-", "J" to "+", "K" to "(", "L" to ")"
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.dp, horizontal = 14.dp),
+                    .padding(vertical = 2.dp, horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                row2.forEach { letter ->
+                row2.forEach { (letter, sec) ->
                     PreviewKey(
                         label = letter,
+                        secondary = sec,
                         keyBg = keyBg,
                         keyText = keyText,
                         hasBorder = bordersActive,
@@ -305,7 +314,10 @@ fun KeyboardLivePreview(
             // =========================================================================
             // ROW 5: ZXCV Row [Shift ^] Z X C V B N M [Backspace X]
             // =========================================================================
-            val row3 = listOf("Z", "X", "C", "V", "B", "N", "M")
+            val row3 = listOf(
+                "Z" to "*", "X" to "\"", "C" to "'", "V" to ":", "B" to ";",
+                "N" to "!", "M" to "?"
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -324,9 +336,10 @@ fun KeyboardLivePreview(
                     isBold = true
                 )
 
-                row3.forEach { letter ->
+                row3.forEach { (letter, sec) ->
                     PreviewKey(
                         label = letter,
+                        secondary = sec,
                         keyBg = keyBg,
                         keyText = keyText,
                         hasBorder = bordersActive,
@@ -350,7 +363,7 @@ fun KeyboardLivePreview(
             }
 
             // =========================================================================
-            // ROW 6: Bottom Row [?123] [,] [Globe] [SPACE] [.] [Search Blue Button]
+            // ROW 6: Bottom Row [?123 Pill] [,] [😃] [SPACE Active Language] [.] [↵ Blue Pill]
             // =========================================================================
             Row(
                 modifier = Modifier
@@ -358,19 +371,20 @@ fun KeyboardLivePreview(
                     .padding(vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                // ?123
+                // ?123 (Pill)
                 PreviewKey(
                     label = "?123",
-                    keyBg = fnKeyBg,
+                    keyBg = Color(theme.keyBgColor).copy(alpha = 0.88f),
                     keyText = keyText,
-                    hasBorder = bordersActive,
-                    borderColor = borderColor,
-                    modifier = Modifier.weight(1.2f),
+                    hasBorder = false,
+                    borderColor = Color.Transparent,
+                    modifier = Modifier.weight(1.4f),
                     isFunctionKey = true,
-                    isBold = true
+                    isBold = true,
+                    isPill = true
                 )
 
-                // Comma
+                // Comma (flat)
                 PreviewKey(
                     label = ",",
                     keyBg = keyBg,
@@ -381,41 +395,41 @@ fun KeyboardLivePreview(
                     modifier = Modifier.weight(0.8f)
                 )
 
-                // Globe
+                // 😃 Emoji (flat)
                 PreviewKey(
-                    label = "🌐",
-                    keyBg = fnKeyBg,
+                    label = "😃",
+                    keyBg = keyBg,
                     keyText = keyText,
                     hasBorder = bordersActive,
                     borderColor = borderColor,
-                    modifier = Modifier.weight(1.0f),
+                    modifier = Modifier.weight(0.9f),
                     isFunctionKey = true,
                     isBold = true
                 )
 
-                // Spacebar ("English (India)")
+                // Spacebar (Active Language Pill)
                 Box(
                     modifier = Modifier
-                        .weight(5.0f)
+                        .weight(4.7f)
                         .height(34.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(keyBg)
+                        .clip(RoundedCornerShape(17.dp))
+                        .background(Color(theme.keyBgColor).copy(alpha = 0.88f))
                         .border(
                             if (bordersActive) 1.dp else 0.dp,
                             if (bordersActive) borderColor else Color.Transparent,
-                            RoundedCornerShape(8.dp)
+                            RoundedCornerShape(17.dp)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "English (India)",
+                        text = "English",
                         color = keyText,
                         fontSize = 11.sp,
                         fontWeight = if (isPhotoTheme || !bordersActive) FontWeight.Bold else FontWeight.Normal
                     )
                 }
 
-                // Period
+                // Period (flat)
                 PreviewKey(
                     label = ".",
                     keyBg = keyBg,
@@ -426,16 +440,17 @@ fun KeyboardLivePreview(
                     modifier = Modifier.weight(0.8f)
                 )
 
-                // Search / Enter Button
+                // Enter Button (Blue Pill)
                 PreviewKey(
-                    label = "🔍",
+                    label = "↵",
                     keyBg = accentColor,
                     keyText = if (KeyboardTheme.isColorLight(theme.accentColor)) Color.Black else Color.White,
                     hasBorder = false,
                     borderColor = Color.Transparent,
-                    modifier = Modifier.weight(1.2f),
+                    modifier = Modifier.weight(1.4f),
                     isFunctionKey = true,
-                    isBold = true
+                    isBold = true,
+                    isPill = true
                 )
             }
 
@@ -502,6 +517,7 @@ private fun PreviewSuggestionChip(
 @Composable
 private fun PreviewKey(
     label: String,
+    secondary: String? = null,
     keyBg: Color,
     keyText: Color,
     modifier: Modifier = Modifier,
@@ -509,12 +525,14 @@ private fun PreviewKey(
     borderColor: Color = Color.White.copy(alpha = 0.15f),
     isFunctionKey: Boolean = false,
     isBold: Boolean = false,
+    isPill: Boolean = false,
     keyShape: String = KeyboardTheme.KEY_SHAPE_ROUNDED
 ) {
-    val corner = when (keyShape) {
-        KeyboardTheme.KEY_SHAPE_SQUARE -> 2.dp
-        KeyboardTheme.KEY_SHAPE_SUPER_ROUNDED -> 13.dp
-        KeyboardTheme.KEY_SHAPE_PILL -> 24.dp
+    val corner = when {
+        isPill -> 17.dp
+        keyShape == KeyboardTheme.KEY_SHAPE_SQUARE -> 2.dp
+        keyShape == KeyboardTheme.KEY_SHAPE_SUPER_ROUNDED -> 13.dp
+        keyShape == KeyboardTheme.KEY_SHAPE_PILL -> 24.dp
         else -> 8.dp
     }
     Box(
@@ -529,6 +547,17 @@ private fun PreviewKey(
             ),
         contentAlignment = Alignment.Center
     ) {
+        if (!secondary.isNullOrBlank()) {
+            Text(
+                text = secondary,
+                color = keyText.copy(alpha = 0.45f),
+                fontSize = 7.5.sp,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 1.dp, end = 2.dp)
+            )
+        }
         Text(
             text = label,
             color = keyText,

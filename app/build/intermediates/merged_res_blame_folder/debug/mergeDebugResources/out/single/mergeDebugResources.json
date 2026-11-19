@@ -4,6 +4,10 @@
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/xml/tamil.xml"
     },
     {
+        "merged": "com.cleverkeyboard.app-debug-65:/xml_tamil_shift.xml.flat",
+        "source": "com.cleverkeyboard.app-main-67:/xml/tamil_shift.xml"
+    },
+    {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_num_pad.xml.flat",
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_num_pad.xml"
     },
@@ -84,6 +88,14 @@
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/key_background.xml"
     },
     {
+        "merged": "com.cleverkeyboard.app-debug-65:/xml_symbols_shift.xml.flat",
+        "source": "com.cleverkeyboard.app-main-67:/xml/symbols_shift.xml"
+    },
+    {
+        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_more_menu_card_bg.xml.flat",
+        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/more_menu_card_bg.xml"
+    },
+    {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_emoji.xml.flat",
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_emoji.xml"
     },
@@ -132,16 +144,32 @@
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/xml/qwerty.xml"
     },
     {
+        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_key_pill_background.xml.flat",
+        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/key_pill_background.xml"
+    },
+    {
+        "merged": "com.cleverkeyboard.app-debug-65:/xml_symbols.xml.flat",
+        "source": "com.cleverkeyboard.app-main-67:/xml/symbols.xml"
+    },
+    {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_one_handed.xml.flat",
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_one_handed.xml"
     },
     {
-        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_cursor.xml.flat",
-        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_cursor.xml"
+        "merged": "com.cleverkeyboard.app-debug-65:/xml_qwerty.xml.flat",
+        "source": "com.cleverkeyboard.app-main-67:/xml/qwerty.xml"
     },
     {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_cut.xml.flat",
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_cut.xml"
+    },
+    {
+        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_key_preview_bubble_bg.xml.flat",
+        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/key_preview_bubble_bg.xml"
+    },
+    {
+        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_cursor.xml.flat",
+        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_cursor.xml"
     },
     {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/xml_symbols.xml.flat",
@@ -164,6 +192,10 @@
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_copy.xml"
     },
     {
+        "merged": "com.cleverkeyboard.app-debug-65:/xml_tamil.xml.flat",
+        "source": "com.cleverkeyboard.app-main-67:/xml/tamil.xml"
+    },
+    {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_translate.xml.flat",
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_translate.xml"
     },
@@ -182,6 +214,10 @@
     {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_redo.xml.flat",
         "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/ic_redo.xml"
+    },
+    {
+        "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_key_pill_accent.xml.flat",
+        "source": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-main-67:/drawable/key_pill_accent.xml"
     },
     {
         "merged": "/Users/ajith/.gradle/daemon/8.6/com.cleverkeyboard.app-debug-65:/drawable_ic_palette.xml.flat",

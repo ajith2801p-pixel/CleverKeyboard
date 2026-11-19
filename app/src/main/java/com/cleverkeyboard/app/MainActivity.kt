@@ -122,9 +122,16 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
 
     // Android Hardware/System Navigation Back Button Handling:
     // If inside a sub-page, back press goes back to root menu without exiting the app.
-    // If at root menu, back press exits the app naturally.
-    BackHandler(enabled = currentSubPage != null) {
-        currentSubPage = null
+    // If on Themes tab (page 1), back press smoothly scrolls back to Settings (page 0).
+    // Only when on Settings root does back press exit the app naturally.
+    BackHandler(enabled = currentSubPage != null || pagerState.currentPage != 0) {
+        if (currentSubPage != null) {
+            currentSubPage = null
+        } else if (pagerState.currentPage != 0) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(0)
+            }
+        }
     }
 
     // Photo Picker Launcher
@@ -207,52 +214,49 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
-                                        .size(42.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(
-                                            Brush.linearGradient(
-                                                listOf(ModernCyan, ModernBlue)
-                                            )
-                                        )
-                                        .shadow(8.dp, RoundedCornerShape(12.dp), spotColor = ModernCyan),
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(Color(0xFF181818))
+                                        .border(1.dp, Color(0xFF2A2A2A), RoundedCornerShape(10.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text("✨", fontSize = 20.sp)
+                                    Text("⌨️", fontSize = 18.sp)
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
                                     Text(
                                         text = "CleverKeyboard",
-                                        fontSize = 20.sp,
+                                        fontSize = 19.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
                                     )
                                     Text(
-                                        text = "AI Keyboard • Voice • Themes",
+                                        text = "AI Keyboard • Voice • Multilingual",
                                         fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = ModernCyan
+                                        fontWeight = FontWeight.Normal,
+                                        color = TextSecondary
                                     )
                                 }
                             }
 
-                            // 👑 Pro Badge
+                            // Minimal Monochrome PRO Badge
                             Surface(
-                                shape = RoundedCornerShape(20.dp),
-                                color = ModernGold.copy(alpha = 0.20f),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, ModernGold)
+                                shape = RoundedCornerShape(14.dp),
+                                color = Color(0xFF181818),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF333333))
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text("👑", fontSize = 12.sp)
+                                    Text("✦", fontSize = 10.sp, color = Color.White)
                                     Text(
-                                        text = "Pro",
-                                        color = ModernGold,
+                                        text = "PRO",
+                                        color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp
+                                        fontSize = 11.sp,
+                                        letterSpacing = 0.5.sp
                                     )
                                 }
                             }
@@ -260,15 +264,14 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Navigation Pills: [ ⚙️ Settings ] and [ 🎨 Themes ]
-                        // Tapping either slides smoothly to that page
+                        // Minimalist Black & White Navigation Pills: [ Settings ] and [ Themes ]
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(46.dp)
-                                .clip(RoundedCornerShape(23.dp))
-                                .background(Color(0xFF0C1824))
-                                .border(1.dp, ModernCardStroke, RoundedCornerShape(23.dp))
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(Color(0xFF121212))
+                                .border(1.dp, Color(0xFF242424), RoundedCornerShape(22.dp))
                                 .padding(3.dp),
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
@@ -277,16 +280,10 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clip(RoundedCornerShape(20.dp))
+                                    .clip(RoundedCornerShape(19.dp))
                                     .then(
                                         if (pagerState.currentPage == 0) {
-                                            Modifier
-                                                .background(
-                                                    Brush.horizontalGradient(
-                                                        listOf(ModernCyan, ModernBlue)
-                                                    )
-                                                )
-                                                .shadow(6.dp, RoundedCornerShape(20.dp), spotColor = ModernCyan)
+                                            Modifier.background(Color.White)
                                         } else {
                                             Modifier.clickable {
                                                 coroutineScope.launch {
@@ -301,12 +298,15 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Text("⚙️", fontSize = 14.sp)
+                                    Text(
+                                        text = "⚙️",
+                                        fontSize = 13.sp
+                                    )
                                     Text(
                                         text = "Settings",
-                                        fontSize = 14.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (pagerState.currentPage == 0) Color.White else TextSecondary
+                                        color = if (pagerState.currentPage == 0) Color.Black else TextSecondary
                                     )
                                 }
                             }
@@ -316,16 +316,10 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clip(RoundedCornerShape(20.dp))
+                                    .clip(RoundedCornerShape(19.dp))
                                     .then(
                                         if (pagerState.currentPage == 1) {
-                                            Modifier
-                                                .background(
-                                                    Brush.horizontalGradient(
-                                                        listOf(ModernCyan, ModernBlue)
-                                                    )
-                                                )
-                                                .shadow(6.dp, RoundedCornerShape(20.dp), spotColor = ModernCyan)
+                                            Modifier.background(Color.White)
                                         } else {
                                             Modifier.clickable {
                                                 coroutineScope.launch {
@@ -340,12 +334,15 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Text("🎨", fontSize = 14.sp)
+                                    Text(
+                                        text = "🎨",
+                                        fontSize = 13.sp
+                                    )
                                     Text(
                                         text = "Themes",
-                                        fontSize = 14.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (pagerState.currentPage == 1) Color.White else TextSecondary
+                                        color = if (pagerState.currentPage == 1) Color.Black else TextSecondary
                                     )
                                 }
                             }
@@ -679,14 +676,14 @@ fun TypingAndInputSubPage(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             color = Color.Transparent,
-            border = androidx.compose.foundation.BorderStroke(1.dp, ModernCyan.copy(alpha = 0.4f))
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF282828))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         Brush.linearGradient(
-                            listOf(Color(0xFF0F2B48), Color(0xFF091827))
+                            listOf(Color(0xFF161616), Color(0xFF0F0F0F))
                         )
                     )
                     .padding(20.dp)
@@ -696,12 +693,8 @@ fun TypingAndInputSubPage(
                         modifier = Modifier
                             .size(56.dp)
                             .clip(RoundedCornerShape(14.dp))
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(ModernCyan, ModernBlue)
-                                )
-                            )
-                            .shadow(12.dp, RoundedCornerShape(14.dp), spotColor = ModernCyan),
+                            .background(Color(0xFF222222))
+                            .border(1.dp, Color(0xFF333333), RoundedCornerShape(14.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("A", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
@@ -879,10 +872,10 @@ fun ModernToggleRow(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = ModernCyan,
-                uncheckedTrackColor = Color(0xFF1E2E3E),
-                uncheckedThumbColor = Color.LightGray
+                checkedThumbColor = Color.Black,
+                checkedTrackColor = Color.White,
+                uncheckedTrackColor = Color(0xFF262626),
+                uncheckedThumbColor = Color(0xFF737373)
             )
         )
     }
@@ -965,13 +958,7 @@ fun ThemesScreen(
                         .clip(RoundedCornerShape(18.dp))
                         .then(
                             if (isSelected) {
-                                Modifier
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            listOf(ModernCyan, ModernBlue)
-                                        )
-                                    )
-                                    .shadow(6.dp, RoundedCornerShape(18.dp), spotColor = ModernCyan)
+                                Modifier.background(Color.White)
                             } else {
                                 Modifier
                                     .background(ModernCardBg)
@@ -986,7 +973,7 @@ fun ThemesScreen(
                         text = catLabel,
                         fontSize = 12.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) Color.White else TextSecondary
+                        color = if (isSelected) Color.Black else TextSecondary
                     )
                 }
             }
@@ -1063,7 +1050,7 @@ fun ThemesScreen(
                             val isSel = uiState.keyBordersMode == bMode
                             Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                color = if (isSel) ModernCyan else Color(0xFF162534),
+                                color = if (isSel) Color.White else Color(0xFF1C1C1C),
                                 border = if (isSel) null else androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke),
                                 modifier = Modifier.clickable { viewModel.setKeyBordersMode(bMode) }
                             ) {
@@ -1120,10 +1107,10 @@ fun ThemesScreen(
                             }
                             Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                color = if (isSel) ModernCyan.copy(alpha = 0.25f) else Color(0xFF162534),
+                                color = if (isSel) Color(0xFF2C2C2C) else Color(0xFF181818),
                                 border = androidx.compose.foundation.BorderStroke(
-                                    if (isSel) 2.dp else 1.dp,
-                                    if (isSel) ModernCyan else ModernCardStroke
+                                    if (isSel) 1.5.dp else 1.dp,
+                                    if (isSel) Color.White else ModernCardStroke
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -1138,13 +1125,13 @@ fun ThemesScreen(
                                         modifier = Modifier
                                             .size(24.dp, 18.dp)
                                             .clip(shapeRadius)
-                                            .background(if (isSel) ModernCyan else TextSecondary.copy(alpha = 0.5f))
+                                            .background(if (isSel) Color.White else TextSecondary.copy(alpha = 0.5f))
                                     )
                                     Text(
                                         text = shapeLabel,
                                         fontSize = 10.sp,
                                         fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSel) ModernCyan else Color.White
+                                        color = if (isSel) Color.White else TextSecondary
                                     )
                                 }
                             }
@@ -1176,9 +1163,9 @@ fun ThemesScreen(
                         valueRange = 80f..120f,
                         steps = 7,
                         colors = SliderDefaults.colors(
-                            thumbColor = ModernCyan,
-                            activeTrackColor = ModernCyan,
-                            inactiveTrackColor = Color(0xFF162534)
+                            thumbColor = Color.White,
+                            activeTrackColor = Color.White,
+                            inactiveTrackColor = Color(0xFF262626)
                         )
                     )
                 }
@@ -1744,7 +1731,7 @@ fun KeyboardSetupSubPage(
                             context.startActivity(intent)
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (uiState.isKeyboardEnabled) Color(0xFF162534) else ModernCyan
+                            containerColor = if (uiState.isKeyboardEnabled) Color(0xFF222222) else Color.White
                         ),
                         shape = RoundedCornerShape(10.dp)
                     ) {
@@ -1777,13 +1764,13 @@ fun KeyboardSetupSubPage(
                             imm?.showInputMethodPicker()
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (uiState.isKeyboardSelected) Color(0xFF162534) else ModernBlue
+                            containerColor = if (uiState.isKeyboardSelected) Color(0xFF222222) else Color.White
                         ),
                         shape = RoundedCornerShape(10.dp)
                     ) {
                         Text(
                             text = if (uiState.isKeyboardSelected) "Switch" else "Select",
-                            color = Color.White
+                            color = if (uiState.isKeyboardSelected) Color.White else Color.Black
                         )
                     }
                 }
@@ -1943,6 +1930,129 @@ fun AiFeaturesSubPage(
                 )
             }
         }
+
+        // AI Typing Intelligence Engine Card
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            color = ModernCardBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "AI Typing Intelligence Engine",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Context-aware predictions, personal dictionary, grammar and Tanglish intelligence",
+                    fontSize = 12.sp,
+                    color = TextSecondary
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                ModernToggleRow(
+                    icon = "🧠",
+                    title = "Context-Aware Prediction",
+                    subtitle = "Analyzes sentence context for accurate next-word suggestions",
+                    checked = uiState.isContextPredictionEnabled,
+                    onCheckedChange = { viewModel.toggleContextPrediction(it) }
+                )
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
+
+                ModernToggleRow(
+                    icon = "📖",
+                    title = "Personalized Vocabulary Learning",
+                    subtitle = "Learns names, slang, and frequent terms (excluding passwords/sensitive fields)",
+                    checked = uiState.isPersonalizedLearningEnabled,
+                    onCheckedChange = { viewModel.togglePersonalizedLearning(it) }
+                )
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
+
+                ModernToggleRow(
+                    icon = "✍️",
+                    title = "Real-Time Grammar Correction",
+                    subtitle = "Instantly highlights and suggests fixes for grammar and punctuation",
+                    checked = uiState.isGrammarCheckEnabled,
+                    onCheckedChange = { viewModel.toggleGrammarCheck(it) }
+                )
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
+
+                ModernToggleRow(
+                    icon = "⚡",
+                    title = "AI Sentence Completion",
+                    subtitle = "Offers full phrase & sentence completions for one-tap insertion",
+                    checked = uiState.isSentenceCompletionEnabled,
+                    onCheckedChange = { viewModel.toggleSentenceCompletion(it) }
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Tanglish Output Mode Selector
+                Text(
+                    text = "Tanglish Translation Output",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val modes = listOf(
+                        com.cleverkeyboard.app.intelligence.TanglishOutputMode.ENGLISH to "English",
+                        com.cleverkeyboard.app.intelligence.TanglishOutputMode.TAMIL to "தமிழ்",
+                        com.cleverkeyboard.app.intelligence.TanglishOutputMode.TANGLISH to "Tanglish"
+                    )
+                    for ((mode, label) in modes) {
+                        val isSelected = uiState.tanglishOutputMode == mode.name
+                        OutlinedButton(
+                            onClick = { viewModel.setTanglishOutputMode(mode) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                if (isSelected) Color.White else ModernCardStroke
+                            ),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (isSelected) Color.White.copy(alpha = 0.12f) else Color.Transparent
+                            )
+                        ) {
+                            Text(
+                                text = label,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) Color.White else TextSecondary
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Reset Learned Vocabulary Button
+                OutlinedButton(
+                    onClick = { viewModel.resetPersonalVocabulary() },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent)
+                ) {
+                    Text("Reset Learned Vocabulary", color = Color(0xFFFF5252), fontSize = 13.sp)
+                }
+
+                uiState.vocabularyResetMessage?.let { msg ->
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(msg, color = SuccessGreen, fontSize = 12.sp)
+                }
+            }
+        }
     }
 }
 
@@ -1982,7 +2092,7 @@ fun LayoutAndKeysSubPage(
                         val isSel = uiState.keyShape == shape
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (isSel) ModernCyan else Color(0xFF162534),
+                            color = if (isSel) Color.White else Color(0xFF1C1C1C),
                             border = if (isSel) null else androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke),
                             modifier = Modifier.weight(1f).clickable { viewModel.setKeyShape(shape) }
                         ) {
@@ -2023,7 +2133,7 @@ fun LayoutAndKeysSubPage(
                         val isSel = uiState.currentTheme.dismissButtonMode == mode
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (isSel) ModernCyan else Color(0xFF162534),
+                            color = if (isSel) Color.White else Color(0xFF1C1C1C),
                             border = if (isSel) null else androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke),
                             modifier = Modifier.weight(1f).clickable { viewModel.setDismissButtonMode(mode) }
                         ) {
@@ -2253,8 +2363,8 @@ fun LanguagesSubPage(
                         val isSelected = uiState.activeLanguage == code
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isSelected) ModernCyan.copy(alpha = 0.15f) else Color(0xFF141F2B),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) ModernCyan else ModernCardStroke),
+                            color = if (isSelected) Color(0xFF202020) else Color(0xFF141414),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color.White else ModernCardStroke),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { viewModel.setActiveLanguage(code) }
@@ -2265,7 +2375,7 @@ fun LanguagesSubPage(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(title, fontWeight = FontWeight.Bold, color = if (isSelected) ModernCyan else Color.White, fontSize = 14.sp)
+                                    Text(title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(desc, fontSize = 11.sp, color = TextSecondary)
                                 }
@@ -2274,7 +2384,7 @@ fun LanguagesSubPage(
                                         modifier = Modifier
                                             .size(24.dp)
                                             .clip(CircleShape)
-                                            .background(ModernCyan),
+                                            .background(Color.White),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text("✓", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -2427,7 +2537,7 @@ fun DictionarySubPage(context: Context) {
                 Text(wordOfTheDay.definition, fontSize = 13.sp, color = Color(0xFFE0E0E0), lineHeight = 18.sp)
                 if (wordOfTheDay.synonyms.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Synonyms: ${wordOfTheDay.synonyms.joinToString(", ")}", fontSize = 11.sp, color = Color(0xFF80D8FF))
+                    Text("Synonyms: ${wordOfTheDay.synonyms.joinToString(", ")}", fontSize = 11.sp, color = Color(0xFFD4D4D4))
                 }
                 if (wordOfTheDay.example.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -2508,7 +2618,7 @@ fun DictionarySubPage(context: Context) {
                             Text(def.definition, fontSize = 12.sp, color = Color(0xFFE0E0E0), lineHeight = 16.sp)
                             if (def.synonyms.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Synonyms: ${def.synonyms.joinToString(", ")}", fontSize = 11.sp, color = Color(0xFF80D8FF))
+                                Text("Synonyms: ${def.synonyms.joinToString(", ")}", fontSize = 11.sp, color = Color(0xFFD4D4D4))
                             }
                             if (def.example.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(4.dp))

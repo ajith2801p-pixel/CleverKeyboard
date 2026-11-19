@@ -6,54 +6,54 @@
     android:verticalGap="4dp">
 
     <!-- Row 1: Advanced math & programming symbols -->
-    <Row>
-        <Key android:codes="126" android:keyLabel="~" android:keyEdgeFlags="left" />
-        <Key android:codes="96"  android:keyLabel="`" />
-        <Key android:codes="124" android:keyLabel="|" />
-        <Key android:codes="94"  android:keyLabel="^" />
-        <Key android:codes="61"  android:keyLabel="=" />
-        <Key android:codes="123" android:keyLabel="{" />
-        <Key android:codes="125" android:keyLabel="}" />
-        <Key android:codes="91"  android:keyLabel="[" />
-        <Key android:codes="93"  android:keyLabel="]" />
-        <Key android:codes="92"  android:keyLabel="\\" android:keyEdgeFlags="right" />
-    </Row>
-
-    <!-- Row 2: Comparison & currency symbols -->
-    <Row>
-        <Key android:codes="60"  android:keyLabel="&lt;" android:keyEdgeFlags="left" />
-        <Key android:codes="62"  android:keyLabel="&gt;" />
-        <Key android:codes="163" android:keyLabel="£" />
-        <Key android:codes="8364" android:keyLabel="€" />
-        <Key android:codes="165" android:keyLabel="¥" />
-        <Key android:codes="8377" android:keyLabel="₹" />
-        <Key android:codes="176" android:keyLabel="°" />
-        <Key android:codes="169" android:keyLabel="©" />
-        <Key android:codes="174" android:keyLabel="®" />
-        <Key android:codes="177" android:keyLabel="±" android:keyEdgeFlags="right" />
-    </Row>
-
-    <!-- Row 3: Symbols toggle, punctuation, Delete -->
-    <Row>
-        <Key android:codes="-6"  android:keyLabel="@string/key_symbols_mode" android:keyWidth="15%p" android:keyEdgeFlags="left" />
-        <Key android:codes="161" android:keyLabel="¡" />
-        <Key android:codes="191" android:keyLabel="¿" />
-        <Key android:codes="171" android:keyLabel="«" />
-        <Key android:codes="187" android:keyLabel="»" />
+    <Row android:rowEdgeFlags="top">
+        <Key android:codes="126"  android:keyLabel="~" android:keyEdgeFlags="left" />
+        <Key android:codes="96"   android:keyLabel="`" />
+        <Key android:codes="124"  android:keyLabel="|" />
         <Key android:codes="8226" android:keyLabel="•" />
-        <Key android:codes="8230" android:keyLabel="…" />
-        <Key android:codes="95"  android:keyLabel="_" />
-        <Key android:codes="-5"  android:keyLabel="⌫" android:keyWidth="15%p" android:isRepeatable="true" android:keyEdgeFlags="right" />
+        <Key android:codes="8730" android:keyLabel="√" />
+        <Key android:codes="960"  android:keyLabel="π" />
+        <Key android:codes="247"  android:keyLabel="÷" />
+        <Key android:codes="215"  android:keyLabel="×" />
+        <Key android:codes="167"  android:keyLabel="§" />
+        <Key android:codes="916"  android:keyLabel="Δ" android:keyEdgeFlags="right" />
     </Row>
 
-    <!-- Row 4: ABC toggle, Num Pad, Globe, space, period, Enter -->
+    <!-- Row 2: Currency & brackets -->
+    <Row>
+        <Key android:codes="8364" android:keyLabel="€" android:keyEdgeFlags="left" />
+        <Key android:codes="165"  android:keyLabel="¥" />
+        <Key android:codes="36"   android:keyLabel="\$" />
+        <Key android:codes="162"  android:keyLabel="¢" />
+        <Key android:codes="94"   android:keyLabel="^" />
+        <Key android:codes="176"  android:keyLabel="°" />
+        <Key android:codes="61"   android:keyLabel="=" />
+        <Key android:codes="123"  android:keyLabel="{" />
+        <Key android:codes="125"  android:keyLabel="}" />
+        <Key android:codes="92"   android:keyLabel="\\" android:keyEdgeFlags="right" />
+    </Row>
+
+    <!-- Row 3: ?123 toggle, symbols, Delete -->
+    <Row>
+        <Key android:codes="-6"   android:keyLabel="@string/key_symbols_mode" android:keyWidth="15%p" android:keyEdgeFlags="left" />
+        <Key android:codes="37"   android:keyLabel="%" />
+        <Key android:codes="169"  android:keyLabel="©" />
+        <Key android:codes="174"  android:keyLabel="®" />
+        <Key android:codes="8482" android:keyLabel="™" />
+        <Key android:codes="10003" android:keyLabel="✓" />
+        <Key android:codes="91"   android:keyLabel="[" />
+        <Key android:codes="93"   android:keyLabel="]" />
+        <Key android:codes="-5"   android:keyLabel="⌫" android:keyWidth="15%p" android:isRepeatable="true" android:keyEdgeFlags="right" />
+    </Row>
+
+    <!-- Row 4: ABC toggle, < , 12/34, Space, > , Enter -->
     <Row android:rowEdgeFlags="bottom">
-        <Key android:codes="-2"   android:keyLabel="ABC" android:keyWidth="11%p" android:keyEdgeFlags="left" />
-        <Key android:codes="-200" android:keyLabel="Num" android:keyWidth="11%p" />
-        <Key android:codes="-100" android:keyLabel="🌐" android:keyWidth="10%p" />
-        <Key android:codes="32"   android:keyLabel="English (India)" android:keyWidth="46%p" />
-        <Key android:codes="46"   android:keyLabel="." android:keyWidth="10%p" />
-        <Key android:codes="-4"   android:keyLabel="↵" android:keyWidth="12%p" android:keyEdgeFlags="right" />
+        <Key android:codes="-2"   android:keyLabel="ABC" android:keyWidth="14%p" android:keyEdgeFlags="left" />
+        <Key android:codes="60"   android:keyLabel="&lt;" android:keyWidth="8%p" />
+        <Key android:codes="-200" android:keyLabel="12/34" android:keyWidth="9%p" />
+        <Key android:codes="32"   android:keyLabel="English" android:keyWidth="47%p" />
+        <Key android:codes="62"   android:keyLabel="&gt;" android:keyWidth="8%p" />
+        <Key android:codes="-4"   android:keyLabel="↵" android:keyWidth="14%p" android:keyEdgeFlags="right" />
     </Row>
 
 </Keyboard>

@@ -19,7 +19,7 @@ class AutoCorrectManagerTest {
                 "separate", "definitely", "until", "truly", "tomorrow",
                 "across", "believe", "surprise", "grammar", "world", "word",
                 "clever", "keyboard", "crearemind", "project", "development",
-                "technology", "good", "morning", "thank", "you"
+                "technology", "good", "morning", "thank", "you", "king", "work"
             )
         )
     }
@@ -44,6 +44,10 @@ class AutoCorrectManagerTest {
         assertEquals("you're", AutoCorrectManager.getCorrection(null, "youre"))
         assertEquals("good morning", AutoCorrectManager.getCorrection(null, "goodmorning"))
         assertEquals("thank you", AutoCorrectManager.getCorrection(null, "thankyou"))
+        // Fuzzy QWERTY proximity auto-corrections:
+        assertEquals("king", AutoCorrectManager.getCorrection(null, "kinf"))
+        assertEquals("King", AutoCorrectManager.getCorrection(null, "Kinf"))
+        assertEquals("work", AutoCorrectManager.getCorrection(null, "wprk"))
     }
 
     @Test
@@ -107,5 +111,25 @@ class AutoCorrectManagerTest {
         assertEquals(1, AutoCorrectManager.levenshteinDistance("helo", "hello"))
         assertEquals(1, AutoCorrectManager.levenshteinDistance("helllo", "hello"))
         assertEquals(1, AutoCorrectManager.levenshteinDistance("world", "wrld"))
+    }
+
+    @Test
+    fun testUndoAutocorrectReversionLogic() {
+        val orig = "kinf"
+        val repl = AutoCorrectManager.getCorrection(null, orig)
+        assertEquals("king", repl)
+
+        // Scenario 1: Cursor right after space after autocorrect
+        val beforeWithSpace = "I am a $repl "
+        val replWithSpace = "$repl "
+        assertTrue(beforeWithSpace.endsWith(replWithSpace, ignoreCase = true))
+        val restored1 = beforeWithSpace.dropLast(replWithSpace.length) + orig
+        assertEquals("I am a kinf", restored1)
+
+        // Scenario 2: Cursor after word without space
+        val beforeWithoutSpace = "I am a $repl"
+        assertTrue(beforeWithoutSpace.endsWith(repl!!, ignoreCase = true))
+        val restored2 = beforeWithoutSpace.dropLast(repl.length) + orig
+        assertEquals("I am a kinf", restored2)
     }
 }

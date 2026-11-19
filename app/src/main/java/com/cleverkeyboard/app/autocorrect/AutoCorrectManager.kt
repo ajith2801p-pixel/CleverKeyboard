@@ -43,12 +43,24 @@ object AutoCorrectManager {
     private val frequentWordsMap = ConcurrentHashMap<String, Int>()
 
     init {
-        // Seed frequent words into fast in-memory map
-        frequentWordsMap["cleverkeyboard"] = 15
-        frequentWordsMap["crearemind"] = 15
-        frequentWordsMap["development"] = 10
-        frequentWordsMap["project"] = 10
-        frequentWordsMap["technology"] = 10
+        // Seed frequent words and personalized vocabulary into fast in-memory map
+        frequentWordsMap["cleverkeyboard"] = 25
+        frequentWordsMap["crearemind"] = 25
+        frequentWordsMap["ajith"] = 25
+        frequentWordsMap["afshal"] = 25
+        frequentWordsMap["kubernetes"] = 20
+        frequentWordsMap["cybersecurity"] = 20
+        frequentWordsMap["aws"] = 20
+        frequentWordsMap["linux"] = 20
+        frequentWordsMap["cloud computing"] = 20
+        frequentWordsMap["gm"] = 20
+        frequentWordsMap["bro"] = 20
+        frequentWordsMap["btw"] = 20
+        frequentWordsMap["idk"] = 20
+        frequentWordsMap["gonna"] = 20
+        frequentWordsMap["development"] = 15
+        frequentWordsMap["project"] = 15
+        frequentWordsMap["technology"] = 15
     }
 
     // In-memory cached dictionary maps
@@ -107,6 +119,15 @@ object AutoCorrectManager {
         "machi" to listOf("epdi", "va", "da", "enna", "seri"),
         "super" to listOf("thala", "bro", "machan", "matter", "nalla")
     )
+
+    fun getBigramPredictions(word: String, lang: String = LANG_EN): List<String> {
+        val clean = word.trim().lowercase()
+        val list = when (lang) {
+            LANG_TANG -> TANGLISH_BIGRAMS[clean] ?: ENGLISH_BIGRAMS[clean]
+            else -> ENGLISH_BIGRAMS[clean] ?: TANGLISH_BIGRAMS[clean]
+        }
+        return list ?: emptyList()
+    }
 
     private fun getPrefs(context: Context): SharedPreferences {
         return sharedPreferences ?: context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).also {
@@ -360,6 +381,36 @@ object AutoCorrectManager {
         return list.sortedByDescending { frequentWordsMap[it] ?: prefs.getInt(it, 0) }
     }
 
+    // QWERTY physical key neighbors mapping for touch-typo scoring
+    private val QWERTY_NEIGHBORS = mapOf(
+        'q' to listOf('w', 'a', 's'),
+        'w' to listOf('q', 'e', 'a', 's', 'd'),
+        'e' to listOf('w', 'r', 's', 'd', 'f'),
+        'r' to listOf('e', 't', 'd', 'f', 'g'),
+        't' to listOf('r', 'y', 'f', 'g', 'h'),
+        'y' to listOf('t', 'u', 'g', 'h', 'j'),
+        'u' to listOf('y', 'i', 'h', 'j', 'k'),
+        'i' to listOf('u', 'o', 'j', 'k', 'l'),
+        'o' to listOf('i', 'p', 'k', 'l'),
+        'p' to listOf('o', 'l'),
+        'a' to listOf('q', 'w', 's', 'z'),
+        's' to listOf('a', 'd', 'w', 'e', 'z', 'x'),
+        'd' to listOf('s', 'f', 'e', 'r', 'x', 'c'),
+        'f' to listOf('d', 'g', 'r', 't', 'c', 'v'),
+        'g' to listOf('f', 'h', 't', 'y', 'v', 'b'),
+        'h' to listOf('g', 'j', 'y', 'u', 'b', 'n'),
+        'j' to listOf('h', 'k', 'u', 'i', 'n', 'm'),
+        'k' to listOf('j', 'l', 'i', 'o', 'm'),
+        'l' to listOf('k', 'o', 'p'),
+        'z' to listOf('a', 's', 'x'),
+        'x' to listOf('z', 's', 'd', 'c'),
+        'c' to listOf('x', 'd', 'f', 'v'),
+        'v' to listOf('c', 'f', 'g', 'b'),
+        'b' to listOf('v', 'g', 'h', 'n'),
+        'n' to listOf('b', 'h', 'j', 'm'),
+        'm' to listOf('n', 'j', 'k')
+    )
+
     /**
      * Looks up correction for a word for Space press auto-replace.
      */
@@ -411,6 +462,8 @@ object AutoCorrectManager {
             "grammer" -> return matchCase(rawWord, "grammar")
             "goodmorning" -> return matchCase(rawWord, "good morning")
             "thankyou" -> return matchCase(rawWord, "thank you")
+            "kinf" -> return matchCase(rawWord, "king")
+            "wprk" -> return matchCase(rawWord, "work")
         }
 
         if (lang == LANG_TANG) {
@@ -433,6 +486,64 @@ object AutoCorrectManager {
         if (target != null && !target.equals(lower, ignoreCase = true)) {
             return matchCase(rawWord, target)
         }
+
+        // 2. Intelligent Dictionary & Levenshtein + QWERTY Proximity Auto-Correction
+        if (context != null && lang == LANG_EN) {
+            val allWords = getWordsList(context)
+            // If already a valid word in dictionary, do not autocorrect
+            if (allWords.contains(lower)) {
+                return null
+            }
+
+            val qLen = lower.length
+            var bestCandidate: String? = null
+            var bestScore = -1
+
+            val searchLimit = 5000 // Scan primary common vocabulary in words.txt
+            var count = 0
+            for (w in allWords) {
+                count++
+                if (count > searchLimit && bestCandidate != null) break
+
+                val lenDiff = Math.abs(w.length - qLen)
+                if (lenDiff > 1 && (qLen < 5 || lenDiff > 2)) continue
+
+                val dist = levenshteinDistance(lower, w)
+                if (dist == 1 || (dist == 2 && qLen >= 5)) {
+                    var score = if (dist == 1) 100 else 40
+                    if (w[0] == lower[0]) score += 30
+                    if (w.last() == lower.last()) score += 15
+
+                    // Frequency rank bonus (earlier in words.txt = more common)
+                    val freqBonus = maxOf(0, 50 - (count / 100))
+                    score += freqBonus
+
+                    // QWERTY physical key proximity bonus
+                    if (dist == 1 && qLen == w.length) {
+                        for (idx in 0 until qLen) {
+                            if (lower[idx] != w[idx]) {
+                                val c1 = lower[idx]
+                                val c2 = w[idx]
+                                if (QWERTY_NEIGHBORS[c1]?.contains(c2) == true) {
+                                    score += 60 // High confidence adjacent touch typo!
+                                }
+                                break
+                            }
+                        }
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score
+                        bestCandidate = w
+                    }
+                }
+            }
+
+            if (bestCandidate != null && bestScore >= 110) {
+                return matchCase(rawWord, bestCandidate)
+            }
+        }
+
         return null
     }
 
@@ -568,7 +679,14 @@ object AutoCorrectManager {
                         val s1 = distinctPreds[1]
                         val s2 = distinctPreds[2]
                         val s4 = distinctPreds[3]
-                        val s5 = distinctPreds[4]
+                        var s5 = distinctPreds[4]
+
+                        // Emoji suggestion for the completed word
+                        val emojiMatches = com.cleverkeyboard.app.emoji.EmojiManager.searchEmojis(lastWord)
+                        if (emojiMatches.isNotEmpty()) {
+                            s5 = emojiMatches[0]
+                        }
+
                         return listOf(
                             SuggestionItem(text = s1, isPrimary = false),
                             SuggestionItem(text = s2, isPrimary = false),
@@ -760,7 +878,14 @@ object AutoCorrectManager {
         val s1 = distinctItems.getOrElse(1) { if (!currentWord.equals(centerWord, true)) currentWord else "and" }
         val s2 = distinctItems.getOrElse(2) { "I" }
         val s4 = distinctItems.getOrElse(3) { "to" }
-        val s5 = distinctItems.getOrElse(4) { "the" }
+        var s5 = distinctItems.getOrElse(4) { "the" }
+
+        // Emoji matching for typed word
+        val searchWord = if (currentWord.isNotBlank()) currentWord else centerWord
+        val emojiMatches = com.cleverkeyboard.app.emoji.EmojiManager.searchEmojis(searchWord)
+        if (emojiMatches.isNotEmpty()) {
+            s5 = emojiMatches[0]
+        }
 
         val isCenterCorrection = typoCorrection != null || !centerWord.equals(currentWord, ignoreCase = true)
 
@@ -833,7 +958,7 @@ object AutoCorrectManager {
     }
 
     fun isSwipeTypingEnabled(context: Context): Boolean {
-        return getPrefs(context).getBoolean(KEY_SWIPE_TYPING, true)
+        return getPrefs(context).getBoolean(KEY_SWIPE_TYPING, false)
     }
 
     fun setSwipeTypingEnabled(context: Context, enabled: Boolean) {

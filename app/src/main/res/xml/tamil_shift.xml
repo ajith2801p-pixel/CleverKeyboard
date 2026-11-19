@@ -6,7 +6,7 @@
     android:verticalGap="4dp">
 
     <!-- Row 1: Independent Vowels 1 (அ - ஊ + ஃ) -->
-    <Row>
+    <Row android:rowEdgeFlags="top">
         <Key android:codes="2949" android:keyLabel="அ" android:keyEdgeFlags="left" />
         <Key android:codes="2950" android:keyLabel="ஆ" />
         <Key android:codes="2951" android:keyLabel="இ" />
@@ -35,7 +35,7 @@
 
     <!-- Row 3: Shift active, extra diacritics & backspace -->
     <Row>
-        <Key android:codes="-1"   android:keyLabel="⇧" android:keyWidth="12%p" android:isModifier="true" android:isSticky="true" android:keyEdgeFlags="left" />
+        <Key android:codes="-1"   android:keyLabel="⇧" android:keyWidth="12%p" android:keyEdgeFlags="left" />
         <Key android:codes="3020" android:keyLabel="ௌ" android:keyWidth="10%p" />
         <Key android:codes="3021" android:keyLabel="்" android:keyWidth="10%p" />
         <Key android:codes="3006" android:keyLabel="ா" android:keyWidth="10%p" />

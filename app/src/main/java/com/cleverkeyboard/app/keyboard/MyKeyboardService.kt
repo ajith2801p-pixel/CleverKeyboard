@@ -58,6 +58,18 @@ import com.cleverkeyboard.app.autocorrect.AutoCorrectManager
 import com.cleverkeyboard.app.autocorrect.SuggestionItem
 import com.cleverkeyboard.app.clipboard.ClipboardHistoryManager
 import com.cleverkeyboard.app.clipboard.ClipboardItem
+import android.content.ClipDescription
+import android.net.Uri
+import android.util.Size
+import androidx.core.view.inputmethod.EditorInfoCompat
+import androidx.core.view.inputmethod.InputConnectionCompat
+import androidx.core.view.inputmethod.InputContentInfoCompat
+import com.cleverkeyboard.app.clipboard.ScreenshotManager
+import com.cleverkeyboard.app.clipboard.ScreenshotItem
+import com.cleverkeyboard.app.autofill.UserAutofillManager
+import com.cleverkeyboard.app.gif.GifManager
+import com.cleverkeyboard.app.gif.GifItem
+
 import com.cleverkeyboard.app.emoji.EmojiManager
 import com.cleverkeyboard.app.data.KeyboardTheme
 import com.cleverkeyboard.app.data.ThemeManager
@@ -87,6 +99,11 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     // Undo Autocorrect state (Gboard style)
     private var lastAutocorrectOriginal: String? = null
     private var lastAutocorrectReplacement: String? = null
+    private var undoneAutocorrectWord: String? = null
+
+    // Real-Time Intelligence & Grammar state
+    private var activeGrammarFix: com.cleverkeyboard.app.intelligence.GrammarFix? = null
+    private var activeTypingContext: com.cleverkeyboard.app.intelligence.TypingContext? = null
 
     // Shift & Auto-Capitalization state
     private var isShifted = false
@@ -168,6 +185,28 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     // Row 2 Number Row
     private var numberRowContainer: LinearLayout? = null
+    // Key Preview Bubble (0.25s popup)
+    private var keyboardContainerLayout: ViewGroup? = null
+    private var keyPreviewBubble: TextView? = null
+    private val keyPreviewDismissHandler = Handler(Looper.getMainLooper())
+    private val keyPreviewDismissRunnable = Runnable {
+        keyPreviewBubble?.visibility = View.GONE
+    }
+
+    // Recent Screenshot detection in Suggestion Bar
+    private var screenshotChipContainer: View? = null
+    private var screenshotChipThumbnail: ImageView? = null
+    private var latestScreenshotItem: ScreenshotItem? = null
+    private val screenshotChipHandler = Handler(Looper.getMainLooper())
+
+    // GIF Keyboard
+    private var gifContainer: LinearLayout? = null
+    private var gifSearchInput: EditText? = null
+    private var btnGifClearSearch: ImageView? = null
+    private var btnGifBackAbc: View? = null
+    private var gifCategoriesContainer: LinearLayout? = null
+    private var gifGridContainer: LinearLayout? = null
+
 
     // Sub-panels & Loaders
     private var aiLoadingContainer: LinearLayout? = null
@@ -199,6 +238,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         private const val TAG = "MyKeyboardService"
         private const val CODE_SYMBOL_SHIFT = -6
         private const val CODE_GLOBE = -100
+        private const val CODE_EMOJI = -101
         private const val CODE_MIC = -10
         private const val CODE_NUMPAD = -200
     }
@@ -324,6 +364,35 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         // Custom Keyboard View (Rows 3-6)
         keyboardView = view.findViewById(R.id.keyboard_view)
 
+        keyboardContainerLayout = view.findViewById(R.id.keyboard_container_layout)
+        keyPreviewBubble = view.findViewById(R.id.key_preview_bubble)
+        screenshotChipContainer = view.findViewById(R.id.screenshot_chip_container)
+        screenshotChipThumbnail = view.findViewById(R.id.screenshot_chip_thumbnail)
+
+        gifContainer = view.findViewById(R.id.gif_container)
+        gifSearchInput = view.findViewById(R.id.gif_search_input)
+        btnGifClearSearch = view.findViewById(R.id.btn_gif_clear_search)
+        btnGifBackAbc = view.findViewById(R.id.btn_gif_back_abc)
+        gifCategoriesContainer = view.findViewById(R.id.gif_categories_container)
+        gifGridContainer = view.findViewById(R.id.gif_grid_container)
+
+        screenshotChipContainer?.setOnClickListener {
+            playKeyFeedback()
+            val shot = latestScreenshotItem
+            if (shot != null) {
+                commitScreenshot(shot.uri)
+            }
+            screenshotChipContainer?.visibility = View.GONE
+        }
+
+        view.findViewById<Button>(R.id.btn_emoji_to_gif)?.setOnClickListener {
+            playKeyFeedback()
+            showGifKeyboard()
+        }
+
+        setupGifKeyboard(view)
+
+
         // Initialize Keyboard layouts
         qwertyKeyboard = Keyboard(this, R.xml.qwerty)
         symbolsKeyboard = Keyboard(this, R.xml.symbols)
@@ -334,6 +403,46 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         val activeLang = AutoCorrectManager.getActiveLanguage(this)
         keyboardView?.keyboard = if (activeLang == AutoCorrectManager.LANG_TA) tamilKeyboard else qwertyKeyboard
         keyboardView?.setOnKeyboardActionListener(this)
+
+        
+        keyboardView?.onKeyPreviewListener = preview@ { key, label, isDown ->
+            if (isDown && key != null && !label.isNullOrEmpty()) {
+                keyPreviewDismissHandler.removeCallbacks(keyPreviewDismissRunnable)
+                val kbView = keyboardView ?: return@preview
+                val container = keyboardContainerLayout ?: return@preview
+                val bubble = keyPreviewBubble ?: return@preview
+
+                val keyLoc = IntArray(2)
+                kbView.getLocationInWindow(keyLoc)
+                val contLoc = IntArray(2)
+                container.getLocationInWindow(contLoc)
+
+                val keyLeftInCont = (keyLoc[0] - contLoc[0]) + key.x
+                val keyTopInCont = (keyLoc[1] - contLoc[1]) + key.y
+
+                val density = resources.displayMetrics.density
+                val bubbleWidth = (54 * density).toInt()
+                val bubbleHeight = (62 * density).toInt()
+
+                val lp = bubble.layoutParams as? FrameLayout.LayoutParams
+                if (lp != null) {
+                    lp.width = bubbleWidth
+                    lp.height = bubbleHeight
+                    bubble.layoutParams = lp
+                }
+
+                val targetX = keyLeftInCont + (key.width - bubbleWidth) / 2f
+                val targetY = keyTopInCont - bubbleHeight + (4 * density)
+
+                bubble.translationX = targetX
+                bubble.translationY = targetY
+                bubble.text = label
+                bubble.visibility = View.VISIBLE
+            } else if (!isDown) {
+                keyPreviewDismissHandler.removeCallbacks(keyPreviewDismissRunnable)
+                keyPreviewDismissHandler.postDelayed(keyPreviewDismissRunnable, 10L)
+            }
+        }
 
         keyboardView?.onSpaceLongPressListener = {
             showKeyboardPicker()
@@ -438,6 +547,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         // Update language label on spacebar
         updateLanguageDisplay(showToast = false)
+        checkRecentScreenshot()
 
         // Auto-Capitalization for First Letter / Empty Field
         if (shouldAutoCapitalize(info)) {
@@ -524,13 +634,23 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         if (!shifted) isShiftLocked = false
         val activeLang = AutoCorrectManager.getActiveLanguage(this)
         if (activeLang == AutoCorrectManager.LANG_TA) {
-            keyboardView?.keyboard = if (shifted) tamilShiftKeyboard else tamilKeyboard
+            val targetKb = if (shifted) tamilShiftKeyboard else tamilKeyboard
+            if (keyboardView?.keyboard != targetKb) {
+                keyboardView?.keyboard = targetKb
+            }
         } else {
             qwertyKeyboard?.isShifted = shifted
-            keyboardView?.keyboard = qwertyKeyboard
+            if (keyboardView?.keyboard != qwertyKeyboard) {
+                keyboardView?.keyboard = qwertyKeyboard
+            }
             keyboardView?.isShifted = shifted
         }
         keyboardView?.isShiftLocked = isShiftLocked
+        keyboardView?.keyboard?.keys?.forEach { k ->
+            if (k.codes.isNotEmpty() && k.codes[0] == -1) {
+                k.on = shifted && isShiftLocked
+            }
+        }
         keyboardView?.invalidate()
     }
 
@@ -540,21 +660,20 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             // Caps Lock is active -> Tap Shift toggles directly to Lowercase
             isShiftLocked = false
             setShiftState(shifted = false, auto = false)
-        } else if (isAutoCapitalized && isShifted) {
-            // Tapping Shift while auto-capitalized turns off capitalization to Lowercase
-            setShiftState(shifted = false, auto = false)
         } else if (isShifted) {
-            // Single-shot Shift is active:
-            if (now - lastShiftPressTime < 450) {
-                // Double tap within 450ms activates Caps Lock
+            // Shift is already active (either single-shot or auto-capitalized):
+            if (now - lastShiftPressTime < 500) {
+                // Double tap within 500ms activates Caps Lock (all caps)
                 isShiftLocked = true
                 setShiftState(shifted = true, auto = false)
             } else {
-                // Tapping again toggles off to Lowercase
+                // Tapping again after 500ms toggles off to Lowercase
+                isShiftLocked = false
                 setShiftState(shifted = false, auto = false)
             }
         } else {
-            // Lowercase -> Single tap activates One-shot Uppercase
+            // Lowercase -> Single tap activates One-shot Uppercase for exactly one letter
+            isShiftLocked = false
             setShiftState(shifted = true, auto = false)
         }
         lastShiftPressTime = now
@@ -715,8 +834,52 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         keyboardView?.applyTheme(theme)
         updateLanguageDisplay(showToast = false)
+        checkRecentScreenshot()
 
-        // 5. Bottom Dismiss Bar visibility & styling
+        // 5. NumPad dynamic theming
+        numPadContainer?.let { container ->
+            if (isPhotoTheme || theme.hasGradient) {
+                container.setBackgroundColor(Color.TRANSPARENT)
+            } else {
+                container.setBackgroundColor(theme.keyboardBgColor)
+            }
+            val numPadTextIds = listOf(
+                R.id.num_key_plus, R.id.num_key_minus, R.id.num_key_mul, R.id.num_key_div,
+                R.id.num_key_1, R.id.num_key_2, R.id.num_key_3, R.id.num_key_percent,
+                R.id.num_key_4, R.id.num_key_5, R.id.num_key_6, R.id.num_key_space,
+                R.id.num_key_7, R.id.num_key_8, R.id.num_key_9,
+                R.id.num_key_comma, R.id.num_key_sym, R.id.num_key_0, R.id.num_key_equal, R.id.num_key_dot
+            )
+            for (id in numPadTextIds) {
+                container.findViewById<TextView>(id)?.setTextColor(theme.keyTextColor)
+            }
+            container.findViewById<ImageView>(R.id.num_icon_backspace)?.setColorFilter(theme.keyTextColor)
+
+            val abcBtn = container.findViewById<TextView>(R.id.num_key_abc)
+            abcBtn?.let {
+                val pill = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 20f * density
+                    setColor(adjustAlpha(theme.keyBgColor, 0.88f))
+                }
+                it.background = pill
+                it.setTextColor(theme.keyTextColor)
+            }
+
+            val enterBtn = container.findViewById<View>(R.id.num_key_enter)
+            enterBtn?.let {
+                val pill = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 20f * density
+                    setColor(theme.accentColor)
+                }
+                it.background = pill
+                val enterTint = if (isColorLight(theme.accentColor)) Color.BLACK else Color.WHITE
+                container.findViewById<ImageView>(R.id.num_icon_enter)?.setColorFilter(enterTint)
+            }
+        }
+
+        // 6. Bottom Dismiss Bar visibility & styling
         val showDismiss = theme.shouldShowDismissButton(this)
         keyboardBottomDismissBar?.visibility = if (showDismiss) View.VISIBLE else View.GONE
         val dismissIconColor = if (isColorLight(theme.keyboardBgColor) && theme.photoPath == null) Color.parseColor("#444444") else Color.parseColor("#CCCCCC")
@@ -727,6 +890,14 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private fun isColorLight(color: Int): Boolean {
         val darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
         return darkness < 0.5
+    }
+
+    private fun adjustAlpha(color: Int, factor: Float): Int {
+        val alpha = (Color.alpha(color) * factor).toInt().coerceIn(0, 255)
+        val red = Color.red(color)
+        val green = Color.green(color)
+        val blue = Color.blue(color)
+        return Color.argb(alpha, red, green, blue)
     }
 
     // =========================================================================
@@ -810,10 +981,98 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private fun handleSuggestionCommit(chosenText: String) {
         val ic = currentInputConnection ?: return
         val word = getCurrentWordFromInput()
+        val activeLang = AutoCorrectManager.getActiveLanguage(this)
+        val before = ic.getTextBeforeCursor(120, 0)?.toString() ?: ""
+
+        if (chosenText.startsWith("👤 ")) {
+            val cleanName = chosenText.removePrefix("👤 ")
+            if (word.isNotEmpty()) {
+                ic.deleteSurroundingText(word.length, 0)
+            }
+            ic.commitText(cleanName, 1)
+            updateSuggestions()
+            return
+        } else if (chosenText.startsWith("📞 ")) {
+            val cleanPhone = chosenText.removePrefix("📞 ")
+            if (word.isNotEmpty()) {
+                ic.deleteSurroundingText(word.length, 0)
+            }
+            ic.commitText(cleanPhone, 1)
+            updateSuggestions()
+            return
+        }
+
+        // Case 0: Undo Autocorrect via tapping original candidate in suggestion bar
+        val undoOrig = lastAutocorrectOriginal
+        val undoRepl = lastAutocorrectReplacement
+        if (undoOrig != null && undoRepl != null && chosenText.equals(undoOrig, ignoreCase = true)) {
+            val replWithSpace = "$undoRepl "
+            if (before.endsWith(replWithSpace, ignoreCase = true)) {
+                ic.deleteSurroundingText(replWithSpace.length, 0)
+                ic.commitText(undoOrig, 1)
+                lastAutocorrectOriginal = null
+                lastAutocorrectReplacement = null
+                undoneAutocorrectWord = undoOrig.lowercase()
+                updateSuggestions()
+                return
+            } else if (before.endsWith(undoRepl, ignoreCase = true)) {
+                ic.deleteSurroundingText(undoRepl.length, 0)
+                ic.commitText(undoOrig, 1)
+                lastAutocorrectOriginal = null
+                lastAutocorrectReplacement = null
+                undoneAutocorrectWord = undoOrig.lowercase()
+                updateSuggestions()
+                return
+            }
+        }
+
+        // Case 1: Check if chosenText is a Grammar Fix
+        val fix = activeGrammarFix
+        if (fix != null && (chosenText.equals(fix.correctedText, ignoreCase = true) || chosenText.equals(fix.fullCorrectedSentence, ignoreCase = true))) {
+            val currentSent = activeTypingContext?.currentSentence ?: ""
+            if (currentSent.isNotBlank() && before.endsWith(currentSent)) {
+                ic.deleteSurroundingText(currentSent.length, 0)
+                val replacement = if (before.endsWith(" ") && !fix.fullCorrectedSentence.endsWith(" ")) {
+                    fix.fullCorrectedSentence + " "
+                } else {
+                    fix.fullCorrectedSentence
+                }
+                ic.commitText(replacement, 1)
+                activeGrammarFix = null
+                updateSuggestions()
+                return
+            }
+        }
+
+        // Case 2: Check if chosenText is a full-phrase / sentence completion
+        val isSentenceCompletion = chosenText.contains(" ") || chosenText.endsWith(".") || chosenText.endsWith("?") || chosenText.endsWith("!")
+        if (isSentenceCompletion && word.isEmpty()) {
+            val completionText = if (!before.endsWith(" ") && !chosenText.startsWith(" ")) {
+                " $chosenText"
+            } else {
+                chosenText
+            }
+            ic.commitText(completionText, 1)
+            updateSuggestions()
+            return
+        }
+
+        // Case 3: Standard word or personal prefix replacement
         if (word.isNotEmpty()) {
             ic.deleteSurroundingText(word.length, 0)
         }
         ic.commitText(chosenText + " ", 1)
+
+        // Track for Undo Autocorrect if user committed a correction
+        if (word.isNotEmpty() && !word.equals(chosenText, ignoreCase = false)) {
+            lastAutocorrectOriginal = word
+            lastAutocorrectReplacement = chosenText
+        } else {
+            lastAutocorrectOriginal = null
+            lastAutocorrectReplacement = null
+        }
+
+        com.cleverkeyboard.app.intelligence.CleverIntelligenceEngine.getInstance(this).onWordCommitted(chosenText, activeLang, currentInputEditorInfo)
         AutoCorrectManager.recordWordSelection(this, chosenText, currentInputEditorInfo)
         updateSuggestions()
 
@@ -828,9 +1087,74 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             suggestionBarContainer?.visibility = View.GONE
             return
         }
+
         val ic = currentInputConnection ?: return
-        val before = ic.getTextBeforeCursor(100, 0)?.toString() ?: ""
-        val suggestions = AutoCorrectManager.getDynamicSuggestions(this, before)
+        val before = ic.getTextBeforeCursor(120, 0)?.toString() ?: ""
+        val activeLang = AutoCorrectManager.getActiveLanguage(this)
+
+        // 0. Check for Name or Phone autofill fields ONLY when the field is empty
+        if (before.isBlank()) {
+            if (com.cleverkeyboard.app.autofill.UserAutofillManager.isNameField(info)) {
+                val names = com.cleverkeyboard.app.autofill.UserAutofillManager.getUserNames(this)
+                val views = listOf(suggestion1, suggestion2, suggestion3, suggestion4, suggestion5)
+                for (i in views.indices) {
+                    val v = views[i]
+                    val name = names.getOrNull(i)
+                    if (name != null) {
+                        v?.text = "👤 $name"
+                        v?.visibility = View.VISIBLE
+                        v?.setTypeface(null, android.graphics.Typeface.BOLD)
+                        v?.setTextColor(currentTheme.accentColor)
+                    } else {
+                        v?.visibility = View.GONE
+                    }
+                }
+                return
+            } else if (com.cleverkeyboard.app.autofill.UserAutofillManager.isPhoneOrNumberField(info)) {
+                val phones = com.cleverkeyboard.app.autofill.UserAutofillManager.getUserPhoneNumbers(this)
+                val views = listOf(suggestion1, suggestion2, suggestion3, suggestion4, suggestion5)
+                for (i in views.indices) {
+                    val v = views[i]
+                    val phone = phones.getOrNull(i)
+                    if (phone != null) {
+                        v?.text = "📞 $phone"
+                        v?.visibility = View.VISIBLE
+                        v?.setTypeface(null, android.graphics.Typeface.BOLD)
+                        v?.setTextColor(currentTheme.accentColor)
+                    } else {
+                        v?.visibility = View.GONE
+                    }
+                }
+                return
+            }
+        }
+
+        // Query unified AI typing intelligence engine
+        val intelligence = com.cleverkeyboard.app.intelligence.CleverIntelligenceEngine.getInstance(this)
+        val typingContext = intelligence.analyzeContext(before, activeLang)
+        activeTypingContext = typingContext
+        activeGrammarFix = intelligence.checkLocalGrammar(typingContext.currentSentence)
+
+        val intelligentSuggestions = intelligence.getSuggestions(typingContext, maxSuggestions = 5)
+
+        val rawSuggestions = if (intelligentSuggestions.isNotEmpty()) {
+            intelligentSuggestions
+        } else {
+            AutoCorrectManager.getDynamicSuggestions(this, before)
+        }
+
+        val suggestions = mutableListOf<SuggestionItem>()
+        val orig = lastAutocorrectOriginal
+        val repl = lastAutocorrectReplacement
+        if (orig != null && repl != null && before.endsWith("$repl ", ignoreCase = true)) {
+            suggestions.add(SuggestionItem(text = orig, isCorrection = true, isPrimary = true))
+        }
+        for (item in rawSuggestions) {
+            if (suggestions.size >= 5) break
+            if (suggestions.none { it.text.equals(item.text, ignoreCase = true) }) {
+                suggestions.add(item)
+            }
+        }
 
         val views = listOf(suggestion1, suggestion2, suggestion3, suggestion4, suggestion5)
         for (i in views.indices) {
@@ -866,13 +1190,19 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     private fun updateLanguageDisplay(showToast: Boolean = false) {
         val lang = AutoCorrectManager.getActiveLanguage(this)
-        val label = when (lang) {
-            AutoCorrectManager.LANG_EN -> "English (India)"
+        val spaceText = when (lang) {
+            AutoCorrectManager.LANG_EN -> "English"
             AutoCorrectManager.LANG_TA -> "தமிழ்"
             AutoCorrectManager.LANG_TANG -> "Tanglish"
-            else -> "English (India)"
+            else -> "English"
         }
-        keyboardView?.spaceLabel = label
+        val toastText = when (lang) {
+            AutoCorrectManager.LANG_EN -> "English"
+            AutoCorrectManager.LANG_TA -> "தமிழ்"
+            AutoCorrectManager.LANG_TANG -> "Tanglish"
+            else -> "English"
+        }
+        keyboardView?.spaceLabel = spaceText
         if (lang == AutoCorrectManager.LANG_TA) {
             keyboardView?.keyboard = if (isShifted) tamilShiftKeyboard else tamilKeyboard
         } else {
@@ -881,7 +1211,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         resetDefaultSuggestions()
         keyboardView?.invalidate()
         if (showToast) {
-            Toast.makeText(this, label, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1020,48 +1350,50 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         serviceScope.launch(Dispatchers.IO) {
             try {
+                // Instant local grammar engine check as immediate rule-based fallback
+                val localFix = com.cleverkeyboard.app.intelligence.GrammarCorrectionEngine.findGrammarIssue(inputText)
+
                 val callResult = task(inputText, apiKey)
-                val result = callResult.getOrNull() ?: ""
+                val cloudResult = callResult.getOrNull()?.trim() ?: ""
+                val result = if (cloudResult.isNotBlank()) cloudResult else (localFix?.correctedText ?: "")
 
                 withContext(Dispatchers.Main) {
-                    mainHandler.post {
-                        mainHandler.removeCallbacks(hideLoadingRunnable)
-                        aiLoadingContainer?.visibility = View.GONE
+                    mainHandler.removeCallbacks(hideLoadingRunnable)
+                    aiLoadingContainer?.visibility = View.GONE
 
-                        if (result.isNotBlank()) {
-                            val ic = currentInputConnection
-                            if (ic != null) {
-                                ic.beginBatchEdit()
-                                try {
-                                    val sel = ic.getSelectedText(0)?.toString()
-                                    if (!sel.isNullOrEmpty()) {
-                                        ic.commitText("", 1)
-                                    } else {
-                                        val before = ic.getTextBeforeCursor(1000, 0)?.toString() ?: ""
-                                        if (before.isNotEmpty()) {
-                                            ic.deleteSurroundingText(before.length, 0)
-                                        }
-                                    }
+                    if (result.isNotBlank()) {
+                        val ic = currentInputConnection
+                        if (ic != null) {
+                            ic.beginBatchEdit()
+                            try {
+                                ic.finishComposingText()
+                                val sel = ic.getSelectedText(0)?.toString()
+                                if (!sel.isNullOrEmpty()) {
                                     ic.commitText(result, 1)
-                                    ic.finishComposingText()
-                                } finally {
-                                    ic.endBatchEdit()
+                                } else {
+                                    // Strictly delete ONLY the target text length, never delete entire history!
+                                    val deleteCount = minOf(inputText.length, ic.getTextBeforeCursor(inputText.length, 0)?.length ?: inputText.length)
+                                    ic.deleteSurroundingText(deleteCount, 0)
+                                    ic.commitText(result, 1)
                                 }
-                                Toast.makeText(this@MyKeyboardService, "Replaced with AI result", Toast.LENGTH_SHORT).show()
+                            } finally {
+                                ic.endBatchEdit()
                             }
-                        } else {
-                            Toast.makeText(this@MyKeyboardService, "AI Failed, Try Again", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MyKeyboardService, "Fixed with AI ✓", Toast.LENGTH_SHORT).show()
+                            showStatusBanner("✓ Text updated", 2000L)
                         }
+                    } else {
+                        val err = callResult.exceptionOrNull()?.message ?: "AI could not process text"
+                        Toast.makeText(this@MyKeyboardService, err, Toast.LENGTH_SHORT).show()
+                        showStatusBanner("⚠️ $err", 3000L)
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "AI Task failed", e)
                 withContext(Dispatchers.Main) {
-                    mainHandler.post {
-                        mainHandler.removeCallbacks(hideLoadingRunnable)
-                        aiLoadingContainer?.visibility = View.GONE
-                        Toast.makeText(this@MyKeyboardService, "AI Failed, Try Again", Toast.LENGTH_SHORT).show()
-                    }
+                    mainHandler.removeCallbacks(hideLoadingRunnable)
+                    aiLoadingContainer?.visibility = View.GONE
+                    Toast.makeText(this@MyKeyboardService, "AI error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -1072,31 +1404,47 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     }
 
     private fun showToneSelector(mode: String) {
-        val text = getTargetText() ?: return
+        var text = getTargetText()
+        if (text.isNullOrBlank()) {
+            val clipItem = ClipboardHistoryManager.getItems(this).firstOrNull()?.text
+            if (!clipItem.isNullOrBlank()) {
+                text = clipItem.trim()
+                Toast.makeText(this, "Replying to copied message 📋", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (text.isNullOrBlank()) {
+            Toast.makeText(this, "Please type or copy a message first", Toast.LENGTH_SHORT).show()
+            return
+        }
         val apiKey = checkOrPromptApiKey() ?: return
 
         currentAiToneMode = mode
         currentAiToneInputText = text
 
         val tones = listOf(
-            "Normal",
-            "Flirty",
-            "Funny",
-            "Cute",
-            "Cool",
+            "Casual",
+            "Professional",
             "Formal",
+            "Friendly",
+            "Confident",
+            "Polite",
+            "Short & Concise",
             "Persuasive",
             "Empathetic",
             "Sarcastic",
             "Humorous",
             "Mysterious",
             "Motivational",
-            "Assertive"
+            "Assertive",
+            "Flirty",
+            "Funny",
+            "Cute",
+            "Cool"
         )
         val prefs = getSharedPreferences("clever_keyboard_prefs", Context.MODE_PRIVATE)
-        var selectedTone = prefs.getString("saved_ai_reply_tone", "Normal") ?: "Normal"
+        var selectedTone = prefs.getString("saved_ai_reply_tone", "Casual") ?: "Casual"
         if (!tones.any { it.equals(selectedTone, ignoreCase = true) }) {
-            selectedTone = "Normal"
+            selectedTone = "Casual"
         }
 
         renderTonePills(tones, selectedTone, apiKey)
@@ -1131,11 +1479,17 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                     cornerRadius = 14f * density
                     if (isSelected) {
                         val pillColor = when (tone.lowercase()) {
+                            "casual" -> Color.parseColor("#26A69A") // Teal
+                            "professional" -> Color.parseColor("#1E88E5") // Sapphire Blue
+                            "formal" -> Color.parseColor("#3949AB") // Indigo/Navy
+                            "friendly" -> Color.parseColor("#FFA000") // Amber
+                            "confident" -> Color.parseColor("#7B1FA2") // Deep Purple
+                            "polite" -> Color.parseColor("#00897B") // Sea Green
+                            "short & concise", "concise" -> Color.parseColor("#546E7A") // Slate Grey
                             "flirty" -> Color.parseColor("#E91E63") // Pink
                             "funny" -> Color.parseColor("#FB8C00") // Amber
                             "cute" -> Color.parseColor("#F06292") // Soft Rose
                             "cool" -> Color.parseColor("#00ACC1") // Cyan
-                            "formal" -> Color.parseColor("#3949AB") // Indigo/Navy
                             "persuasive" -> Color.parseColor("#8E24AA") // Purple
                             "empathetic" -> Color.parseColor("#00897B") // Teal
                             "sarcastic" -> Color.parseColor("#D81B60") // Ruby Magenta
@@ -1143,7 +1497,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                             "mysterious" -> Color.parseColor("#5E35B1") // Deep Violet
                             "motivational" -> Color.parseColor("#43A047") // Emerald Green
                             "assertive" -> Color.parseColor("#E53935") // Crimson Red
-                            else -> Color.parseColor("#5B5BF0") // Accent Blue for Normal
+                            else -> Color.parseColor("#5B5BF0") // Accent Blue
                         }
                         setColor(pillColor)
                     } else {
@@ -1215,17 +1569,20 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         val ic = currentInputConnection ?: return
         ic.beginBatchEdit()
         try {
+            ic.finishComposingText()
             val sel = ic.getSelectedText(0)?.toString()
             if (!sel.isNullOrEmpty()) {
-                ic.commitText("", 1)
-            } else if (currentAiToneMode == "WRITE") {
-                val before = ic.getTextBeforeCursor(1000, 0)?.toString() ?: ""
-                if (before.isNotEmpty()) {
-                    ic.deleteSurroundingText(before.length, 0)
+                ic.commitText(currentAiToneResult, 1)
+            } else {
+                val targetLen = currentAiToneInputText.length
+                if (targetLen > 0) {
+                    val beforeLen = ic.getTextBeforeCursor(targetLen, 0)?.length ?: 0
+                    if (beforeLen > 0) {
+                        ic.deleteSurroundingText(beforeLen, 0)
+                    }
                 }
+                ic.commitText(currentAiToneResult, 1)
             }
-            ic.commitText(currentAiToneResult, 1)
-            ic.finishComposingText()
         } finally {
             ic.endBatchEdit()
         }
@@ -1235,6 +1592,15 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     private fun showTranslateOptions() {
         val languages = listOf(
+            Pair("⇄ To English", "English"),
+            Pair("⇄ To Spanish", "Spanish"),
+            Pair("⇄ To German", "German"),
+            Pair("⇄ To Japanese", "Japanese"),
+            Pair("⇄ To French", "French"),
+            Pair("⇄ To Portuguese", "Portuguese"),
+            Pair("⇄ To Russian", "Russian"),
+            Pair("⇄ To Italian", "Italian"),
+            Pair("⇄ To Arabic", "Arabic"),
             Pair("⇄ En → Tamil", "Tamil"),
             Pair("⇄ Ta → English", "English"),
             Pair("En → Tanglish", "Tanglish"),
@@ -1247,17 +1613,9 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             Pair("En → Gujarati", "Gujarati"),
             Pair("En → Punjabi", "Punjabi"),
             Pair("En → Urdu", "Urdu"),
-            Pair("En → Spanish", "Spanish"),
-            Pair("En → French", "French"),
-            Pair("En → German", "German"),
-            Pair("En → Portuguese", "Portuguese"),
-            Pair("En → Italian", "Italian"),
-            Pair("En → Japanese", "Japanese"),
             Pair("En → Korean", "Korean"),
             Pair("En → Chinese (Simp)", "Chinese Simplified"),
             Pair("En → Chinese (Trad)", "Chinese Traditional"),
-            Pair("En → Arabic", "Arabic"),
-            Pair("En → Russian", "Russian"),
             Pair("En → Indonesian", "Indonesian"),
             Pair("En → Thai", "Thai"),
             Pair("En → Vietnamese", "Vietnamese"),
@@ -1278,7 +1636,18 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     }
 
     private fun processSmartReply() {
-        val text = getTargetText() ?: return
+        var text = getTargetText()
+        if (text.isNullOrBlank()) {
+            val clipItem = ClipboardHistoryManager.getItems(this).firstOrNull()?.text
+            if (!clipItem.isNullOrBlank()) {
+                text = clipItem.trim()
+                Toast.makeText(this, "Generating replies for copied message 📋", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (text.isNullOrBlank()) {
+            Toast.makeText(this, "Please type or copy a message to reply to", Toast.LENGTH_SHORT).show()
+            return
+        }
         val apiKey = checkOrPromptApiKey() ?: return
 
         showStatusBanner("✨ Generating smart replies...", 0L)
@@ -1299,26 +1668,32 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                             if (ic != null) {
                                 ic.beginBatchEdit()
                                 try {
+                                    ic.finishComposingText()
                                     val sel = ic.getSelectedText(0)?.toString()
                                     if (!sel.isNullOrEmpty()) {
-                                        ic.commitText("", 1)
+                                        ic.commitText(chosenReply, 1)
+                                    } else {
+                                        val targetLen = text.length
+                                        val beforeLen = ic.getTextBeforeCursor(targetLen, 0)?.length ?: 0
+                                        if (beforeLen > 0) {
+                                            ic.deleteSurroundingText(beforeLen, 0)
+                                        }
+                                        ic.commitText(chosenReply, 1)
                                     }
-                                    ic.commitText(chosenReply, 1)
-                                    ic.finishComposingText()
                                 } finally {
                                     ic.endBatchEdit()
                                 }
                             }
                         }
                     } else {
-                        Toast.makeText(this@MyKeyboardService, "AI Failed, Try Again", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MyKeyboardService, "AI could not generate replies, try again", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     mainHandler.removeCallbacks(hideLoadingRunnable)
                     aiLoadingContainer?.visibility = View.GONE
-                    Toast.makeText(this@MyKeyboardService, "AI Failed, Try Again", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MyKeyboardService, "AI error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -1661,6 +2036,12 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 updateLanguageDisplay(showToast = true)
             }
 
+            // Emoji Key (-101)
+            CODE_EMOJI -> {
+                resetDefaultSuggestions()
+                showEmojiKeyboard()
+            }
+
             // Voice Typing Key (-10)
             CODE_MIC -> {
                 resetDefaultSuggestions()
@@ -1696,7 +2077,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 val word = getCurrentWordFromInput()
                 val allowed = AutoCorrectManager.isAutoCorrectEnabled(this) &&
                         AutoCorrectManager.isAutoCorrectAllowed(currentInputEditorInfo)
-                val correction = if (allowed && word.isNotEmpty()) {
+                val isUndoneWord = undoneAutocorrectWord != null && word.equals(undoneAutocorrectWord, ignoreCase = true)
+                val correction = if (allowed && word.isNotEmpty() && !isUndoneWord) {
                     AutoCorrectManager.getCorrection(this, word)
                 } else null
 
@@ -1710,8 +2092,15 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                     lastAutocorrectReplacement = null
                     ic.commitText(" ", 1)
                 }
+                undoneAutocorrectWord = null
 
-                resetDefaultSuggestions()
+                if (word.isNotBlank()) {
+                    val activeLang = AutoCorrectManager.getActiveLanguage(this)
+                    val learnedWord = correction ?: word
+                    com.cleverkeyboard.app.intelligence.CleverIntelligenceEngine.getInstance(this).onWordCommitted(learnedWord, activeLang, currentInputEditorInfo)
+                }
+
+                updateSuggestions()
 
                 // FIX 1: Auto-capitalize after ". ", "? ", "! "
                 if (shouldAutoCapitalize(currentInputEditorInfo)) {
@@ -1728,6 +2117,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             else -> {
                 lastAutocorrectOriginal = null
                 lastAutocorrectReplacement = null
+                undoneAutocorrectWord = null
                 val code = primaryCode
                 val char = code.toChar()
                 val textToCommit = if (isShifted) {
@@ -1808,15 +2198,240 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         deactivateEmojiSearchMode()
         numPadContainer?.visibility = View.GONE
         emojiContainer?.visibility = View.GONE
+        gifContainer?.visibility = View.GONE
+        keyPreviewBubble?.visibility = View.GONE
         clipboardContainer?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.VISIBLE
         val activeLang = AutoCorrectManager.getActiveLanguage(this)
         val defaultTextKeyboard = if (activeLang == AutoCorrectManager.LANG_TA) tamilKeyboard else qwertyKeyboard
-        keyboardView?.keyboard = defaultTextKeyboard
+        if (keyboardView?.keyboard !== defaultTextKeyboard) {
+            keyboardView?.keyboard = defaultTextKeyboard
+        }
         val theme = ThemeManager.getTheme(this)
         numberRowContainer?.visibility = if (theme.showNumberRow) View.VISIBLE else View.GONE
         suggestionBarContainer?.visibility = View.VISIBLE
+    }
+
+    
+    // =========================================================================
+    // Screenshot & GIF Handlers
+    // =========================================================================
+
+    private fun checkRecentScreenshot() {
+        screenshotChipHandler.removeCallbacksAndMessages(null)
+        screenshotChipContainer?.visibility = View.GONE
+        serviceScope.launch(Dispatchers.IO) {
+            val shot = ScreenshotManager.getLatestScreenshot(this@MyKeyboardService)
+            if (shot != null && ScreenshotManager.isScreenshotVeryRecent(shot, maxSeconds = 45)) {
+                latestScreenshotItem = shot
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            val bmp = contentResolver.loadThumbnail(shot.uri, Size(80, 80), null)
+                            screenshotChipThumbnail?.setImageBitmap(bmp)
+                        } else {
+                            screenshotChipThumbnail?.setImageURI(shot.uri)
+                        }
+                        screenshotChipContainer?.visibility = View.VISIBLE
+                        // Hide automatically after 5 seconds (as user requested)
+                        screenshotChipHandler.postDelayed({
+                            screenshotChipContainer?.visibility = View.GONE
+                        }, 5000L)
+                    } catch (_: Exception) {}
+                }
+            }
+        }
+    }
+
+    private fun commitScreenshot(uri: Uri) {
+        val ic = currentInputConnection ?: return
+        val info = currentInputEditorInfo ?: return
+
+        val mimeTypes = EditorInfoCompat.getContentMimeTypes(info)
+        val imageSupported = mimeTypes.any { it.startsWith("image/", ignoreCase = true) || it.equals("*/*", ignoreCase = true) }
+
+        if (imageSupported) {
+            val description = ClipDescription("Screenshot", arrayOf("image/png", "image/jpeg"))
+            val contentInfo = InputContentInfoCompat(uri, description, uri)
+            val flags = InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
+            val success = InputConnectionCompat.commitContent(ic, info, contentInfo, flags, null)
+            if (!success) {
+                copyImageUriToClipboard(uri)
+            }
+        } else {
+            copyImageUriToClipboard(uri)
+        }
+    }
+
+    private fun copyImageUriToClipboard(uri: Uri) {
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = ClipData.newUri(contentResolver, "Screenshot", uri)
+        cm?.setPrimaryClip(clip)
+        Toast.makeText(this, "Screenshot copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun commitGif(gifItem: GifItem) {
+        val ic = currentInputConnection ?: return
+        val info = currentInputEditorInfo ?: return
+
+        val mimeTypes = EditorInfoCompat.getContentMimeTypes(info)
+        val gifSupported = mimeTypes.any { it.equals("image/gif", ignoreCase = true) || it.equals("image/*", ignoreCase = true) }
+
+        if (gifSupported) {
+            val uri = Uri.parse(gifItem.gifUrl)
+            val description = ClipDescription(gifItem.title, arrayOf("image/gif"))
+            val contentInfo = InputContentInfoCompat(uri, description, Uri.parse(gifItem.gifUrl))
+            val flags = InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
+            InputConnectionCompat.commitContent(ic, info, contentInfo, flags, null)
+        } else {
+            val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            cm?.setPrimaryClip(ClipData.newPlainText("GIF", gifItem.gifUrl))
+            Toast.makeText(this, "GIF link copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupGifKeyboard(view: View) {
+        view.findViewById<View>(R.id.btn_gif_back_abc)?.setOnClickListener {
+            playKeyFeedback()
+            showQwertyKeyboard()
+        }
+        val clearBtn = view.findViewById<View>(R.id.btn_gif_clear_search)
+        val searchInput = view.findViewById<EditText>(R.id.gif_search_input)
+
+        clearBtn?.setOnClickListener {
+            searchInput?.text?.clear()
+            clearBtn.visibility = View.GONE
+            loadGifGrid("Trending")
+        }
+
+        searchInput?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val q = s?.toString()?.trim() ?: ""
+                clearBtn?.visibility = if (q.isNotEmpty()) View.VISIBLE else View.GONE
+                loadGifGrid(if (q.isNotEmpty()) q else "Trending")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun showGifKeyboard() {
+        deactivateEmojiSearchMode()
+        numPadContainer?.visibility = View.GONE
+        emojiContainer?.visibility = View.GONE
+        clipboardContainer?.visibility = View.GONE
+        moreMenuContainer?.visibility = View.GONE
+        keyboardView?.visibility = View.GONE
+        numberRowContainer?.visibility = View.GONE
+        suggestionBarContainer?.visibility = View.GONE
+        keyPreviewBubble?.visibility = View.GONE
+        gifContainer?.visibility = View.VISIBLE
+        loadGifCategories()
+        loadGifGrid("Trending")
+    }
+
+    private fun loadGifCategories() {
+        val container = gifCategoriesContainer ?: return
+        container.removeAllViews()
+        val density = resources.displayMetrics.density
+
+        for (cat in GifManager.CATEGORIES) {
+            val chip = TextView(this).apply {
+                text = cat
+                textSize = 12f
+                setTextColor(Color.WHITE)
+                gravity = Gravity.CENTER
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 14f * density
+                    setColor(Color.parseColor("#262A30"))
+                }
+                setPadding((12 * density).toInt(), (4 * density).toInt(), (12 * density).toInt(), (4 * density).toInt())
+                isClickable = true
+                isFocusable = false
+                setOnClickListener {
+                    playKeyFeedback()
+                    loadGifGrid(cat)
+                }
+            }
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = (6 * density).toInt()
+            }
+            container.addView(chip, lp)
+        }
+    }
+
+    private fun loadGifGrid(queryOrCat: String) {
+        val container = gifGridContainer ?: return
+        container.removeAllViews()
+        val density = resources.displayMetrics.density
+
+        val items = GifManager.searchGifs(queryOrCat)
+        for (i in items.indices step 2) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    (68 * density).toInt()
+                ).apply {
+                    bottomMargin = (6 * density).toInt()
+                }
+            }
+
+            val item1 = items[i]
+            val card1 = createGifCard(item1, density)
+            val lp1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = (3 * density).toInt()
+            }
+            row.addView(card1, lp1)
+
+            if (i + 1 < items.size) {
+                val item2 = items[i + 1]
+                val card2 = createGifCard(item2, density)
+                val lp2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                    marginStart = (3 * density).toInt()
+                }
+                row.addView(card2, lp2)
+            } else {
+                val dummy = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
+                }
+                row.addView(dummy)
+            }
+
+            container.addView(row)
+        }
+    }
+
+    private fun createGifCard(item: GifItem, density: Float): View {
+        return FrameLayout(this).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 12f * density
+                setColor(Color.parseColor("#262A30"))
+                setStroke((1 * density).toInt(), Color.parseColor("#1AFFFFFF"))
+            }
+            isClickable = true
+            isFocusable = false
+            setOnClickListener {
+                playKeyFeedback()
+                commitGif(item)
+            }
+
+            val label = TextView(this@MyKeyboardService).apply {
+                text = "🎞️ ${item.title}"
+                textSize = 12f
+                setTextColor(Color.WHITE)
+                setTypeface(null, Typeface.BOLD)
+                gravity = Gravity.CENTER
+                setPadding((8 * density).toInt(), (4 * density).toInt(), (8 * density).toInt(), (4 * density).toInt())
+            }
+            addView(label, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        }
     }
 
     private fun showNumPad() {
@@ -1826,6 +2441,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
         numberRowContainer?.visibility = View.GONE
+        suggestionBarContainer?.visibility = View.GONE
         numPadContainer?.visibility = View.VISIBLE
     }
 
@@ -1833,6 +2449,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         deactivateEmojiSearchMode()
         numPadContainer?.visibility = View.GONE
         clipboardContainer?.visibility = View.GONE
+        gifContainer?.visibility = View.GONE
+        keyPreviewBubble?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
         numberRowContainer?.visibility = View.GONE
@@ -1905,6 +2523,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         deactivateEmojiSearchMode()
         numPadContainer?.visibility = View.GONE
         emojiContainer?.visibility = View.GONE
+        gifContainer?.visibility = View.GONE
+        keyPreviewBubble?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
         numberRowContainer?.visibility = View.GONE
@@ -1916,6 +2536,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         deactivateEmojiSearchMode()
         numPadContainer?.visibility = View.GONE
         emojiContainer?.visibility = View.GONE
+        gifContainer?.visibility = View.GONE
+        keyPreviewBubble?.visibility = View.GONE
         clipboardContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
         numberRowContainer?.visibility = View.GONE
@@ -1932,16 +2554,26 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         val selected = ic.getSelectedText(0)
 
         // Undo Autocorrect (Gboard behavior):
-        // If user just pressed space and a correction was applied, tapping backspace reverts to original typed word!
+        // If a word was auto-corrected, tapping backspace reverts to original typed word!
         val orig = lastAutocorrectOriginal
         val repl = lastAutocorrectReplacement
         if (selected.isNullOrEmpty() && orig != null && repl != null) {
-            val before = ic.getTextBeforeCursor(repl.length + 1, 0)?.toString() ?: ""
-            if (before == "$repl " || before == repl) {
-                ic.deleteSurroundingText(before.length, 0)
+            val before = ic.getTextBeforeCursor(maxOf(repl.length + 20, 100), 0)?.toString() ?: ""
+            val replWithSpace = "$repl "
+            if (before.endsWith(replWithSpace, ignoreCase = true)) {
+                ic.deleteSurroundingText(replWithSpace.length, 0)
                 ic.commitText(orig, 1)
                 lastAutocorrectOriginal = null
                 lastAutocorrectReplacement = null
+                undoneAutocorrectWord = orig.lowercase()
+                updateSuggestions()
+                return
+            } else if (before.endsWith(repl, ignoreCase = true)) {
+                ic.deleteSurroundingText(repl.length, 0)
+                ic.commitText(orig, 1)
+                lastAutocorrectOriginal = null
+                lastAutocorrectReplacement = null
+                undoneAutocorrectWord = orig.lowercase()
                 updateSuggestions()
                 return
             }
@@ -2011,11 +2643,19 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             R.id.num_key_8 to "8",
             R.id.num_key_9 to "9",
             R.id.num_key_0 to "0",
-            R.id.num_key_plus to "+"
+            R.id.num_key_plus to "+",
+            R.id.num_key_minus to "-",
+            R.id.num_key_mul to "*",
+            R.id.num_key_div to "/",
+            R.id.num_key_percent to "%",
+            R.id.num_key_space to " ",
+            R.id.num_key_comma to ",",
+            R.id.num_key_equal to "=",
+            R.id.num_key_dot to "."
         )
 
         for ((id, char) in numKeys) {
-            val btn = view.findViewById<Button>(id) ?: continue
+            val btn = view.findViewById<View>(id) ?: continue
             btn.setOnClickListener {
                 playKeyFeedback()
                 currentInputConnection?.commitText(char, 1)
@@ -2027,12 +2667,6 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                     currentInputConnection?.commitText("+", 1)
                     true
                 }
-            } else if (char == "1") {
-                btn.setOnLongClickListener {
-                    playKeyFeedback()
-                    currentInputConnection?.commitText(".", 1)
-                    true
-                }
             }
         }
 
@@ -2041,14 +2675,23 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             handleDelete()
         }
 
-        view.findViewById<Button>(R.id.num_key_abc)?.setOnClickListener {
+        view.findViewById<View>(R.id.num_key_abc)?.setOnClickListener {
             playKeyFeedback()
             showQwertyKeyboard()
         }
 
-        view.findViewById<Button>(R.id.num_key_space)?.setOnClickListener {
+        view.findViewById<View>(R.id.num_key_sym)?.setOnClickListener {
             playKeyFeedback()
-            currentInputConnection?.commitText(" ", 1)
+            numPadContainer?.visibility = View.GONE
+            keyboardView?.visibility = View.VISIBLE
+            suggestionBarContainer?.visibility = View.VISIBLE
+            keyboardView?.keyboard = symbolsKeyboard
+            numberRowContainer?.visibility = View.GONE
+            isShifted = false
+            isShiftLocked = false
+            keyboardView?.isShifted = false
+            keyboardView?.isShiftLocked = false
+            keyboardView?.invalidate()
         }
 
         view.findViewById<View>(R.id.num_key_enter)?.setOnClickListener {
@@ -2139,7 +2782,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                     }
                 } else null
                 isClickable = true
-                isFocusable = true
+                isFocusable = false
                 setOnClickListener {
                     currentEmojiCategory = index
                     setupEmojiCategories()
@@ -2173,7 +2816,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 gravity = Gravity.CENTER
                 setPadding((2 * density).toInt(), (2 * density).toInt(), (2 * density).toInt(), (2 * density).toInt())
                 isClickable = true
-                isFocusable = true
+                isFocusable = false
                 setOnClickListener {
                     playKeyFeedback()
                     currentInputConnection?.commitText(emoji, 1)
@@ -2220,7 +2863,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     private fun populateClipboardList() {
         val items = ClipboardHistoryManager.getItems(this)
-        if (items.isEmpty()) {
+        val shot = ScreenshotManager.getLatestScreenshot(this)
+        if (items.isEmpty() && shot == null) {
             clipboardEmptyView?.visibility = View.VISIBLE
             clipboardScrollView?.visibility = View.GONE
             return
@@ -2231,6 +2875,80 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         val container = clipboardItemsContainer ?: return
         container.removeAllViews()
         val density = resources.displayMetrics.density
+
+        // Recent Screenshot Card at top of clipboard (if available)
+        if (shot != null) {
+            val shotCard = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 12f * density
+                    setColor(Color.parseColor("#2A2E34"))
+                    setStroke((1 * density).toInt(), Color.parseColor("#3D424B"))
+                }
+                setPadding((10 * density).toInt(), (8 * density).toInt(), (10 * density).toInt(), (8 * density).toInt())
+                isClickable = true
+                isFocusable = false
+                setOnClickListener {
+                    playKeyFeedback()
+                    commitScreenshot(shot.uri)
+                    Toast.makeText(this@MyKeyboardService, "Screenshot pasted", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            val thumb = ImageView(this).apply {
+                val s = (44 * density).toInt()
+                layoutParams = LinearLayout.LayoutParams(s, s).apply {
+                    marginEnd = (10 * density).toInt()
+                }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        setImageBitmap(contentResolver.loadThumbnail(shot.uri, Size(80, 80), null))
+                    } else {
+                        setImageURI(shot.uri)
+                    }
+                } catch (_: Exception) {}
+            }
+
+            val textCol = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val titleTv = TextView(this).apply {
+                text = "📸 Recent Screenshot"
+                textSize = 13f
+                setTypeface(typeface, Typeface.BOLD)
+                setTextColor(Color.WHITE)
+            }
+            val subTv = TextView(this).apply {
+                text = "Tap to paste directly into chat"
+                textSize = 10.5f
+                setTextColor(Color.parseColor("#AAAAAA"))
+            }
+            textCol.addView(titleTv)
+            textCol.addView(subTv)
+
+            val shareBtn = TextView(this).apply {
+                text = "↗"
+                textSize = 18f
+                setTextColor(Color.parseColor("#8E95A0"))
+                setPadding((6 * density).toInt(), (4 * density).toInt(), (6 * density).toInt(), (4 * density).toInt())
+            }
+
+            shotCard.addView(thumb)
+            shotCard.addView(textCol)
+            shotCard.addView(shareBtn)
+
+            val shotLp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = (8 * density).toInt()
+            }
+            container.addView(shotCard, shotLp)
+        }
 
         for (item in items) {
             val card = LinearLayout(this).apply {
@@ -2243,7 +2961,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 }
                 setPadding((10 * density).toInt(), (8 * density).toInt(), (10 * density).toInt(), (8 * density).toInt())
                 isClickable = true
-                isFocusable = true
+                isFocusable = false
                 setOnClickListener {
                     playKeyFeedback()
                     currentInputConnection?.commitText(item.text, 1)
@@ -2348,138 +3066,181 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     }
 
     // -------------------------------------------------------------------------
-    // More Menu Implementation (All 14 Tools)
+    // More Menu Implementation (Gboard 2-Column Cards matching Screenshot)
     // -------------------------------------------------------------------------
 
     private fun setupMoreMenu(view: View) {
-        view.findViewById<Button>(R.id.btn_more_menu_close)?.setOnClickListener {
+        view.findViewById<View>(R.id.btn_more_menu_close)?.setOnClickListener {
             playKeyFeedback()
             showQwertyKeyboard()
         }
     }
 
     private fun populateMoreMenu() {
-        val row1 = keyboardRoot?.findViewById<LinearLayout>(R.id.more_row_1) ?: return
-        val row2 = keyboardRoot?.findViewById<LinearLayout>(R.id.more_row_2) ?: return
+        val quickBar = keyboardRoot?.findViewById<LinearLayout>(R.id.more_quick_bar)
+        val gridContainer = keyboardRoot?.findViewById<LinearLayout>(R.id.more_grid_container) ?: return
         val subpanel = keyboardRoot?.findViewById<LinearLayout>(R.id.more_subpanel_container) ?: return
-        row1.removeAllViews()
-        row2.removeAllViews()
+        quickBar?.removeAllViews()
+        gridContainer.removeAllViews()
         subpanel.visibility = View.GONE
         subpanel.removeAllViews()
 
         val density = resources.displayMetrics.density
 
-        // Row 1: 7 tools
-        val toolsRow1 = listOf(
-            Triple("Undo", "↩") {
-                currentInputConnection?.performContextMenuAction(android.R.id.undo)
-            },
-            Triple("Redo", "↪") {
-                currentInputConnection?.performContextMenuAction(android.R.id.redo)
-            },
-            Triple("Settings", "⚙") {
+        // Quick Icon Strip (Header)
+        val quickActions = listOf(
+            Triple("😊", "Emoji") { showEmojiKeyboard() },
+            Triple("🎬", "GIF") { showGifKeyboard() },
+            Triple("⚙️", "Settings") {
                 val intent = Intent(this, MainActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 startActivity(intent)
             },
-            Triple("Language", "🌐") {
-                showLanguageSubpanel(subpanel)
-            },
-            Triple("Switch KB", "⌨") {
-                showKeyboardPicker()
-            },
-            Triple("Themes", "🎨") {
-                showThemesSubpanel(subpanel)
-            },
-            Triple("AutoCorrect", "✓") {
-                val enabled = !AutoCorrectManager.isAutoCorrectEnabled(this)
-                AutoCorrectManager.setAutoCorrectEnabled(this, enabled)
-                Toast.makeText(this, "Auto Correct: " + (if (enabled) "ON" else "OFF"), Toast.LENGTH_SHORT).show()
-            },
-            Triple("Dictionary", "📖") {
-                showDictionarySubpanel(subpanel)
-            },
-            Triple("One-Handed", "📱") {
-                toggleOneHanded()
-            }
+            Triple("🌐", "Translate") { showTranslateOptions() },
+            Triple("📋", "Clipboard") { showClipboard() },
+            Triple("🎙️", "Voice") { startVoiceTyping() }
         )
 
-        // Row 2: 7 tools
-        val toolsRow2 = listOf(
-            Triple("Cursor", "✥") {
-                showCursorSubpanel(subpanel)
-            },
-            Triple("Copy", "📄") {
-                currentInputConnection?.performContextMenuAction(android.R.id.copy)
-                Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show()
-            },
-            Triple("Cut", "✂") {
-                currentInputConnection?.performContextMenuAction(android.R.id.cut)
-            },
-            Triple("Clipboard", "📋") {
-                showClipboard()
-            },
-            Triple("Select All", "🔲") {
-                currentInputConnection?.performContextMenuAction(android.R.id.selectAll)
-            },
-            Triple("Clear Clips", "🗑") {
-                ClipboardHistoryManager.clearAll(this)
-                Toast.makeText(this, "Clipboard cleared", Toast.LENGTH_SHORT).show()
-            },
-            Triple("Num Pad", "🔢") {
-                showNumPad()
-            }
-        )
-
-        for ((name, icon, action) in toolsRow1) {
-            row1.addView(createMoreToolButton(name, icon, action, density))
+        for ((icon, _, action) in quickActions) {
+            quickBar?.addView(createQuickBarButton(icon, action, density))
         }
 
-        for ((name, icon, action) in toolsRow2) {
-            row2.addView(createMoreToolButton(name, icon, action, density))
+        // 2-Column Grid Cards (matching user screenshot)
+        val cards = listOf(
+            Triple("Theme", "🎨") { showThemesSubpanel(subpanel) },
+            Triple("Emoji", "😊") { showEmojiKeyboard() },
+            Triple("GIF", "🎬") { showGifKeyboard() },
+            Triple("Clipboard", "📋") { showClipboard() },
+            Triple("Translate", "🌐") { showTranslateOptions() },
+            Triple("Text editing", "✂️") { showCursorSubpanel(subpanel) },
+            Triple("AI Write", "✨") { showToneSelector("WRITE") },
+            Triple("AI Reply", "💬") { showToneSelector("REPLY") },
+            Triple("Fix Grammar", "✓") {
+                val text = getTargetText()
+                val apiKey = checkOrPromptApiKey()
+                if (text != null && apiKey != null) {
+                    executeAiTask(text, apiKey) { input, key ->
+                        aiService.fixGrammar(input, key)
+                    }
+                }
+            },
+            Triple("Num Pad", "🔢") { showNumPad() },
+            Triple("One-handed", "📱") { toggleOneHanded() },
+            Triple("Settings", "⚙️") {
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(intent)
+            },
+            Triple("Undo", "↩️") { currentInputConnection?.performContextMenuAction(android.R.id.undo); Unit },
+            Triple("Redo", "↪️") { currentInputConnection?.performContextMenuAction(android.R.id.redo); Unit }
+        )
+
+        for (i in cards.indices step 2) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+            val card1 = cards[i]
+            row.addView(createMoreMenuCard(card1.first, card1.second, card1.third, density))
+
+            if (i + 1 < cards.size) {
+                val card2 = cards[i + 1]
+                row.addView(createMoreMenuCard(card2.first, card2.second, card2.third, density))
+            } else {
+                val spacer = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+                }
+                row.addView(spacer)
+            }
+            gridContainer.addView(row)
         }
     }
 
-    private fun createMoreToolButton(name: String, icon: String, action: () -> Any?, density: Float): View {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = 8f * density
-                setColor(Color.parseColor("#26262A"))
+    private fun createQuickBarButton(iconStr: String, action: () -> Any?, density: Float): View {
+        return FrameLayout(this).apply {
+            val size = (34 * density).toInt()
+            val lp = LinearLayout.LayoutParams(size, size).apply {
+                marginEnd = (10 * density).toInt()
             }
-            setPadding((12 * density).toInt(), (6 * density).toInt(), (12 * density).toInt(), (6 * density).toInt())
+            layoutParams = lp
+            setBackgroundResource(R.drawable.key_pill_background)
             isClickable = true
-            isFocusable = true
+            isFocusable = false
             setOnClickListener {
                 playKeyFeedback()
                 action()
             }
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                (44 * density).toInt()
-            ).apply {
-                marginEnd = (6 * density).toInt()
-            }
-            layoutParams = lp
-
-            val iconTv = TextView(this@MyKeyboardService).apply {
-                text = icon
-                textSize = 14f
+            val tv = TextView(this@MyKeyboardService).apply {
+                text = iconStr
+                textSize = 15f
                 gravity = Gravity.CENTER
                 setTextColor(Color.WHITE)
+                layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
-            val textTv = TextView(this@MyKeyboardService).apply {
-                text = name
-                textSize = 9f
-                gravity = Gravity.CENTER
-                setTextColor(Color.parseColor("#CCCCCC"))
-            }
-            addView(iconTv)
-            addView(textTv)
+            addView(tv)
         }
+    }
+
+    private fun createMoreMenuCard(
+        title: String,
+        iconStr: String,
+        action: () -> Any?,
+        density: Float
+    ): View {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setBackgroundResource(R.drawable.more_menu_card_bg)
+            setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
+            isClickable = true
+            isFocusable = false
+            setOnClickListener {
+                playKeyFeedback()
+                action()
+            }
+            val lp = LinearLayout.LayoutParams(0, (52 * density).toInt(), 1f).apply {
+                setMargins((4 * density).toInt(), (4 * density).toInt(), (4 * density).toInt(), (4 * density).toInt())
+            }
+            layoutParams = lp
+        }
+
+        val iconView = TextView(this).apply {
+            text = iconStr
+            textSize = 18f
+            gravity = Gravity.CENTER
+            val iconLp = LinearLayout.LayoutParams((28 * density).toInt(), (28 * density).toInt()).apply {
+                marginEnd = (10 * density).toInt()
+            }
+            layoutParams = iconLp
+        }
+
+        val titleView = TextView(this).apply {
+            text = title
+            textSize = 13.5f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            val titleLp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            layoutParams = titleLp
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+        }
+
+        val chevronView = TextView(this).apply {
+            text = "›"
+            textSize = 19f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#8E95A0"))
+        }
+
+        card.addView(iconView)
+        card.addView(titleView)
+        card.addView(chevronView)
+        return card
     }
 
     private fun showCursorSubpanel(subpanel: LinearLayout) {
@@ -2487,17 +3248,24 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         subpanel.removeAllViews()
         val density = resources.displayMetrics.density
 
-        val arrows = listOf(
-            "◀" to KeyEvent.KEYCODE_DPAD_LEFT,
-            "▲" to KeyEvent.KEYCODE_DPAD_UP,
-            "▼" to KeyEvent.KEYCODE_DPAD_DOWN,
-            "▶" to KeyEvent.KEYCODE_DPAD_RIGHT
+        val editingActions = listOf(
+            "◀" to { sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_LEFT) },
+            "▲" to { sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_UP) },
+            "▼" to { sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_DOWN) },
+            "▶" to { sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_RIGHT) },
+            "Select" to { currentInputConnection?.performContextMenuAction(android.R.id.selectAll) },
+            "Copy" to { 
+                currentInputConnection?.performContextMenuAction(android.R.id.copy)
+                Toast.makeText(this@MyKeyboardService, "Copied", Toast.LENGTH_SHORT).show()
+            },
+            "Cut" to { currentInputConnection?.performContextMenuAction(android.R.id.cut) },
+            "Paste" to { currentInputConnection?.performContextMenuAction(android.R.id.paste) }
         )
 
-        for ((label, keyCode) in arrows) {
+        for ((label, action) in editingActions) {
             val btn = Button(this).apply {
                 text = label
-                textSize = 14f
+                textSize = if (label.length == 1) 14f else 10f
                 setTextColor(Color.WHITE)
                 background = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
@@ -2506,18 +3274,21 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 }
                 setOnClickListener {
                     playKeyFeedback()
-                    sendDownUpKeyEvents(keyCode)
+                    action()
                 }
             }
-            val lp = LinearLayout.LayoutParams((44 * density).toInt(), (34 * density).toInt()).apply {
-                marginEnd = (6 * density).toInt()
+            val lp = LinearLayout.LayoutParams(
+                if (label.length == 1) (40 * density).toInt() else LinearLayout.LayoutParams.WRAP_CONTENT,
+                (34 * density).toInt()
+            ).apply {
+                marginEnd = (5 * density).toInt()
             }
             subpanel.addView(btn, lp)
         }
 
         val doneBtn = Button(this).apply {
-            text = "Done"
-            textSize = 11f
+            text = "✕"
+            textSize = 12f
             setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -2529,7 +3300,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 subpanel.visibility = View.GONE
             }
         }
-        val doneLp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (34 * density).toInt())
+        val doneLp = LinearLayout.LayoutParams((36 * density).toInt(), (34 * density).toInt())
         subpanel.addView(doneBtn, doneLp)
     }
 

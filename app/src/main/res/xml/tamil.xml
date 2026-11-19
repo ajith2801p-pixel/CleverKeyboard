@@ -6,7 +6,7 @@
     android:verticalGap="4dp">
 
     <!-- Row 1: Primary Tamil Consonants (10 keys) -->
-    <Row>
+    <Row android:rowEdgeFlags="top">
         <Key android:codes="2965" android:keyLabel="க" android:keyEdgeFlags="left" />
         <Key android:codes="2969" android:keyLabel="ங" />
         <Key android:codes="2970" android:keyLabel="ச" />
@@ -35,7 +35,7 @@
 
     <!-- Row 3: Pulli (்), Diacritics / Vowels (Shift left, Delete right) -->
     <Row>
-        <Key android:codes="-1"   android:keyLabel="⇧" android:keyWidth="12%p" android:isModifier="true" android:isSticky="true" android:keyEdgeFlags="left" />
+        <Key android:codes="-1"   android:keyLabel="⇧" android:keyWidth="12%p" android:keyEdgeFlags="left" />
         <Key android:codes="3021" android:keyLabel="்" android:keyWidth="9%p" />
         <Key android:codes="3006" android:keyLabel="ா" android:keyWidth="9%p" />
         <Key android:codes="3007" android:keyLabel="ி" android:keyWidth="9%p" />

@@ -10,6 +10,8 @@ import com.cleverkeyboard.app.autocorrect.AutoCorrectManager
 import com.cleverkeyboard.app.data.ApiKeyManager
 import com.cleverkeyboard.app.data.KeyboardTheme
 import com.cleverkeyboard.app.data.ThemeManager
+import com.cleverkeyboard.app.intelligence.CleverIntelligenceEngine
+import com.cleverkeyboard.app.intelligence.TanglishOutputMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,7 +49,13 @@ data class SettingsUiState(
     val activeLanguage: String = "EN",
     val keyboardHeightPercent: Int = 100,
     val isSwipeTypingEnabled: Boolean = false,
-    val isSmartPunctuationEnabled: Boolean = true
+    val isSmartPunctuationEnabled: Boolean = true,
+    val isContextPredictionEnabled: Boolean = true,
+    val isPersonalizedLearningEnabled: Boolean = true,
+    val isGrammarCheckEnabled: Boolean = true,
+    val isSentenceCompletionEnabled: Boolean = true,
+    val tanglishOutputMode: String = "ENGLISH",
+    val vocabularyResetMessage: String? = null
 )
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -72,6 +80,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         val isSmartPunct = AutoCorrectManager.isSmartPunctuationEnabled(context)
         val enabled = checkKeyboardEnabled(context)
         val selected = checkKeyboardSelected(context)
+        val intelligence = CleverIntelligenceEngine.getInstance(context)
 
         _uiState.value = _uiState.value.copy(
             apiKey = savedKey,
@@ -95,8 +104,51 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             isKeyboardSelected = selected,
             keyShape = savedTheme.keyShape,
             activeLanguage = AutoCorrectManager.getActiveLanguage(context),
-            keyboardHeightPercent = savedTheme.keyboardHeightPercent
+            keyboardHeightPercent = savedTheme.keyboardHeightPercent,
+            isContextPredictionEnabled = intelligence.settings.isContextPredictionEnabled,
+            isPersonalizedLearningEnabled = intelligence.settings.isPersonalizedLearningEnabled,
+            isGrammarCheckEnabled = intelligence.settings.isGrammarCheckEnabled,
+            isSentenceCompletionEnabled = intelligence.settings.isSentenceCompletionEnabled,
+            tanglishOutputMode = intelligence.settings.tanglishOutputMode.name
         )
+    }
+
+    fun toggleContextPrediction(enabled: Boolean) {
+        val intelligence = CleverIntelligenceEngine.getInstance(getApplication())
+        intelligence.settings.isContextPredictionEnabled = enabled
+        _uiState.value = _uiState.value.copy(isContextPredictionEnabled = enabled)
+    }
+
+    fun togglePersonalizedLearning(enabled: Boolean) {
+        val intelligence = CleverIntelligenceEngine.getInstance(getApplication())
+        intelligence.settings.isPersonalizedLearningEnabled = enabled
+        _uiState.value = _uiState.value.copy(isPersonalizedLearningEnabled = enabled)
+    }
+
+    fun toggleGrammarCheck(enabled: Boolean) {
+        val intelligence = CleverIntelligenceEngine.getInstance(getApplication())
+        intelligence.settings.isGrammarCheckEnabled = enabled
+        _uiState.value = _uiState.value.copy(isGrammarCheckEnabled = enabled)
+    }
+
+    fun toggleSentenceCompletion(enabled: Boolean) {
+        val intelligence = CleverIntelligenceEngine.getInstance(getApplication())
+        intelligence.settings.isSentenceCompletionEnabled = enabled
+        _uiState.value = _uiState.value.copy(isSentenceCompletionEnabled = enabled)
+    }
+
+    fun setTanglishOutputMode(mode: TanglishOutputMode) {
+        val intelligence = CleverIntelligenceEngine.getInstance(getApplication())
+        intelligence.settings.tanglishOutputMode = mode
+        _uiState.value = _uiState.value.copy(tanglishOutputMode = mode.name)
+    }
+
+    fun resetPersonalVocabulary() {
+        viewModelScope.launch {
+            val intelligence = CleverIntelligenceEngine.getInstance(getApplication())
+            intelligence.vocabularyManager.resetVocabulary()
+            _uiState.value = _uiState.value.copy(vocabularyResetMessage = "Learned vocabulary reset successfully ✓")
+        }
     }
 
     fun setKeyShape(shape: String) {

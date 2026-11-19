@@ -55,13 +55,14 @@ class CustomKeyboardView @JvmOverloads constructor(
     var isActionSearch: Boolean = false
     var spaceLabel: String = "English (India)"
 
-    // Swipe / Glide Typing
-    var isSwipeTypingEnabled: Boolean = true
+    // Swipe / Glide Typing (Defaults to false so it never interferes with standard tapping)
+    var isSwipeTypingEnabled: Boolean = false
     var onSwipeWordListener: ((List<Char>) -> Unit)? = null
 
     // Continuous Deletion & Long-Press Secondary Characters
     var onContinuousDeleteListener: (() -> Unit)? = null
     var onKeySecondaryCharacter: ((Char) -> Unit)? = null
+    var onKeyPreviewListener: ((key: Keyboard.Key?, label: String?, isDown: Boolean) -> Unit)? = null
 
     private var isHoldingDelete = false
     private val deleteHandler = Handler(Looper.getMainLooper())
@@ -149,37 +150,57 @@ class CustomKeyboardView @JvmOverloads constructor(
 
     private fun findKeyAt(x: Float, y: Float): Keyboard.Key? {
         val keys = keyboard?.keys ?: return null
+        // 1. Strict containment
         for (k in keys) {
             if (x >= k.x && x <= k.x + k.width && y >= k.y && y <= k.y + k.height) {
                 return k
             }
         }
-        return null
+
+        // 2. Proximity fallback: find closest key within a tolerance (up to 20dp)
+        val density = context.resources.displayMetrics.density
+        val maxDistSq = (20f * density) * (20f * density)
+        var bestKey: Keyboard.Key? = null
+        var bestDistSq = Float.MAX_VALUE
+
+        for (k in keys) {
+            val clampedX = x.coerceIn(k.x.toFloat(), (k.x + k.width).toFloat())
+            val clampedY = y.coerceIn(k.y.toFloat(), (k.y + k.height).toFloat())
+            val dx = x - clampedX
+            val dy = y - clampedY
+            val distSq = dx * dx + dy * dy
+            if (distSq < bestDistSq) {
+                bestDistSq = distSq
+                bestKey = k
+            }
+        }
+
+        return if (bestDistSq <= maxDistSq) bestKey else null
     }
 
     fun getSecondaryCharacterForKey(key: Keyboard.Key): Char? {
         if (key.codes.isEmpty()) return null
         return when (key.codes[0].toChar().lowercaseChar()) {
-            'q' -> '1'
-            'w' -> '2'
-            'e' -> '3'
-            'r' -> '4'
-            't' -> '5'
-            'y' -> '6'
-            'u' -> '7'
-            'i' -> '8'
-            'o' -> '9'
-            'p' -> '0'
+            'q' -> '%'
+            'w' -> '\''
+            'e' -> '|'
+            'r' -> '='
+            't' -> '['
+            'y' -> ']'
+            'u' -> '<'
+            'i' -> '>'
+            'o' -> '{'
+            'p' -> '}'
             'a' -> '@'
             's' -> '#'
-            'd' -> '$'
-            'f' -> '%'
+            'd' -> '₹'
+            'f' -> '_'
             'g' -> '&'
-            'h' -> '*'
-            'j' -> '-'
-            'k' -> '+'
-            'l' -> '/'
-            'z' -> '_'
+            'h' -> '-'
+            'j' -> '+'
+            'k' -> '('
+            'l' -> ')'
+            'z' -> '*'
             'x' -> '"'
             'c' -> '\''
             'v' -> ':'
@@ -193,15 +214,11 @@ class CustomKeyboardView @JvmOverloads constructor(
     }
 
     private fun findLetterKeyAt(x: Float, y: Float): Keyboard.Key? {
-        val keys = keyboard?.keys ?: return null
-        for (k in keys) {
-            if (x >= k.x && x <= k.x + k.width && y >= k.y && y <= k.y + k.height) {
-                if (k.codes.isNotEmpty()) {
-                    val code = k.codes[0]
-                    if ((code in 65..90) || (code in 97..122) || (code in 2947..3021)) {
-                        return k
-                    }
-                }
+        val key = findKeyAt(x, y) ?: return null
+        if (key.codes.isNotEmpty()) {
+            val code = key.codes[0]
+            if ((code in 65..90) || (code in 97..122) || (code in 2947..3021)) {
+                return key
             }
         }
         return null
@@ -210,6 +227,14 @@ class CustomKeyboardView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                // Ensure touch coordinates snap into the nearest key bounds if tapped in gap/padding
+                val matchedKey = findKeyAt(event.x, event.y)
+                if (matchedKey != null) {
+                    val clampedX = event.x.coerceIn((matchedKey.x + 1).toFloat(), (matchedKey.x + matchedKey.width - 1).toFloat())
+                    val clampedY = event.y.coerceIn((matchedKey.y + 1).toFloat(), (matchedKey.y + matchedKey.height - 1).toFloat())
+                    event.setLocation(clampedX, clampedY)
+                }
+
                 val spaceKey = getSpaceKey()
                 if (spaceKey != null && isPointInsideKey(spaceKey, event.x, event.y)) {
                     isTrackingSpace = true
@@ -227,7 +252,7 @@ class CustomKeyboardView @JvmOverloads constructor(
                 }
 
                 // Check for Delete key (continuous deletion) or character key (secondary character long-press)
-                val touchedKey = findKeyAt(event.x, event.y)
+                val touchedKey = matchedKey ?: findKeyAt(event.x, event.y)
                 if (touchedKey != null && touchedKey.codes.isNotEmpty()) {
                     val code = touchedKey.codes[0]
                     if (code == -5 || code == Keyboard.KEYCODE_DELETE) {
@@ -238,7 +263,14 @@ class CustomKeyboardView @JvmOverloads constructor(
                         longPressKey = touchedKey
                         isKeyLongPressTriggered = false
                         keyLongPressHandler.removeCallbacks(keyLongPressRunnable)
-                        keyLongPressHandler.postDelayed(keyLongPressRunnable, 400L)
+                        keyLongPressHandler.postDelayed(keyLongPressRunnable, 500L)
+                    }
+
+                    // Key Press Popup / Bubble Preview (Shown immediately on touch down)
+                    if (code > 0 && code != 32) {
+                        val ch = code.toChar()
+                        val label = if (isShifted) ch.uppercaseChar().toString() else ch.lowercaseChar().toString()
+                        onKeyPreviewListener?.invoke(touchedKey, label, true)
                     }
                 }
 
@@ -310,12 +342,23 @@ class CustomKeyboardView @JvmOverloads constructor(
                     val dx = event.x - swipeStartX
                     val dy = event.y - swipeStartY
                     val density = context.resources.displayMetrics.density
-                    val swipeThreshold = 18f * density
+                    val swipeThreshold = 50f * density
 
-                    if (!isSwiping && (dx * dx + dy * dy) > (swipeThreshold * swipeThreshold)) {
+                    val currKey = findLetterKeyAt(event.x, event.y)
+                    if (currKey != null && currKey.codes.isNotEmpty()) {
+                        val ch = currKey.codes[0].toChar()
+                        if (swipeVisitedKeys.last().lowercaseChar() != ch.lowercaseChar()) {
+                            swipeVisitedKeys.add(ch)
+                            // User request: No vibration / haptic feedback during slide typing
+                        }
+                    }
+
+                    // Only transition to swiping mode if the gesture deliberately moved across 3+ keys past 50dp!
+                    if (!isSwiping && (dx * dx + dy * dy) > (swipeThreshold * swipeThreshold) && swipeVisitedKeys.size >= 3) {
                         isSwiping = true
                         keyLongPressHandler.removeCallbacks(keyLongPressRunnable)
                         longPressKey = null
+                        onKeyPreviewListener?.invoke(null, null, false)
                         val cancelEvent = MotionEvent.obtain(event).apply { action = MotionEvent.ACTION_CANCEL }
                         super.onTouchEvent(cancelEvent)
                         cancelEvent.recycle()
@@ -323,16 +366,6 @@ class CustomKeyboardView @JvmOverloads constructor(
 
                     if (isSwiping) {
                         swipePath.lineTo(event.x, event.y)
-                        val currKey = findLetterKeyAt(event.x, event.y)
-                        if (currKey != null && currKey.codes.isNotEmpty()) {
-                            val ch = currKey.codes[0].toChar()
-                            if (swipeVisitedKeys.isEmpty() || swipeVisitedKeys.last().lowercaseChar() != ch.lowercaseChar()) {
-                                swipeVisitedKeys.add(ch)
-                                try {
-                                    performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                                } catch (_: Exception) {}
-                            }
-                        }
                         invalidate()
                         return true
                     }
@@ -346,11 +379,16 @@ class CustomKeyboardView @JvmOverloads constructor(
                 keyLongPressHandler.removeCallbacks(keyLongPressRunnable)
                 longPressKey = null
 
+                // Notify preview dismiss
+                onKeyPreviewListener?.invoke(null, null, false)
+
                 if (isKeyLongPressTriggered) {
                     isKeyLongPressTriggered = false
                     val cancelEvent = MotionEvent.obtain(event).apply { action = MotionEvent.ACTION_CANCEL }
                     super.onTouchEvent(cancelEvent)
                     cancelEvent.recycle()
+                    keyboard?.keys?.forEach { it.pressed = false }
+                    invalidate()
                     return true
                 }
 
@@ -374,6 +412,7 @@ class CustomKeyboardView @JvmOverloads constructor(
                             super.onTouchEvent(cancelEvent)
                             cancelEvent.recycle()
                         }
+                        keyboard?.keys?.forEach { it.pressed = false }
                         return true
                     }
                 } else if (isSwiping) {
@@ -381,13 +420,28 @@ class CustomKeyboardView @JvmOverloads constructor(
                     val visited = swipeVisitedKeys.toList()
                     swipeVisitedKeys.clear()
                     swipePath.reset()
+                    keyboard?.keys?.forEach { it.pressed = false }
                     invalidate()
 
-                    if (visited.size >= 2) {
+                    if (visited.size >= 3) {
                         onSwipeWordListener?.invoke(visited)
                         return true
                     }
                 }
+
+                // Snap touch coordinates to matched key if in gap/border on release
+                val upKey = findKeyAt(event.x, event.y)
+                if (upKey != null) {
+                    val clampedX = event.x.coerceIn((upKey.x + 1).toFloat(), (upKey.x + upKey.width - 1).toFloat())
+                    val clampedY = event.y.coerceIn((upKey.y + 1).toFloat(), (upKey.y + upKey.height - 1).toFloat())
+                    event.setLocation(clampedX, clampedY)
+                }
+
+                val handled = super.onTouchEvent(event)
+                // Reset pressed state after super dispatch so keys never stay stuck
+                keyboard?.keys?.forEach { it.pressed = false }
+                invalidate()
+                return handled
             }
         }
 
@@ -395,6 +449,9 @@ class CustomKeyboardView @JvmOverloads constructor(
     }
 
     init {
+        isFocusable = false
+        isFocusableInTouchMode = false
+        isClickable = true
         isPreviewEnabled = false // Modern look: disable legacy popups
 
         iconShift = ContextCompat.getDrawable(context, R.drawable.ic_shift)
@@ -482,34 +539,55 @@ class CustomKeyboardView @JvmOverloads constructor(
             val isShift = primaryCode == Keyboard.KEYCODE_SHIFT || primaryCode == -1
             val isDelete = primaryCode == Keyboard.KEYCODE_DELETE || primaryCode == -5
             val isSymbols = primaryCode == Keyboard.KEYCODE_MODE_CHANGE || primaryCode == -2
+            val isSymbolShift = primaryCode == -6
+            val isNumPadKey = primaryCode == -200
             val isGlobe = primaryCode == -100
+            val isEmojiKey = primaryCode == -101 || (key.label != null && key.label == "😃")
             val isSpace = primaryCode == 32
+            val isPillKey = isEnter || isSpace || isSymbols || isSymbolShift || isNumPadKey || (isShift && (isShiftLocked || isShifted))
 
-            // Enter / Search Key: Always prominent accent background
+            val pillRadius = keyRect.height() / 2f
+            val drawRadius = if (isPillKey) pillRadius else cornerRadius
+
+            // 1. Draw Key Background
             if (isEnter) {
+                // Enter / Search Key: prominent theme accent pill
                 keyPaint.color = currentTheme.accentColor
-                canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, keyPaint)
-            } else if (isSpace && isCursorDragActive) {
-                // Highlight spacebar during cursor trackpad gesture
-                keyPaint.color = currentTheme.accentColor
-                canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, keyPaint)
+                canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
+            } else if (isSpace) {
+                // Spacebar: Rounded pill background
+                if (isCursorDragActive) {
+                    keyPaint.color = currentTheme.accentColor
+                } else if (key.pressed) {
+                    keyPaint.color = blendColors(currentTheme.keyBgColor, Color.WHITE, 0.20f)
+                } else {
+                    keyPaint.color = adjustAlpha(currentTheme.keyBgColor, 0.88f)
+                }
+                canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
+            } else if (isSymbols || isSymbolShift || isNumPadKey) {
+                // Function Pill Keys (?123, ABC, =\<, 12/34)
+                val baseColor = adjustAlpha(currentTheme.keyBgColor, 0.88f)
+                keyPaint.color = if (key.pressed) blendColors(baseColor, Color.WHITE, 0.25f) else baseColor
+                canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
+            } else if (isShift && (isShiftLocked || isShifted)) {
+                // Active Shift Key pill highlight
+                val shiftColor = if (isShiftLocked) {
+                    blendColors(currentTheme.keyBgColor, currentTheme.accentColor, 0.40f)
+                } else {
+                    blendColors(currentTheme.keyBgColor, currentTheme.accentColor, 0.20f)
+                }
+                keyPaint.color = if (key.pressed) blendColors(shiftColor, Color.WHITE, 0.25f) else shiftColor
+                canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
             } else if (bordersActive) {
-                // ON (Board): Solid background + 1dp border, Gboard style
+                // ON (Board): Solid background + 1dp border
                 val baseColor = when {
-                    isShift && isShiftLocked -> blendColors(currentTheme.keyBgColor, currentTheme.accentColor, 0.40f)
-                    isShift && isShifted -> blendColors(currentTheme.keyBgColor, currentTheme.accentColor, 0.20f)
-                    isShift || isDelete || isSymbols || isGlobe -> adjustAlpha(currentTheme.keyBgColor, 0.88f)
+                    isShift || isDelete || isGlobe -> adjustAlpha(currentTheme.keyBgColor, 0.88f)
                     else -> currentTheme.keyBgColor
                 }
-
-                val fillColor = if (key.pressed) {
-                    blendColors(baseColor, Color.WHITE, 0.25f)
-                } else baseColor
-
+                val fillColor = if (key.pressed) blendColors(baseColor, Color.WHITE, 0.25f) else baseColor
                 keyPaint.color = fillColor
                 canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, keyPaint)
 
-                // Key Borders: 1dp outline
                 val borderColor = when {
                     isColorLight(currentTheme.keyBgColor) -> Color.argb(50, 0, 0, 0)
                     else -> Color.argb(70, 120, 120, 120)
@@ -517,12 +595,12 @@ class CustomKeyboardView @JvmOverloads constructor(
                 borderPaint.color = borderColor
                 canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, borderPaint)
             } else {
-                // OFF (Flat): Keys have NO border, transparent / flat keys, only text visible on keyboard background.
-                // When pressed, show subtle translucent touch feedback.
+                // OFF (Flat / Borderless): Clean floating characters on background
+                // Soft tactile highlight pill when pressed
                 if (key.pressed) {
-                    val pressColor = if (isColorLight(currentTheme.keyBgColor)) Color.argb(80, 0, 0, 0) else Color.argb(60, 255, 255, 255)
+                    val pressColor = if (isColorLight(currentTheme.keyBgColor)) Color.argb(75, 0, 0, 0) else Color.argb(60, 255, 255, 255)
                     keyPaint.color = pressColor
-                    canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, keyPaint)
+                    canvas.drawRoundRect(keyRect, 8f * density, 8f * density, keyPaint)
                 }
             }
 
@@ -557,6 +635,25 @@ class CustomKeyboardView @JvmOverloads constructor(
                     drawTintedIcon(canvas, iconGlobe, keyRect, primaryTextColor)
                 }
 
+                isEmojiKey -> {
+                    textPaint.color = primaryTextColor
+                    textPaint.textSize = key.height * 0.38f
+                    drawCenteredText(canvas, "😃", keyRect, textPaint)
+                }
+
+                isNumPadKey -> {
+                    val topText = "12"
+                    val bottomText = "34"
+                    textPaint.color = primaryTextColor
+                    textPaint.textSize = key.height * 0.22f
+                    textPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                    val offset = key.height * 0.15f
+                    textPaint.getTextBounds(topText, 0, topText.length, textBounds)
+                    canvas.drawText(topText, keyRect.centerX(), keyRect.centerY() - offset - textBounds.exactCenterY(), textPaint)
+                    textPaint.getTextBounds(bottomText, 0, bottomText.length, textBounds)
+                    canvas.drawText(bottomText, keyRect.centerX(), keyRect.centerY() + offset - textBounds.exactCenterY(), textPaint)
+                }
+
                 isSpace -> {
                     if (isCursorDragActive) {
                         textPaint.color = Color.WHITE
@@ -566,7 +663,7 @@ class CustomKeyboardView @JvmOverloads constructor(
                     } else {
                         textPaint.color = primaryTextColor
                         textPaint.textSize = key.height * 0.28f
-                        val label = if (spaceLabel.isNotBlank()) spaceLabel else "English (India)"
+                        val label = if (spaceLabel.isNotBlank()) spaceLabel else "English"
                         drawCenteredText(canvas, label, keyRect, textPaint)
                     }
                 }
@@ -587,7 +684,7 @@ class CustomKeyboardView @JvmOverloads constructor(
                     if (secondary != null && !isShifted) {
                         val secPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                             this.textSize = key.height * 0.22f
-                            color = adjustAlpha(primaryTextColor, 0.42f)
+                            color = adjustAlpha(primaryTextColor, 0.45f)
                             textAlign = Paint.Align.RIGHT
                             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
                         }
@@ -613,9 +710,17 @@ class CustomKeyboardView @JvmOverloads constructor(
     }
 
     private fun drawCenteredText(canvas: Canvas, text: String, rect: RectF, paint: Paint) {
-        paint.getTextBounds(text, 0, text.length, textBounds)
         val x = rect.centerX()
-        val y = rect.centerY() - textBounds.exactCenterY()
+        val y = if (text.length == 1 && text[0].isLetter()) {
+            // Anchor all letters to a unified typographic baseline using reference character "x" / "X"
+            // Prevents descenders (in g, y, j, p, q) from jumping above the row baseline!
+            val refChar = if (text[0].isUpperCase()) "X" else "x"
+            paint.getTextBounds(refChar, 0, 1, textBounds)
+            rect.centerY() - textBounds.exactCenterY()
+        } else {
+            paint.getTextBounds(text, 0, text.length, textBounds)
+            rect.centerY() - textBounds.exactCenterY()
+        }
         canvas.drawText(text, x, y, paint)
     }
 

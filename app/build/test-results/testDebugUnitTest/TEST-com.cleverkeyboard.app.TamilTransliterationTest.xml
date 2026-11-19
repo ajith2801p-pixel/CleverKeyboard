@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.cleverkeyboard.app.TamilTransliterationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-19T03:36:38" hostname="Ajith-Macbook-Air.local" time="0.002">
+<testsuite name="com.cleverkeyboard.app.TamilTransliterationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-19T12:30:36" hostname="Ajith-Macbook-Air.local" time="0.001">
   <properties/>
-  <testcase name="testColloquialTransliterations" classname="com.cleverkeyboard.app.TamilTransliterationTest" time="0.001"/>
-  <testcase name="testSentenceTransliteration" classname="com.cleverkeyboard.app.TamilTransliterationTest" time="0.0"/>
-  <testcase name="testCandidateRanking" classname="com.cleverkeyboard.app.TamilTransliterationTest" time="0.001"/>
+  <testcase name="testColloquialTransliterations" classname="com.cleverkeyboard.app.TamilTransliterationTest" time="0.0"/>
+  <testcase name="testSentenceTransliteration" classname="com.cleverkeyboard.app.TamilTransliterationTest" time="0.001"/>
+  <testcase name="testCandidateRanking" classname="com.cleverkeyboard.app.TamilTransliterationTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

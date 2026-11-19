@@ -102,6 +102,15 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final Button btnEmojiSpace;
 
   @NonNull
+  public final Button btnEmojiToGif;
+
+  @NonNull
+  public final Button btnGifBackAbc;
+
+  @NonNull
+  public final ImageView btnGifClearSearch;
+
+  @NonNull
   public final FrameLayout btnKeyboardDismiss;
 
   @NonNull
@@ -111,7 +120,7 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final LinearLayout btnMoreDots;
 
   @NonNull
-  public final Button btnMoreMenuClose;
+  public final FrameLayout btnMoreMenuClose;
 
   @NonNull
   public final FrameLayout btnNum0;
@@ -177,6 +186,24 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final EditText emojiSearchInput;
 
   @NonNull
+  public final LinearLayout gifCategoriesContainer;
+
+  @NonNull
+  public final HorizontalScrollView gifCategoriesScroll;
+
+  @NonNull
+  public final LinearLayout gifContainer;
+
+  @NonNull
+  public final LinearLayout gifGridContainer;
+
+  @NonNull
+  public final ScrollView gifScrollView;
+
+  @NonNull
+  public final EditText gifSearchInput;
+
+  @NonNull
   public final ImageView iconAiChat;
 
   @NonNull
@@ -207,6 +234,9 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final ImageView iconMoreDots;
 
   @NonNull
+  public final TextView keyPreviewBubble;
+
+  @NonNull
   public final ImageView keyboardBgImage;
 
   @NonNull
@@ -228,70 +258,103 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final LinearLayout moreGridContainer;
 
   @NonNull
-  public final HorizontalScrollView moreGridScroll;
+  public final ScrollView moreGridScroll;
 
   @NonNull
   public final LinearLayout moreMenuContainer;
 
   @NonNull
-  public final LinearLayout moreRow1;
-
-  @NonNull
-  public final LinearLayout moreRow2;
+  public final LinearLayout moreQuickBar;
 
   @NonNull
   public final LinearLayout moreSubpanelContainer;
 
   @NonNull
-  public final Button numKey0;
+  public final ImageView numIconBackspace;
 
   @NonNull
-  public final Button numKey1;
+  public final ImageView numIconEnter;
 
   @NonNull
-  public final Button numKey2;
+  public final TextView numKey0;
 
   @NonNull
-  public final Button numKey3;
+  public final TextView numKey1;
 
   @NonNull
-  public final Button numKey4;
+  public final TextView numKey2;
 
   @NonNull
-  public final Button numKey5;
+  public final TextView numKey3;
 
   @NonNull
-  public final Button numKey6;
+  public final TextView numKey4;
 
   @NonNull
-  public final Button numKey7;
+  public final TextView numKey5;
 
   @NonNull
-  public final Button numKey8;
+  public final TextView numKey6;
 
   @NonNull
-  public final Button numKey9;
+  public final TextView numKey7;
 
   @NonNull
-  public final Button numKeyAbc;
+  public final TextView numKey8;
+
+  @NonNull
+  public final TextView numKey9;
+
+  @NonNull
+  public final TextView numKeyAbc;
 
   @NonNull
   public final FrameLayout numKeyBackspace;
 
   @NonNull
+  public final TextView numKeyComma;
+
+  @NonNull
+  public final TextView numKeyDiv;
+
+  @NonNull
+  public final TextView numKeyDot;
+
+  @NonNull
   public final FrameLayout numKeyEnter;
 
   @NonNull
-  public final Button numKeyPlus;
+  public final TextView numKeyEqual;
 
   @NonNull
-  public final Button numKeySpace;
+  public final TextView numKeyMinus;
+
+  @NonNull
+  public final TextView numKeyMul;
+
+  @NonNull
+  public final TextView numKeyPercent;
+
+  @NonNull
+  public final TextView numKeyPlus;
+
+  @NonNull
+  public final TextView numKeySpace;
+
+  @NonNull
+  public final TextView numKeySym;
 
   @NonNull
   public final LinearLayout numPadContainer;
 
   @NonNull
   public final LinearLayout numberRowContainer;
+
+  @NonNull
+  public final LinearLayout screenshotChipContainer;
+
+  @NonNull
+  public final ImageView screenshotChipThumbnail;
 
   @NonNull
   public final LinearLayout subOptionsContainer;
@@ -386,35 +449,44 @@ public final class KeyboardViewBinding implements ViewBinding {
       @NonNull Button btnClipboardClose, @NonNull Button btnCloseSubPanel,
       @NonNull LinearLayout btnEmoji, @NonNull Button btnEmojiBackAbc,
       @NonNull FrameLayout btnEmojiBackspace, @NonNull ImageView btnEmojiClearSearch,
-      @NonNull Button btnEmojiSpace, @NonNull FrameLayout btnKeyboardDismiss,
+      @NonNull Button btnEmojiSpace, @NonNull Button btnEmojiToGif, @NonNull Button btnGifBackAbc,
+      @NonNull ImageView btnGifClearSearch, @NonNull FrameLayout btnKeyboardDismiss,
       @NonNull LinearLayout btnMicToolbar, @NonNull LinearLayout btnMoreDots,
-      @NonNull Button btnMoreMenuClose, @NonNull FrameLayout btnNum0, @NonNull FrameLayout btnNum1,
-      @NonNull FrameLayout btnNum2, @NonNull FrameLayout btnNum3, @NonNull FrameLayout btnNum4,
-      @NonNull FrameLayout btnNum5, @NonNull FrameLayout btnNum6, @NonNull FrameLayout btnNum7,
-      @NonNull FrameLayout btnNum8, @NonNull FrameLayout btnNum9,
+      @NonNull FrameLayout btnMoreMenuClose, @NonNull FrameLayout btnNum0,
+      @NonNull FrameLayout btnNum1, @NonNull FrameLayout btnNum2, @NonNull FrameLayout btnNum3,
+      @NonNull FrameLayout btnNum4, @NonNull FrameLayout btnNum5, @NonNull FrameLayout btnNum6,
+      @NonNull FrameLayout btnNum7, @NonNull FrameLayout btnNum8, @NonNull FrameLayout btnNum9,
       @NonNull LinearLayout clipboardContainer, @NonNull LinearLayout clipboardEmptyView,
       @NonNull LinearLayout clipboardItemsContainer, @NonNull ScrollView clipboardScrollView,
       @NonNull LinearLayout emojiBottomBar, @NonNull LinearLayout emojiCategoriesContainer,
       @NonNull HorizontalScrollView emojiCategoriesScroll, @NonNull LinearLayout emojiContainer,
       @NonNull GridLayout emojiGrid, @NonNull ScrollView emojiScrollView,
-      @NonNull EditText emojiSearchInput, @NonNull ImageView iconAiChat,
+      @NonNull EditText emojiSearchInput, @NonNull LinearLayout gifCategoriesContainer,
+      @NonNull HorizontalScrollView gifCategoriesScroll, @NonNull LinearLayout gifContainer,
+      @NonNull LinearLayout gifGridContainer, @NonNull ScrollView gifScrollView,
+      @NonNull EditText gifSearchInput, @NonNull ImageView iconAiChat,
       @NonNull ImageView iconAiReply, @NonNull ImageView iconAiSparkle,
       @NonNull ImageView iconAiTranslate, @NonNull ImageView iconBottomSwitchKb,
       @NonNull ImageView iconClipboard, @NonNull ImageView iconEmoji,
       @NonNull ImageView iconKeyboardDismiss, @NonNull ImageView iconMicToolbar,
-      @NonNull ImageView iconMoreDots, @NonNull ImageView keyboardBgImage,
-      @NonNull View keyboardBgOverlay, @NonNull LinearLayout keyboardBottomDismissBar,
+      @NonNull ImageView iconMoreDots, @NonNull TextView keyPreviewBubble,
+      @NonNull ImageView keyboardBgImage, @NonNull View keyboardBgOverlay,
+      @NonNull LinearLayout keyboardBottomDismissBar,
       @NonNull KeyboardContainerLayout keyboardContainerLayout, @NonNull LinearLayout keyboardRoot,
       @NonNull CustomKeyboardView keyboardView, @NonNull LinearLayout moreGridContainer,
-      @NonNull HorizontalScrollView moreGridScroll, @NonNull LinearLayout moreMenuContainer,
-      @NonNull LinearLayout moreRow1, @NonNull LinearLayout moreRow2,
-      @NonNull LinearLayout moreSubpanelContainer, @NonNull Button numKey0, @NonNull Button numKey1,
-      @NonNull Button numKey2, @NonNull Button numKey3, @NonNull Button numKey4,
-      @NonNull Button numKey5, @NonNull Button numKey6, @NonNull Button numKey7,
-      @NonNull Button numKey8, @NonNull Button numKey9, @NonNull Button numKeyAbc,
-      @NonNull FrameLayout numKeyBackspace, @NonNull FrameLayout numKeyEnter,
-      @NonNull Button numKeyPlus, @NonNull Button numKeySpace,
+      @NonNull ScrollView moreGridScroll, @NonNull LinearLayout moreMenuContainer,
+      @NonNull LinearLayout moreQuickBar, @NonNull LinearLayout moreSubpanelContainer,
+      @NonNull ImageView numIconBackspace, @NonNull ImageView numIconEnter,
+      @NonNull TextView numKey0, @NonNull TextView numKey1, @NonNull TextView numKey2,
+      @NonNull TextView numKey3, @NonNull TextView numKey4, @NonNull TextView numKey5,
+      @NonNull TextView numKey6, @NonNull TextView numKey7, @NonNull TextView numKey8,
+      @NonNull TextView numKey9, @NonNull TextView numKeyAbc, @NonNull FrameLayout numKeyBackspace,
+      @NonNull TextView numKeyComma, @NonNull TextView numKeyDiv, @NonNull TextView numKeyDot,
+      @NonNull FrameLayout numKeyEnter, @NonNull TextView numKeyEqual,
+      @NonNull TextView numKeyMinus, @NonNull TextView numKeyMul, @NonNull TextView numKeyPercent,
+      @NonNull TextView numKeyPlus, @NonNull TextView numKeySpace, @NonNull TextView numKeySym,
       @NonNull LinearLayout numPadContainer, @NonNull LinearLayout numberRowContainer,
+      @NonNull LinearLayout screenshotChipContainer, @NonNull ImageView screenshotChipThumbnail,
       @NonNull LinearLayout subOptionsContainer, @NonNull LinearLayout subOptionsPanel,
       @NonNull TextView suggestion1, @NonNull TextView suggestion2, @NonNull TextView suggestion3,
       @NonNull TextView suggestion4, @NonNull TextView suggestion5,
@@ -452,6 +524,9 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.btnEmojiBackspace = btnEmojiBackspace;
     this.btnEmojiClearSearch = btnEmojiClearSearch;
     this.btnEmojiSpace = btnEmojiSpace;
+    this.btnEmojiToGif = btnEmojiToGif;
+    this.btnGifBackAbc = btnGifBackAbc;
+    this.btnGifClearSearch = btnGifClearSearch;
     this.btnKeyboardDismiss = btnKeyboardDismiss;
     this.btnMicToolbar = btnMicToolbar;
     this.btnMoreDots = btnMoreDots;
@@ -477,6 +552,12 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.emojiGrid = emojiGrid;
     this.emojiScrollView = emojiScrollView;
     this.emojiSearchInput = emojiSearchInput;
+    this.gifCategoriesContainer = gifCategoriesContainer;
+    this.gifCategoriesScroll = gifCategoriesScroll;
+    this.gifContainer = gifContainer;
+    this.gifGridContainer = gifGridContainer;
+    this.gifScrollView = gifScrollView;
+    this.gifSearchInput = gifSearchInput;
     this.iconAiChat = iconAiChat;
     this.iconAiReply = iconAiReply;
     this.iconAiSparkle = iconAiSparkle;
@@ -487,6 +568,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.iconKeyboardDismiss = iconKeyboardDismiss;
     this.iconMicToolbar = iconMicToolbar;
     this.iconMoreDots = iconMoreDots;
+    this.keyPreviewBubble = keyPreviewBubble;
     this.keyboardBgImage = keyboardBgImage;
     this.keyboardBgOverlay = keyboardBgOverlay;
     this.keyboardBottomDismissBar = keyboardBottomDismissBar;
@@ -496,9 +578,10 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.moreGridContainer = moreGridContainer;
     this.moreGridScroll = moreGridScroll;
     this.moreMenuContainer = moreMenuContainer;
-    this.moreRow1 = moreRow1;
-    this.moreRow2 = moreRow2;
+    this.moreQuickBar = moreQuickBar;
     this.moreSubpanelContainer = moreSubpanelContainer;
+    this.numIconBackspace = numIconBackspace;
+    this.numIconEnter = numIconEnter;
     this.numKey0 = numKey0;
     this.numKey1 = numKey1;
     this.numKey2 = numKey2;
@@ -511,11 +594,21 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.numKey9 = numKey9;
     this.numKeyAbc = numKeyAbc;
     this.numKeyBackspace = numKeyBackspace;
+    this.numKeyComma = numKeyComma;
+    this.numKeyDiv = numKeyDiv;
+    this.numKeyDot = numKeyDot;
     this.numKeyEnter = numKeyEnter;
+    this.numKeyEqual = numKeyEqual;
+    this.numKeyMinus = numKeyMinus;
+    this.numKeyMul = numKeyMul;
+    this.numKeyPercent = numKeyPercent;
     this.numKeyPlus = numKeyPlus;
     this.numKeySpace = numKeySpace;
+    this.numKeySym = numKeySym;
     this.numPadContainer = numPadContainer;
     this.numberRowContainer = numberRowContainer;
+    this.screenshotChipContainer = screenshotChipContainer;
+    this.screenshotChipThumbnail = screenshotChipThumbnail;
     this.subOptionsContainer = subOptionsContainer;
     this.subOptionsPanel = subOptionsPanel;
     this.suggestion1 = suggestion1;
@@ -716,6 +809,24 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btn_emoji_to_gif;
+      Button btnEmojiToGif = ViewBindings.findChildViewById(rootView, id);
+      if (btnEmojiToGif == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_gif_back_abc;
+      Button btnGifBackAbc = ViewBindings.findChildViewById(rootView, id);
+      if (btnGifBackAbc == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_gif_clear_search;
+      ImageView btnGifClearSearch = ViewBindings.findChildViewById(rootView, id);
+      if (btnGifClearSearch == null) {
+        break missingId;
+      }
+
       id = R.id.btn_keyboard_dismiss;
       FrameLayout btnKeyboardDismiss = ViewBindings.findChildViewById(rootView, id);
       if (btnKeyboardDismiss == null) {
@@ -735,7 +846,7 @@ public final class KeyboardViewBinding implements ViewBinding {
       }
 
       id = R.id.btn_more_menu_close;
-      Button btnMoreMenuClose = ViewBindings.findChildViewById(rootView, id);
+      FrameLayout btnMoreMenuClose = ViewBindings.findChildViewById(rootView, id);
       if (btnMoreMenuClose == null) {
         break missingId;
       }
@@ -866,6 +977,42 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.gif_categories_container;
+      LinearLayout gifCategoriesContainer = ViewBindings.findChildViewById(rootView, id);
+      if (gifCategoriesContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.gif_categories_scroll;
+      HorizontalScrollView gifCategoriesScroll = ViewBindings.findChildViewById(rootView, id);
+      if (gifCategoriesScroll == null) {
+        break missingId;
+      }
+
+      id = R.id.gif_container;
+      LinearLayout gifContainer = ViewBindings.findChildViewById(rootView, id);
+      if (gifContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.gif_grid_container;
+      LinearLayout gifGridContainer = ViewBindings.findChildViewById(rootView, id);
+      if (gifGridContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.gif_scroll_view;
+      ScrollView gifScrollView = ViewBindings.findChildViewById(rootView, id);
+      if (gifScrollView == null) {
+        break missingId;
+      }
+
+      id = R.id.gif_search_input;
+      EditText gifSearchInput = ViewBindings.findChildViewById(rootView, id);
+      if (gifSearchInput == null) {
+        break missingId;
+      }
+
       id = R.id.icon_ai_chat;
       ImageView iconAiChat = ViewBindings.findChildViewById(rootView, id);
       if (iconAiChat == null) {
@@ -926,6 +1073,12 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.key_preview_bubble;
+      TextView keyPreviewBubble = ViewBindings.findChildViewById(rootView, id);
+      if (keyPreviewBubble == null) {
+        break missingId;
+      }
+
       id = R.id.keyboard_bg_image;
       ImageView keyboardBgImage = ViewBindings.findChildViewById(rootView, id);
       if (keyboardBgImage == null) {
@@ -965,7 +1118,7 @@ public final class KeyboardViewBinding implements ViewBinding {
       }
 
       id = R.id.more_grid_scroll;
-      HorizontalScrollView moreGridScroll = ViewBindings.findChildViewById(rootView, id);
+      ScrollView moreGridScroll = ViewBindings.findChildViewById(rootView, id);
       if (moreGridScroll == null) {
         break missingId;
       }
@@ -976,15 +1129,9 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.more_row_1;
-      LinearLayout moreRow1 = ViewBindings.findChildViewById(rootView, id);
-      if (moreRow1 == null) {
-        break missingId;
-      }
-
-      id = R.id.more_row_2;
-      LinearLayout moreRow2 = ViewBindings.findChildViewById(rootView, id);
-      if (moreRow2 == null) {
+      id = R.id.more_quick_bar;
+      LinearLayout moreQuickBar = ViewBindings.findChildViewById(rootView, id);
+      if (moreQuickBar == null) {
         break missingId;
       }
 
@@ -994,68 +1141,80 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.num_icon_backspace;
+      ImageView numIconBackspace = ViewBindings.findChildViewById(rootView, id);
+      if (numIconBackspace == null) {
+        break missingId;
+      }
+
+      id = R.id.num_icon_enter;
+      ImageView numIconEnter = ViewBindings.findChildViewById(rootView, id);
+      if (numIconEnter == null) {
+        break missingId;
+      }
+
       id = R.id.num_key_0;
-      Button numKey0 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey0 = ViewBindings.findChildViewById(rootView, id);
       if (numKey0 == null) {
         break missingId;
       }
 
       id = R.id.num_key_1;
-      Button numKey1 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey1 = ViewBindings.findChildViewById(rootView, id);
       if (numKey1 == null) {
         break missingId;
       }
 
       id = R.id.num_key_2;
-      Button numKey2 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey2 = ViewBindings.findChildViewById(rootView, id);
       if (numKey2 == null) {
         break missingId;
       }
 
       id = R.id.num_key_3;
-      Button numKey3 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey3 = ViewBindings.findChildViewById(rootView, id);
       if (numKey3 == null) {
         break missingId;
       }
 
       id = R.id.num_key_4;
-      Button numKey4 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey4 = ViewBindings.findChildViewById(rootView, id);
       if (numKey4 == null) {
         break missingId;
       }
 
       id = R.id.num_key_5;
-      Button numKey5 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey5 = ViewBindings.findChildViewById(rootView, id);
       if (numKey5 == null) {
         break missingId;
       }
 
       id = R.id.num_key_6;
-      Button numKey6 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey6 = ViewBindings.findChildViewById(rootView, id);
       if (numKey6 == null) {
         break missingId;
       }
 
       id = R.id.num_key_7;
-      Button numKey7 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey7 = ViewBindings.findChildViewById(rootView, id);
       if (numKey7 == null) {
         break missingId;
       }
 
       id = R.id.num_key_8;
-      Button numKey8 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey8 = ViewBindings.findChildViewById(rootView, id);
       if (numKey8 == null) {
         break missingId;
       }
 
       id = R.id.num_key_9;
-      Button numKey9 = ViewBindings.findChildViewById(rootView, id);
+      TextView numKey9 = ViewBindings.findChildViewById(rootView, id);
       if (numKey9 == null) {
         break missingId;
       }
 
       id = R.id.num_key_abc;
-      Button numKeyAbc = ViewBindings.findChildViewById(rootView, id);
+      TextView numKeyAbc = ViewBindings.findChildViewById(rootView, id);
       if (numKeyAbc == null) {
         break missingId;
       }
@@ -1066,21 +1225,69 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.num_key_comma;
+      TextView numKeyComma = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyComma == null) {
+        break missingId;
+      }
+
+      id = R.id.num_key_div;
+      TextView numKeyDiv = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyDiv == null) {
+        break missingId;
+      }
+
+      id = R.id.num_key_dot;
+      TextView numKeyDot = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyDot == null) {
+        break missingId;
+      }
+
       id = R.id.num_key_enter;
       FrameLayout numKeyEnter = ViewBindings.findChildViewById(rootView, id);
       if (numKeyEnter == null) {
         break missingId;
       }
 
+      id = R.id.num_key_equal;
+      TextView numKeyEqual = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyEqual == null) {
+        break missingId;
+      }
+
+      id = R.id.num_key_minus;
+      TextView numKeyMinus = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyMinus == null) {
+        break missingId;
+      }
+
+      id = R.id.num_key_mul;
+      TextView numKeyMul = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyMul == null) {
+        break missingId;
+      }
+
+      id = R.id.num_key_percent;
+      TextView numKeyPercent = ViewBindings.findChildViewById(rootView, id);
+      if (numKeyPercent == null) {
+        break missingId;
+      }
+
       id = R.id.num_key_plus;
-      Button numKeyPlus = ViewBindings.findChildViewById(rootView, id);
+      TextView numKeyPlus = ViewBindings.findChildViewById(rootView, id);
       if (numKeyPlus == null) {
         break missingId;
       }
 
       id = R.id.num_key_space;
-      Button numKeySpace = ViewBindings.findChildViewById(rootView, id);
+      TextView numKeySpace = ViewBindings.findChildViewById(rootView, id);
       if (numKeySpace == null) {
+        break missingId;
+      }
+
+      id = R.id.num_key_sym;
+      TextView numKeySym = ViewBindings.findChildViewById(rootView, id);
+      if (numKeySym == null) {
         break missingId;
       }
 
@@ -1093,6 +1300,18 @@ public final class KeyboardViewBinding implements ViewBinding {
       id = R.id.number_row_container;
       LinearLayout numberRowContainer = ViewBindings.findChildViewById(rootView, id);
       if (numberRowContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.screenshot_chip_container;
+      LinearLayout screenshotChipContainer = ViewBindings.findChildViewById(rootView, id);
+      if (screenshotChipContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.screenshot_chip_thumbnail;
+      ImageView screenshotChipThumbnail = ViewBindings.findChildViewById(rootView, id);
+      if (screenshotChipThumbnail == null) {
         break missingId;
       }
 
@@ -1263,22 +1482,26 @@ public final class KeyboardViewBinding implements ViewBinding {
           aiToolbarLeft, aiToolbarRight, btnAiChat, btnAiCopy, btnAiReply, btnAiSend, btnAiSparkle,
           btnAiTranslate, btnBottomSwitchKb, btnClipboard, btnClipboardClearAll, btnClipboardClose,
           btnCloseSubPanel, btnEmoji, btnEmojiBackAbc, btnEmojiBackspace, btnEmojiClearSearch,
-          btnEmojiSpace, btnKeyboardDismiss, btnMicToolbar, btnMoreDots, btnMoreMenuClose, btnNum0,
-          btnNum1, btnNum2, btnNum3, btnNum4, btnNum5, btnNum6, btnNum7, btnNum8, btnNum9,
-          clipboardContainer, clipboardEmptyView, clipboardItemsContainer, clipboardScrollView,
-          emojiBottomBar, emojiCategoriesContainer, emojiCategoriesScroll, emojiContainer,
-          emojiGrid, emojiScrollView, emojiSearchInput, iconAiChat, iconAiReply, iconAiSparkle,
-          iconAiTranslate, iconBottomSwitchKb, iconClipboard, iconEmoji, iconKeyboardDismiss,
-          iconMicToolbar, iconMoreDots, keyboardBgImage, keyboardBgOverlay,
+          btnEmojiSpace, btnEmojiToGif, btnGifBackAbc, btnGifClearSearch, btnKeyboardDismiss,
+          btnMicToolbar, btnMoreDots, btnMoreMenuClose, btnNum0, btnNum1, btnNum2, btnNum3, btnNum4,
+          btnNum5, btnNum6, btnNum7, btnNum8, btnNum9, clipboardContainer, clipboardEmptyView,
+          clipboardItemsContainer, clipboardScrollView, emojiBottomBar, emojiCategoriesContainer,
+          emojiCategoriesScroll, emojiContainer, emojiGrid, emojiScrollView, emojiSearchInput,
+          gifCategoriesContainer, gifCategoriesScroll, gifContainer, gifGridContainer,
+          gifScrollView, gifSearchInput, iconAiChat, iconAiReply, iconAiSparkle, iconAiTranslate,
+          iconBottomSwitchKb, iconClipboard, iconEmoji, iconKeyboardDismiss, iconMicToolbar,
+          iconMoreDots, keyPreviewBubble, keyboardBgImage, keyboardBgOverlay,
           keyboardBottomDismissBar, keyboardContainerLayout, keyboardRoot, keyboardView,
-          moreGridContainer, moreGridScroll, moreMenuContainer, moreRow1, moreRow2,
-          moreSubpanelContainer, numKey0, numKey1, numKey2, numKey3, numKey4, numKey5, numKey6,
-          numKey7, numKey8, numKey9, numKeyAbc, numKeyBackspace, numKeyEnter, numKeyPlus,
-          numKeySpace, numPadContainer, numberRowContainer, subOptionsContainer, subOptionsPanel,
-          suggestion1, suggestion2, suggestion3, suggestion4, suggestion5, suggestionBarContainer,
-          suggestionScrollView, textAiChat, textAiReply, textAiSparkle, textAiTranslate,
-          textClipboard, textEmoji, textMicToolbar, textMoreDots, textNum0, textNum1, textNum2,
-          textNum3, textNum4, textNum5, textNum6, textNum7, textNum8, textNum9);
+          moreGridContainer, moreGridScroll, moreMenuContainer, moreQuickBar, moreSubpanelContainer,
+          numIconBackspace, numIconEnter, numKey0, numKey1, numKey2, numKey3, numKey4, numKey5,
+          numKey6, numKey7, numKey8, numKey9, numKeyAbc, numKeyBackspace, numKeyComma, numKeyDiv,
+          numKeyDot, numKeyEnter, numKeyEqual, numKeyMinus, numKeyMul, numKeyPercent, numKeyPlus,
+          numKeySpace, numKeySym, numPadContainer, numberRowContainer, screenshotChipContainer,
+          screenshotChipThumbnail, subOptionsContainer, subOptionsPanel, suggestion1, suggestion2,
+          suggestion3, suggestion4, suggestion5, suggestionBarContainer, suggestionScrollView,
+          textAiChat, textAiReply, textAiSparkle, textAiTranslate, textClipboard, textEmoji,
+          textMicToolbar, textMoreDots, textNum0, textNum1, textNum2, textNum3, textNum4, textNum5,
+          textNum6, textNum7, textNum8, textNum9);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
