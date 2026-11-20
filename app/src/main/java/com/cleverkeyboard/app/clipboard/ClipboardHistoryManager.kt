@@ -11,7 +11,9 @@ data class ClipboardItem(
     val text: String,
     val timestamp: Long = System.currentTimeMillis(),
     var isPinned: Boolean = false,
-    var isSensitive: Boolean = false
+    var isSensitive: Boolean = false,
+    val uriString: String? = null,
+    val isImage: Boolean = false
 )
 
 object ClipboardHistoryManager {
@@ -82,7 +84,9 @@ object ClipboardHistoryManager {
                             text = obj.optString("text", ""),
                             timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
                             isPinned = obj.optBoolean("isPinned", false),
-                            isSensitive = obj.optBoolean("isSensitive", false)
+                            isSensitive = obj.optBoolean("isSensitive", false),
+                            uriString = if (obj.has("uriString") && !obj.isNull("uriString")) obj.getString("uriString") else null,
+                            isImage = obj.optBoolean("isImage", false)
                         )
                     )
                 }
@@ -102,10 +106,52 @@ object ClipboardHistoryManager {
                 put("timestamp", item.timestamp)
                 put("isPinned", item.isPinned)
                 put("isSensitive", item.isSensitive)
+                if (item.uriString != null) {
+                    put("uriString", item.uriString)
+                }
+                put("isImage", item.isImage)
             }
             array.put(obj)
         }
         getPrefs(context).edit().putString(KEY_ITEMS, array.toString()).apply()
+    }
+
+    /**
+     * Stores an image or recent screenshot into the clipboard history.
+     */
+    @Synchronized
+    fun addImageItem(context: Context, uri: android.net.Uri, displayName: String = "Screenshot"): Boolean {
+        val uriStr = uri.toString()
+        if (cachedItems == null) {
+            loadItems(context)
+        }
+        val list = cachedItems ?: mutableListOf()
+
+        val existingIndex = list.indexOfFirst { it.uriString == uriStr }
+        if (existingIndex != -1) {
+            val existing = list.removeAt(existingIndex)
+            list.add(0, existing.copy(timestamp = System.currentTimeMillis()))
+        } else {
+            list.add(0, ClipboardItem(
+                text = displayName,
+                timestamp = System.currentTimeMillis(),
+                uriString = uriStr,
+                isImage = true
+            ))
+        }
+
+        if (list.size > MAX_TOTAL_ITEMS) {
+            val nonPinned = list.filter { !it.isPinned }.sortedBy { it.timestamp }
+            var excess = list.size - MAX_TOTAL_ITEMS
+            for (item in nonPinned) {
+                if (excess <= 0) break
+                list.remove(item)
+                excess--
+            }
+        }
+
+        saveItems(context)
+        return true
     }
 
     @Synchronized

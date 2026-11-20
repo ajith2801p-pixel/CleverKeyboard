@@ -60,6 +60,9 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final Button btnAiCopy;
 
   @NonNull
+  public final LinearLayout btnAiPrompt;
+
+  @NonNull
   public final LinearLayout btnAiReply;
 
   @NonNull
@@ -153,6 +156,9 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final FrameLayout btnNum9;
 
   @NonNull
+  public final ImageView btnScreenshotChipClose;
+
+  @NonNull
   public final LinearLayout clipboardContainer;
 
   @NonNull
@@ -207,6 +213,9 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final ImageView iconAiChat;
 
   @NonNull
+  public final ImageView iconAiPrompt;
+
+  @NonNull
   public final ImageView iconAiReply;
 
   @NonNull
@@ -253,6 +262,9 @@ public final class KeyboardViewBinding implements ViewBinding {
 
   @NonNull
   public final CustomKeyboardView keyboardView;
+
+  @NonNull
+  public final LinearLayout moreEmojiBar;
 
   @NonNull
   public final LinearLayout moreGridContainer;
@@ -357,6 +369,9 @@ public final class KeyboardViewBinding implements ViewBinding {
   public final ImageView screenshotChipThumbnail;
 
   @NonNull
+  public final TextView screenshotChipTitle;
+
+  @NonNull
   public final LinearLayout subOptionsContainer;
 
   @NonNull
@@ -385,6 +400,9 @@ public final class KeyboardViewBinding implements ViewBinding {
 
   @NonNull
   public final TextView textAiChat;
+
+  @NonNull
+  public final TextView textAiPrompt;
 
   @NonNull
   public final TextView textAiReply;
@@ -442,63 +460,66 @@ public final class KeyboardViewBinding implements ViewBinding {
       @NonNull ProgressBar aiProgressBar, @NonNull LinearLayout aiResultPanel,
       @NonNull TextView aiResultText, @NonNull LinearLayout aiToolbarContainer,
       @NonNull LinearLayout aiToolbarLeft, @NonNull LinearLayout aiToolbarRight,
-      @NonNull LinearLayout btnAiChat, @NonNull Button btnAiCopy, @NonNull LinearLayout btnAiReply,
-      @NonNull Button btnAiSend, @NonNull LinearLayout btnAiSparkle,
-      @NonNull LinearLayout btnAiTranslate, @NonNull FrameLayout btnBottomSwitchKb,
-      @NonNull LinearLayout btnClipboard, @NonNull Button btnClipboardClearAll,
-      @NonNull Button btnClipboardClose, @NonNull Button btnCloseSubPanel,
-      @NonNull LinearLayout btnEmoji, @NonNull Button btnEmojiBackAbc,
-      @NonNull FrameLayout btnEmojiBackspace, @NonNull ImageView btnEmojiClearSearch,
-      @NonNull Button btnEmojiSpace, @NonNull Button btnEmojiToGif, @NonNull Button btnGifBackAbc,
+      @NonNull LinearLayout btnAiChat, @NonNull Button btnAiCopy, @NonNull LinearLayout btnAiPrompt,
+      @NonNull LinearLayout btnAiReply, @NonNull Button btnAiSend,
+      @NonNull LinearLayout btnAiSparkle, @NonNull LinearLayout btnAiTranslate,
+      @NonNull FrameLayout btnBottomSwitchKb, @NonNull LinearLayout btnClipboard,
+      @NonNull Button btnClipboardClearAll, @NonNull Button btnClipboardClose,
+      @NonNull Button btnCloseSubPanel, @NonNull LinearLayout btnEmoji,
+      @NonNull Button btnEmojiBackAbc, @NonNull FrameLayout btnEmojiBackspace,
+      @NonNull ImageView btnEmojiClearSearch, @NonNull Button btnEmojiSpace,
+      @NonNull Button btnEmojiToGif, @NonNull Button btnGifBackAbc,
       @NonNull ImageView btnGifClearSearch, @NonNull FrameLayout btnKeyboardDismiss,
       @NonNull LinearLayout btnMicToolbar, @NonNull LinearLayout btnMoreDots,
       @NonNull FrameLayout btnMoreMenuClose, @NonNull FrameLayout btnNum0,
       @NonNull FrameLayout btnNum1, @NonNull FrameLayout btnNum2, @NonNull FrameLayout btnNum3,
       @NonNull FrameLayout btnNum4, @NonNull FrameLayout btnNum5, @NonNull FrameLayout btnNum6,
       @NonNull FrameLayout btnNum7, @NonNull FrameLayout btnNum8, @NonNull FrameLayout btnNum9,
-      @NonNull LinearLayout clipboardContainer, @NonNull LinearLayout clipboardEmptyView,
-      @NonNull LinearLayout clipboardItemsContainer, @NonNull ScrollView clipboardScrollView,
-      @NonNull LinearLayout emojiBottomBar, @NonNull LinearLayout emojiCategoriesContainer,
+      @NonNull ImageView btnScreenshotChipClose, @NonNull LinearLayout clipboardContainer,
+      @NonNull LinearLayout clipboardEmptyView, @NonNull LinearLayout clipboardItemsContainer,
+      @NonNull ScrollView clipboardScrollView, @NonNull LinearLayout emojiBottomBar,
+      @NonNull LinearLayout emojiCategoriesContainer,
       @NonNull HorizontalScrollView emojiCategoriesScroll, @NonNull LinearLayout emojiContainer,
       @NonNull GridLayout emojiGrid, @NonNull ScrollView emojiScrollView,
       @NonNull EditText emojiSearchInput, @NonNull LinearLayout gifCategoriesContainer,
       @NonNull HorizontalScrollView gifCategoriesScroll, @NonNull LinearLayout gifContainer,
       @NonNull LinearLayout gifGridContainer, @NonNull ScrollView gifScrollView,
       @NonNull EditText gifSearchInput, @NonNull ImageView iconAiChat,
-      @NonNull ImageView iconAiReply, @NonNull ImageView iconAiSparkle,
-      @NonNull ImageView iconAiTranslate, @NonNull ImageView iconBottomSwitchKb,
-      @NonNull ImageView iconClipboard, @NonNull ImageView iconEmoji,
-      @NonNull ImageView iconKeyboardDismiss, @NonNull ImageView iconMicToolbar,
-      @NonNull ImageView iconMoreDots, @NonNull TextView keyPreviewBubble,
-      @NonNull ImageView keyboardBgImage, @NonNull View keyboardBgOverlay,
-      @NonNull LinearLayout keyboardBottomDismissBar,
+      @NonNull ImageView iconAiPrompt, @NonNull ImageView iconAiReply,
+      @NonNull ImageView iconAiSparkle, @NonNull ImageView iconAiTranslate,
+      @NonNull ImageView iconBottomSwitchKb, @NonNull ImageView iconClipboard,
+      @NonNull ImageView iconEmoji, @NonNull ImageView iconKeyboardDismiss,
+      @NonNull ImageView iconMicToolbar, @NonNull ImageView iconMoreDots,
+      @NonNull TextView keyPreviewBubble, @NonNull ImageView keyboardBgImage,
+      @NonNull View keyboardBgOverlay, @NonNull LinearLayout keyboardBottomDismissBar,
       @NonNull KeyboardContainerLayout keyboardContainerLayout, @NonNull LinearLayout keyboardRoot,
-      @NonNull CustomKeyboardView keyboardView, @NonNull LinearLayout moreGridContainer,
-      @NonNull ScrollView moreGridScroll, @NonNull LinearLayout moreMenuContainer,
-      @NonNull LinearLayout moreQuickBar, @NonNull LinearLayout moreSubpanelContainer,
-      @NonNull ImageView numIconBackspace, @NonNull ImageView numIconEnter,
-      @NonNull TextView numKey0, @NonNull TextView numKey1, @NonNull TextView numKey2,
-      @NonNull TextView numKey3, @NonNull TextView numKey4, @NonNull TextView numKey5,
-      @NonNull TextView numKey6, @NonNull TextView numKey7, @NonNull TextView numKey8,
-      @NonNull TextView numKey9, @NonNull TextView numKeyAbc, @NonNull FrameLayout numKeyBackspace,
-      @NonNull TextView numKeyComma, @NonNull TextView numKeyDiv, @NonNull TextView numKeyDot,
-      @NonNull FrameLayout numKeyEnter, @NonNull TextView numKeyEqual,
-      @NonNull TextView numKeyMinus, @NonNull TextView numKeyMul, @NonNull TextView numKeyPercent,
-      @NonNull TextView numKeyPlus, @NonNull TextView numKeySpace, @NonNull TextView numKeySym,
-      @NonNull LinearLayout numPadContainer, @NonNull LinearLayout numberRowContainer,
-      @NonNull LinearLayout screenshotChipContainer, @NonNull ImageView screenshotChipThumbnail,
+      @NonNull CustomKeyboardView keyboardView, @NonNull LinearLayout moreEmojiBar,
+      @NonNull LinearLayout moreGridContainer, @NonNull ScrollView moreGridScroll,
+      @NonNull LinearLayout moreMenuContainer, @NonNull LinearLayout moreQuickBar,
+      @NonNull LinearLayout moreSubpanelContainer, @NonNull ImageView numIconBackspace,
+      @NonNull ImageView numIconEnter, @NonNull TextView numKey0, @NonNull TextView numKey1,
+      @NonNull TextView numKey2, @NonNull TextView numKey3, @NonNull TextView numKey4,
+      @NonNull TextView numKey5, @NonNull TextView numKey6, @NonNull TextView numKey7,
+      @NonNull TextView numKey8, @NonNull TextView numKey9, @NonNull TextView numKeyAbc,
+      @NonNull FrameLayout numKeyBackspace, @NonNull TextView numKeyComma,
+      @NonNull TextView numKeyDiv, @NonNull TextView numKeyDot, @NonNull FrameLayout numKeyEnter,
+      @NonNull TextView numKeyEqual, @NonNull TextView numKeyMinus, @NonNull TextView numKeyMul,
+      @NonNull TextView numKeyPercent, @NonNull TextView numKeyPlus, @NonNull TextView numKeySpace,
+      @NonNull TextView numKeySym, @NonNull LinearLayout numPadContainer,
+      @NonNull LinearLayout numberRowContainer, @NonNull LinearLayout screenshotChipContainer,
+      @NonNull ImageView screenshotChipThumbnail, @NonNull TextView screenshotChipTitle,
       @NonNull LinearLayout subOptionsContainer, @NonNull LinearLayout subOptionsPanel,
       @NonNull TextView suggestion1, @NonNull TextView suggestion2, @NonNull TextView suggestion3,
       @NonNull TextView suggestion4, @NonNull TextView suggestion5,
       @NonNull LinearLayout suggestionBarContainer,
       @NonNull HorizontalScrollView suggestionScrollView, @NonNull TextView textAiChat,
-      @NonNull TextView textAiReply, @NonNull TextView textAiSparkle,
-      @NonNull TextView textAiTranslate, @NonNull TextView textClipboard,
-      @NonNull TextView textEmoji, @NonNull TextView textMicToolbar, @NonNull TextView textMoreDots,
-      @NonNull TextView textNum0, @NonNull TextView textNum1, @NonNull TextView textNum2,
-      @NonNull TextView textNum3, @NonNull TextView textNum4, @NonNull TextView textNum5,
-      @NonNull TextView textNum6, @NonNull TextView textNum7, @NonNull TextView textNum8,
-      @NonNull TextView textNum9) {
+      @NonNull TextView textAiPrompt, @NonNull TextView textAiReply,
+      @NonNull TextView textAiSparkle, @NonNull TextView textAiTranslate,
+      @NonNull TextView textClipboard, @NonNull TextView textEmoji,
+      @NonNull TextView textMicToolbar, @NonNull TextView textMoreDots, @NonNull TextView textNum0,
+      @NonNull TextView textNum1, @NonNull TextView textNum2, @NonNull TextView textNum3,
+      @NonNull TextView textNum4, @NonNull TextView textNum5, @NonNull TextView textNum6,
+      @NonNull TextView textNum7, @NonNull TextView textNum8, @NonNull TextView textNum9) {
     this.rootView = rootView;
     this.aiLoadingContainer = aiLoadingContainer;
     this.aiLoadingText = aiLoadingText;
@@ -510,6 +531,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.aiToolbarRight = aiToolbarRight;
     this.btnAiChat = btnAiChat;
     this.btnAiCopy = btnAiCopy;
+    this.btnAiPrompt = btnAiPrompt;
     this.btnAiReply = btnAiReply;
     this.btnAiSend = btnAiSend;
     this.btnAiSparkle = btnAiSparkle;
@@ -541,6 +563,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.btnNum7 = btnNum7;
     this.btnNum8 = btnNum8;
     this.btnNum9 = btnNum9;
+    this.btnScreenshotChipClose = btnScreenshotChipClose;
     this.clipboardContainer = clipboardContainer;
     this.clipboardEmptyView = clipboardEmptyView;
     this.clipboardItemsContainer = clipboardItemsContainer;
@@ -559,6 +582,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.gifScrollView = gifScrollView;
     this.gifSearchInput = gifSearchInput;
     this.iconAiChat = iconAiChat;
+    this.iconAiPrompt = iconAiPrompt;
     this.iconAiReply = iconAiReply;
     this.iconAiSparkle = iconAiSparkle;
     this.iconAiTranslate = iconAiTranslate;
@@ -575,6 +599,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.keyboardContainerLayout = keyboardContainerLayout;
     this.keyboardRoot = keyboardRoot;
     this.keyboardView = keyboardView;
+    this.moreEmojiBar = moreEmojiBar;
     this.moreGridContainer = moreGridContainer;
     this.moreGridScroll = moreGridScroll;
     this.moreMenuContainer = moreMenuContainer;
@@ -609,6 +634,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.numberRowContainer = numberRowContainer;
     this.screenshotChipContainer = screenshotChipContainer;
     this.screenshotChipThumbnail = screenshotChipThumbnail;
+    this.screenshotChipTitle = screenshotChipTitle;
     this.subOptionsContainer = subOptionsContainer;
     this.subOptionsPanel = subOptionsPanel;
     this.suggestion1 = suggestion1;
@@ -619,6 +645,7 @@ public final class KeyboardViewBinding implements ViewBinding {
     this.suggestionBarContainer = suggestionBarContainer;
     this.suggestionScrollView = suggestionScrollView;
     this.textAiChat = textAiChat;
+    this.textAiPrompt = textAiPrompt;
     this.textAiReply = textAiReply;
     this.textAiSparkle = textAiSparkle;
     this.textAiTranslate = textAiTranslate;
@@ -722,6 +749,12 @@ public final class KeyboardViewBinding implements ViewBinding {
       id = R.id.btn_ai_copy;
       Button btnAiCopy = ViewBindings.findChildViewById(rootView, id);
       if (btnAiCopy == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_ai_prompt;
+      LinearLayout btnAiPrompt = ViewBindings.findChildViewById(rootView, id);
+      if (btnAiPrompt == null) {
         break missingId;
       }
 
@@ -911,6 +944,12 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btn_screenshot_chip_close;
+      ImageView btnScreenshotChipClose = ViewBindings.findChildViewById(rootView, id);
+      if (btnScreenshotChipClose == null) {
+        break missingId;
+      }
+
       id = R.id.clipboard_container;
       LinearLayout clipboardContainer = ViewBindings.findChildViewById(rootView, id);
       if (clipboardContainer == null) {
@@ -1019,6 +1058,12 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.icon_ai_prompt;
+      ImageView iconAiPrompt = ViewBindings.findChildViewById(rootView, id);
+      if (iconAiPrompt == null) {
+        break missingId;
+      }
+
       id = R.id.icon_ai_reply;
       ImageView iconAiReply = ViewBindings.findChildViewById(rootView, id);
       if (iconAiReply == null) {
@@ -1108,6 +1153,12 @@ public final class KeyboardViewBinding implements ViewBinding {
       id = R.id.keyboard_view;
       CustomKeyboardView keyboardView = ViewBindings.findChildViewById(rootView, id);
       if (keyboardView == null) {
+        break missingId;
+      }
+
+      id = R.id.more_emoji_bar;
+      LinearLayout moreEmojiBar = ViewBindings.findChildViewById(rootView, id);
+      if (moreEmojiBar == null) {
         break missingId;
       }
 
@@ -1315,6 +1366,12 @@ public final class KeyboardViewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.screenshot_chip_title;
+      TextView screenshotChipTitle = ViewBindings.findChildViewById(rootView, id);
+      if (screenshotChipTitle == null) {
+        break missingId;
+      }
+
       id = R.id.sub_options_container;
       LinearLayout subOptionsContainer = ViewBindings.findChildViewById(rootView, id);
       if (subOptionsContainer == null) {
@@ -1372,6 +1429,12 @@ public final class KeyboardViewBinding implements ViewBinding {
       id = R.id.text_ai_chat;
       TextView textAiChat = ViewBindings.findChildViewById(rootView, id);
       if (textAiChat == null) {
+        break missingId;
+      }
+
+      id = R.id.text_ai_prompt;
+      TextView textAiPrompt = ViewBindings.findChildViewById(rootView, id);
+      if (textAiPrompt == null) {
         break missingId;
       }
 
@@ -1479,29 +1542,30 @@ public final class KeyboardViewBinding implements ViewBinding {
 
       return new KeyboardViewBinding((KeyboardContainerLayout) rootView, aiLoadingContainer,
           aiLoadingText, aiProgressBar, aiResultPanel, aiResultText, aiToolbarContainer,
-          aiToolbarLeft, aiToolbarRight, btnAiChat, btnAiCopy, btnAiReply, btnAiSend, btnAiSparkle,
-          btnAiTranslate, btnBottomSwitchKb, btnClipboard, btnClipboardClearAll, btnClipboardClose,
-          btnCloseSubPanel, btnEmoji, btnEmojiBackAbc, btnEmojiBackspace, btnEmojiClearSearch,
-          btnEmojiSpace, btnEmojiToGif, btnGifBackAbc, btnGifClearSearch, btnKeyboardDismiss,
-          btnMicToolbar, btnMoreDots, btnMoreMenuClose, btnNum0, btnNum1, btnNum2, btnNum3, btnNum4,
-          btnNum5, btnNum6, btnNum7, btnNum8, btnNum9, clipboardContainer, clipboardEmptyView,
-          clipboardItemsContainer, clipboardScrollView, emojiBottomBar, emojiCategoriesContainer,
-          emojiCategoriesScroll, emojiContainer, emojiGrid, emojiScrollView, emojiSearchInput,
-          gifCategoriesContainer, gifCategoriesScroll, gifContainer, gifGridContainer,
-          gifScrollView, gifSearchInput, iconAiChat, iconAiReply, iconAiSparkle, iconAiTranslate,
-          iconBottomSwitchKb, iconClipboard, iconEmoji, iconKeyboardDismiss, iconMicToolbar,
-          iconMoreDots, keyPreviewBubble, keyboardBgImage, keyboardBgOverlay,
-          keyboardBottomDismissBar, keyboardContainerLayout, keyboardRoot, keyboardView,
-          moreGridContainer, moreGridScroll, moreMenuContainer, moreQuickBar, moreSubpanelContainer,
-          numIconBackspace, numIconEnter, numKey0, numKey1, numKey2, numKey3, numKey4, numKey5,
-          numKey6, numKey7, numKey8, numKey9, numKeyAbc, numKeyBackspace, numKeyComma, numKeyDiv,
-          numKeyDot, numKeyEnter, numKeyEqual, numKeyMinus, numKeyMul, numKeyPercent, numKeyPlus,
-          numKeySpace, numKeySym, numPadContainer, numberRowContainer, screenshotChipContainer,
-          screenshotChipThumbnail, subOptionsContainer, subOptionsPanel, suggestion1, suggestion2,
-          suggestion3, suggestion4, suggestion5, suggestionBarContainer, suggestionScrollView,
-          textAiChat, textAiReply, textAiSparkle, textAiTranslate, textClipboard, textEmoji,
-          textMicToolbar, textMoreDots, textNum0, textNum1, textNum2, textNum3, textNum4, textNum5,
-          textNum6, textNum7, textNum8, textNum9);
+          aiToolbarLeft, aiToolbarRight, btnAiChat, btnAiCopy, btnAiPrompt, btnAiReply, btnAiSend,
+          btnAiSparkle, btnAiTranslate, btnBottomSwitchKb, btnClipboard, btnClipboardClearAll,
+          btnClipboardClose, btnCloseSubPanel, btnEmoji, btnEmojiBackAbc, btnEmojiBackspace,
+          btnEmojiClearSearch, btnEmojiSpace, btnEmojiToGif, btnGifBackAbc, btnGifClearSearch,
+          btnKeyboardDismiss, btnMicToolbar, btnMoreDots, btnMoreMenuClose, btnNum0, btnNum1,
+          btnNum2, btnNum3, btnNum4, btnNum5, btnNum6, btnNum7, btnNum8, btnNum9,
+          btnScreenshotChipClose, clipboardContainer, clipboardEmptyView, clipboardItemsContainer,
+          clipboardScrollView, emojiBottomBar, emojiCategoriesContainer, emojiCategoriesScroll,
+          emojiContainer, emojiGrid, emojiScrollView, emojiSearchInput, gifCategoriesContainer,
+          gifCategoriesScroll, gifContainer, gifGridContainer, gifScrollView, gifSearchInput,
+          iconAiChat, iconAiPrompt, iconAiReply, iconAiSparkle, iconAiTranslate, iconBottomSwitchKb,
+          iconClipboard, iconEmoji, iconKeyboardDismiss, iconMicToolbar, iconMoreDots,
+          keyPreviewBubble, keyboardBgImage, keyboardBgOverlay, keyboardBottomDismissBar,
+          keyboardContainerLayout, keyboardRoot, keyboardView, moreEmojiBar, moreGridContainer,
+          moreGridScroll, moreMenuContainer, moreQuickBar, moreSubpanelContainer, numIconBackspace,
+          numIconEnter, numKey0, numKey1, numKey2, numKey3, numKey4, numKey5, numKey6, numKey7,
+          numKey8, numKey9, numKeyAbc, numKeyBackspace, numKeyComma, numKeyDiv, numKeyDot,
+          numKeyEnter, numKeyEqual, numKeyMinus, numKeyMul, numKeyPercent, numKeyPlus, numKeySpace,
+          numKeySym, numPadContainer, numberRowContainer, screenshotChipContainer,
+          screenshotChipThumbnail, screenshotChipTitle, subOptionsContainer, subOptionsPanel,
+          suggestion1, suggestion2, suggestion3, suggestion4, suggestion5, suggestionBarContainer,
+          suggestionScrollView, textAiChat, textAiPrompt, textAiReply, textAiSparkle,
+          textAiTranslate, textClipboard, textEmoji, textMicToolbar, textMoreDots, textNum0,
+          textNum1, textNum2, textNum3, textNum4, textNum5, textNum6, textNum7, textNum8, textNum9);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

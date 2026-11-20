@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-20T05:43:44" hostname="Ajith-Macbook-Air.local" time="0.014">
+  <properties/>
+  <testcase name="testAiDataPromptRoadmap" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.005"/>
+  <testcase name="testEmptyInputGeneratesUniversalPlanWithRoadmap" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.002"/>
+  <testcase name="testBackendPromptRoadmap" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.002"/>
+  <testcase name="testWebDevPromptStructureAndRoadmap" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.002"/>
+  <testcase name="testMobileDevPromptRoadmap" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.001"/>
+  <testcase name="test3DSpatialPromptResizeAndDisposalGuardrails" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.001"/>
+  <testcase name="testStripBoundaryMarkersLeadingBAndTrailingE" classname="com.cleverkeyboard.app.intelligence.PromptEngineeringEngineTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

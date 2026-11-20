@@ -163,16 +163,26 @@ fun ModernAppScreen(viewModel: SettingsViewModel) {
     // Color Picker Dialog
     uiState.activeColorTarget?.let { target ->
         val title = when (target) {
-            ColorTarget.KEYBOARD_BG -> "Keyboard Background (Overlay Tint)"
+            ColorTarget.KEYBOARD_BG -> "Keyboard Background Color"
             ColorTarget.KEY_BG -> "Key Background Color"
             ColorTarget.KEY_TEXT -> "Key Text Color"
             ColorTarget.ACCENT -> "Accent Color (AI & Enter)"
+            ColorTarget.KEY_PRESSED -> "Key Pressed / Ripple Color"
+            ColorTarget.FUNCTION_KEYS -> "Function Keys Color (Shift, Backspace, ?123, Spacebar)"
+            ColorTarget.TOOLBAR_TEXT -> "Top Toolbar & Suggestion Text Color"
+            ColorTarget.KEY_POPUP -> "Key Popup Preview Color"
+            ColorTarget.SWIPE_TRAIL -> "Swipe / Glide Trail Color"
         }
         val initialColor = when (target) {
             ColorTarget.KEYBOARD_BG -> uiState.currentTheme.keyboardBgColor
             ColorTarget.KEY_BG -> uiState.currentTheme.keyBgColor
             ColorTarget.KEY_TEXT -> uiState.currentTheme.keyTextColor
             ColorTarget.ACCENT -> uiState.currentTheme.accentColor
+            ColorTarget.KEY_PRESSED -> uiState.currentTheme.keyPressedColor ?: uiState.currentTheme.accentColor
+            ColorTarget.FUNCTION_KEYS -> uiState.currentTheme.functionKeyColor ?: uiState.currentTheme.keyBgColor
+            ColorTarget.TOOLBAR_TEXT -> uiState.currentTheme.toolbarTextColor ?: uiState.currentTheme.keyTextColor
+            ColorTarget.KEY_POPUP -> uiState.currentTheme.keyPopupColor ?: uiState.currentTheme.keyBgColor
+            ColorTarget.SWIPE_TRAIL -> uiState.currentTheme.swipeTrailColor ?: uiState.currentTheme.accentColor
         }
 
         ColorPickerDialog(
@@ -1031,7 +1041,7 @@ fun ThemesScreen(
                         Text("🖼️ Key Borders", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
                         Text(
                             text = when (uiState.keyBordersMode) {
-                                KeyboardTheme.BORDERS_ON -> "ON (Board with 1dp border)"
+                                KeyboardTheme.BORDERS_ON -> "ON (Board with borders)"
                                 KeyboardTheme.BORDERS_OFF -> "OFF (Flat transparent keys)"
                                 else -> "AUTO (Adapts to theme)"
                             },
@@ -1064,6 +1074,170 @@ fun ThemesScreen(
                             }
                         }
                     }
+                }
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
+
+                // Border Thickness Slider
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("📏 Border Thickness", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                        Text(
+                            text = String.format(java.util.Locale.US, "%.1f dp", uiState.currentTheme.borderThickness),
+                            fontSize = 11.sp,
+                            color = ModernCyan
+                        )
+                    }
+                    Slider(
+                        value = uiState.currentTheme.borderThickness,
+                        onValueChange = { viewModel.setBorderThickness(it) },
+                        valueRange = 0.5f..3.0f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = ModernCyan,
+                            inactiveTrackColor = Color(0xFF262626)
+                        )
+                    )
+                }
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
+
+                // Key Corner Radius Slider
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("📐 Key Corner Radius", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                        Text(
+                            text = "${uiState.currentTheme.keyCornerRadius.toInt()} dp",
+                            fontSize = 11.sp,
+                            color = ModernCyan
+                        )
+                    }
+                    Slider(
+                        value = uiState.currentTheme.keyCornerRadius,
+                        onValueChange = { viewModel.setKeyCornerRadius(it) },
+                        valueRange = 0f..24f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = ModernCyan,
+                            inactiveTrackColor = Color(0xFF262626)
+                        )
+                    )
+                }
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
+
+                // Key Spacing Slider
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("↔ Key Spacing", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                        Text(
+                            text = String.format(java.util.Locale.US, "%.1f dp", uiState.currentTheme.keySpacing),
+                            fontSize = 11.sp,
+                            color = ModernCyan
+                        )
+                    }
+                    Slider(
+                        value = uiState.currentTheme.keySpacing,
+                        onValueChange = { viewModel.setKeySpacing(it) },
+                        valueRange = 1.0f..6.0f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = ModernCyan,
+                            inactiveTrackColor = Color(0xFF262626)
+                        )
+                    )
+                }
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
+
+                // Keyboard Opacity Slider
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("👁 Keyboard Opacity", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                        Text(
+                            text = "${(uiState.currentTheme.keyboardOpacity * 100).toInt()}%",
+                            fontSize = 11.sp,
+                            color = ModernCyan
+                        )
+                    }
+                    Slider(
+                        value = uiState.currentTheme.keyboardOpacity,
+                        onValueChange = { viewModel.setKeyboardOpacity(it) },
+                        valueRange = 0.20f..1.0f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = ModernCyan,
+                            inactiveTrackColor = Color(0xFF262626)
+                        )
+                    )
+                }
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
+
+                // Background Blur Slider
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🌫 Background Blur", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                        Text(
+                            text = "${uiState.currentTheme.backgroundBlur.toInt()} px",
+                            fontSize = 11.sp,
+                            color = ModernCyan
+                        )
+                    }
+                    Slider(
+                        value = uiState.currentTheme.backgroundBlur,
+                        onValueChange = { viewModel.setBackgroundBlur(it) },
+                        valueRange = 0f..50f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = ModernCyan,
+                            inactiveTrackColor = Color(0xFF262626)
+                        )
+                    )
+                }
+
+                HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
+
+                // Key Shadow Enable / Disable
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("🌘 Key Drop Shadow", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                        Text("Elevated 3D tactile keycaps depth", fontSize = 11.sp, color = TextSecondary)
+                    }
+                    Switch(
+                        checked = uiState.currentTheme.keyShadowEnabled,
+                        onCheckedChange = { viewModel.setKeyShadowEnabled(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = ModernCyan,
+                            uncheckedThumbColor = Color.Gray,
+                            uncheckedTrackColor = Color(0xFF262626)
+                        )
+                    )
                 }
 
                 HorizontalDivider(color = ModernCardStroke.copy(alpha = 0.5f))
@@ -1273,7 +1447,11 @@ fun ThemeCard(
                             .size(18.dp, 12.dp)
                             .clip(RoundedCornerShape(3.dp))
                             .background(Color(theme.keyBgColor))
-                            .border(0.5.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(3.dp))
+                            .border(
+                                0.5.dp,
+                                if (KeyboardTheme.isColorLight(theme.keyBgColor)) Color(0xFF8A8E97) else Color.White.copy(alpha = 0.3f),
+                                RoundedCornerShape(3.dp)
+                            )
                     )
                     Box(
                         modifier = Modifier
@@ -1606,30 +1784,137 @@ fun CustomColorsSection(
         Column(modifier = Modifier.padding(16.dp)) {
             Text("🎨 Custom Color Palette", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 15.sp)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("Customize exact hex colors for keyboard background, keycaps, text, and accent.", fontSize = 12.sp, color = TextSecondary)
-            Spacer(modifier = Modifier.height(12.dp))
+            Text("Complete custom styling suite for keys, backgrounds, function keys, effects, and typography.", fontSize = 12.sp, color = TextSecondary)
+            Spacer(modifier = Modifier.height(14.dp))
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // 1. Keyboard Background
                 ColorPickerRow(
                     label = "1. Keyboard Background",
                     colorInt = uiState.currentTheme.keyboardBgColor,
                     onClick = { viewModel.openColorPicker(ColorTarget.KEYBOARD_BG) }
                 )
+
+                // 2. Key Background
                 ColorPickerRow(
                     label = "2. Key Background",
                     colorInt = uiState.currentTheme.keyBgColor,
                     onClick = { viewModel.openColorPicker(ColorTarget.KEY_BG) }
                 )
+
+                // 3. Key Text Color
                 ColorPickerRow(
                     label = "3. Key Text Color",
                     colorInt = uiState.currentTheme.keyTextColor,
                     onClick = { viewModel.openColorPicker(ColorTarget.KEY_TEXT) }
                 )
+
+                // 4. Accent Color (AI & Enter)
                 ColorPickerRow(
                     label = "4. Accent Color (AI & Enter)",
                     colorInt = uiState.currentTheme.accentColor,
                     onClick = { viewModel.openColorPicker(ColorTarget.ACCENT) }
                 )
+
+                // 5. Key Opacity / Transparency (0% to 100% Slider)
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFF142434),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke)
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("5. Key Opacity / Transparency", fontSize = 13.sp, color = Color.White)
+                            Text(
+                                text = "${(uiState.currentTheme.keyOpacity * 100).toInt()}%",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = ModernCyan
+                            )
+                        }
+                        Slider(
+                            value = uiState.currentTheme.keyOpacity,
+                            onValueChange = { viewModel.setKeyOpacity(it) },
+                            valueRange = 0f..1f,
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color.White,
+                                activeTrackColor = ModernCyan,
+                                inactiveTrackColor = Color(0xFF262626)
+                            )
+                        )
+                    }
+                }
+
+                // 6. Key Pressed / Ripple Color
+                ColorPickerRow(
+                    label = "6. Key Pressed / Ripple Color",
+                    colorInt = uiState.currentTheme.keyPressedColor ?: uiState.currentTheme.accentColor,
+                    onClick = { viewModel.openColorPicker(ColorTarget.KEY_PRESSED) }
+                )
+
+                // 7. Function Keys Color
+                ColorPickerRow(
+                    label = "7. Function Keys Color (Shift, ⌫, ?123, Space)",
+                    colorInt = uiState.currentTheme.functionKeyColor ?: uiState.currentTheme.keyBgColor,
+                    onClick = { viewModel.openColorPicker(ColorTarget.FUNCTION_KEYS) }
+                )
+
+                // 8. Top Toolbar & Suggestion Text Color
+                ColorPickerRow(
+                    label = "8. Top Toolbar & Suggestion Text Color",
+                    colorInt = uiState.currentTheme.toolbarTextColor ?: uiState.currentTheme.keyTextColor,
+                    onClick = { viewModel.openColorPicker(ColorTarget.TOOLBAR_TEXT) }
+                )
+
+                // 9. Key Popup Preview Color
+                ColorPickerRow(
+                    label = "9. Key Popup Preview Color",
+                    colorInt = uiState.currentTheme.keyPopupColor ?: uiState.currentTheme.keyBgColor,
+                    onClick = { viewModel.openColorPicker(ColorTarget.KEY_POPUP) }
+                )
+
+                // 10. Swipe / Glide Trail Color
+                ColorPickerRow(
+                    label = "10. Swipe / Glide Trail Color",
+                    colorInt = uiState.currentTheme.swipeTrailColor ?: uiState.currentTheme.accentColor,
+                    onClick = { viewModel.openColorPicker(ColorTarget.SWIPE_TRAIL) }
+                )
+
+                // 11. Text / Key Shadow Toggle
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFF142434),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("11. Text / Key Drop Shadow", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                            Text("Clear contrast letters on light/photo themes", fontSize = 11.sp, color = TextSecondary)
+                        }
+                        Switch(
+                            checked = uiState.currentTheme.textShadowEnabled,
+                            onCheckedChange = { viewModel.setTextShadowEnabled(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = ModernCyan,
+                                uncheckedThumbColor = Color.Gray,
+                                uncheckedTrackColor = Color(0xFF262626)
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -2051,6 +2336,34 @@ fun AiFeaturesSubPage(
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(msg, color = SuccessGreen, fontSize = 12.sp)
                 }
+            }
+        }
+
+        // 6-Field Structured Prompt Generator Card
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            color = ModernCardBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, ModernCardStroke)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("💡", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "6-Field Structured Prompt Generator",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Transforms any brief thought into an expertly engineered, production-ready AI prompt with Role, Task, Background, Constraints, Output Format, and Tone & Style directly inside your keyboard.",
+                    fontSize = 12.sp,
+                    color = TextSecondary,
+                    lineHeight = 17.sp
+                )
             }
         }
     }

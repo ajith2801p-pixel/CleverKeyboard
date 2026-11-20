@@ -132,6 +132,42 @@
                         android:layout_marginTop="2dp" />
                 </LinearLayout>
 
+                <!-- 2b. Prompt Gen -> 6-Field Structured Prompt Generator -->
+                <LinearLayout
+                    android:id="@+id/btn_ai_prompt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:id="@+id/icon_ai_prompt"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_prompt"
+                        android:background="@drawable/ai_tool_btn_bg"
+                        android:padding="3dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Prompt" />
+
+                    <TextView
+                        android:id="@+id/text_ai_prompt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Prompt"
+                        android:textSize="9sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
                 <!-- 3. Fix Grammar -> Fix -->
                 <LinearLayout
                     android:id="@+id/btn_ai_chat"
@@ -497,7 +533,7 @@
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp">
 
-                <!-- RECENT SCREENSHOT CHIP (Shown for ~5 seconds when screenshot was taken recently) -->
+                <!-- RECENT SCREENSHOT CHIP (Shown for 15 seconds when screenshot was taken within 10s) -->
                 <LinearLayout
                     android:id="@+id/screenshot_chip_container"
                     android:layout_width="wrap_content"
@@ -506,7 +542,7 @@
                     android:gravity="center_vertical"
                     android:background="@drawable/key_pill_accent"
                     android:paddingStart="8dp"
-                    android:paddingEnd="10dp"
+                    android:paddingEnd="8dp"
                     android:layout_marginEnd="6dp"
                     android:clickable="true"
                     android:focusable="false" android:focusableInTouchMode="false"
@@ -514,13 +550,14 @@
 
                     <ImageView
                         android:id="@+id/screenshot_chip_thumbnail"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:scaleType="centerCrop"
                         android:background="#33FFFFFF"
                         android:contentDescription="Screenshot Thumbnail" />
 
                     <TextView
+                        android:id="@+id/screenshot_chip_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
@@ -528,6 +565,16 @@
                         android:textColor="#FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/btn_screenshot_chip_close"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:tint="#DDFFFFFF"
+                        android:clickable="true"
+                        android:contentDescription="Dismiss Screenshot Chip" />
                 </LinearLayout>
 
                 <!-- Suggestion 1 (Leftmost / Original typed text) -->
@@ -1137,277 +1184,289 @@
             android:paddingTop="2dp"
             android:paddingBottom="4dp">
 
-            <!-- Top Grid: Left Rail (+ - * /) + Number Grid (1-9, %, space, backspace) -->
+            <!-- ROW 1: [+] | [1] [2] [3] | [%] -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="3"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-                <!-- Left Operator Rail: + - * / -->
-                <LinearLayout
+                <TextView
+                    android:id="@+id/num_key_plus"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="+"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
 
-                    <TextView
-                        android:id="@+id/num_key_plus"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="false" android:focusableInTouchMode="false"
-                        android:text="+"
-                        android:textSize="22sp"
-                        android:textColor="#FFFFFF" />
+                <!-- Vertical Divider Left Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
 
-                    <TextView
-                        android:id="@+id/num_key_minus"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="false" android:focusableInTouchMode="false"
-                        android:text="-"
-                        android:textSize="22sp"
-                        android:textColor="#FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/num_key_mul"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="false" android:focusableInTouchMode="false"
-                        android:text="*"
-                        android:textSize="22sp"
-                        android:textColor="#FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/num_key_div"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="false" android:focusableInTouchMode="false"
-                        android:text="/"
-                        android:textSize="22sp"
-                        android:textColor="#FFFFFF" />
-                </LinearLayout>
-
-                <!-- Right Number Grid: 4 columns x 3 rows (Col 1: 1,4,7; Col 2: 2,5,8; Col 3: 3,6,9; Col 4: %,␣,⌫) -->
-                <!-- Total weight = 6 (4 columns of 1.5 each, matching 1.0 + 4*1.5 = 7.0 total width!) -->
-                <LinearLayout
+                <TextView
+                    android:id="@+id/num_key_1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="6"
-                    android:orientation="vertical">
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="1"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
 
-                    <!-- Row 1: 1 2 3 % -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/num_key_2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="2"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
 
-                        <TextView
-                            android:id="@+id/num_key_1"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="1"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
+                <TextView
+                    android:id="@+id/num_key_3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="3"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
 
-                        <TextView
-                            android:id="@+id/num_key_2"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="2"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
+                <!-- Vertical Divider Right Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
 
-                        <TextView
-                            android:id="@+id/num_key_3"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="3"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/num_key_percent"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="%"
-                            android:textSize="22sp"
-                            android:textColor="#FFFFFF" />
-                    </LinearLayout>
-
-                    <!-- Row 2: 4 5 6 ␣ -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/num_key_4"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="4"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/num_key_5"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="5"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/num_key_6"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="6"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/num_key_space"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="␣"
-                            android:textSize="22sp"
-                            android:textColor="#FFFFFF" />
-                    </LinearLayout>
-
-                    <!-- Row 3: 7 8 9 ⌫ -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/num_key_7"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="7"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/num_key_8"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="8"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/num_key_9"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false"
-                            android:text="9"
-                            android:textSize="26sp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#FFFFFF" />
-
-                        <FrameLayout
-                            android:id="@+id/num_key_backspace"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="false" android:focusableInTouchMode="false">
-                            <ImageView
-                                android:id="@+id/num_icon_backspace"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_backspace" />
-                        </FrameLayout>
-                    </LinearLayout>
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/num_key_percent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="%"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
             </LinearLayout>
 
-            <!-- Bottom Row: [ABC Pill] [,] [!?#] [0] [=] [.] [↵ Blue Pill] -->
-            <!-- Total weight = 1.0 + 0.7 + 0.8 + 1.5 + 0.75 + 0.75 + 1.5 = 7.0 ! PERFECT GRID ALIGNMENT -->
+            <!-- ROW 2: [-] | [4] [5] [6] | [␣] -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/num_key_minus"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="-"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Vertical Divider Left Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="4"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="5"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_6"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="6"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Vertical Divider Right Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_space"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="␣"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <!-- ROW 3: [*] | [7] [8] [9] | [⌫] -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/num_key_mul"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="*"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Vertical Divider Left Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="7"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_8"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="8"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/num_key_9"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.33"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="9"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Vertical Divider Right Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
+
+                <FrameLayout
+                    android:id="@+id/num_key_backspace"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false">
+                    <ImageView
+                        android:id="@+id/num_icon_backspace"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_backspace" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- ROW 4: [/] | [ABC Pill] [,] [!?#] [0] [=] [.] | [↵ Blue Pill] -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -1416,12 +1475,33 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="2dp">
 
+                <TextView
+                    android:id="@+id/num_key_div"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="false" android:focusableInTouchMode="false"
+                    android:text="/"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Vertical Divider Left Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
+
                 <!-- ABC Pill Button -->
                 <TextView
                     android:id="@+id/num_key_abc"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
+                    android:layout_height="38dp"
+                    android:layout_weight="0.9"
                     android:gravity="center"
                     android:background="@drawable/key_pill_background"
                     android:clickable="true"
@@ -1430,14 +1510,15 @@
                     android:textSize="13sp"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
-                    android:layout_marginEnd="3dp" />
+                    android:layout_marginStart="3dp"
+                    android:layout_marginEnd="2dp" />
 
                 <!-- Comma -->
                 <TextView
                     android:id="@+id/num_key_comma"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.7"
+                    android:layout_weight="0.5"
                     android:gravity="center"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
@@ -1451,21 +1532,21 @@
                     android:id="@+id/num_key_sym"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.8"
+                    android:layout_weight="0.6"
                     android:gravity="center"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="false" android:focusableInTouchMode="false"
                     android:text="!?#"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:textColor="#FFFFFF" />
 
-                <!-- 0 (Directly under 2, 5, 8!) -->
+                <!-- 0 (Centered directly under 2, 5, 8) -->
                 <TextView
                     android:id="@+id/num_key_0"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1.5"
+                    android:layout_weight="1.0"
                     android:gravity="center"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
@@ -1475,12 +1556,12 @@
                     android:fontFamily="sans-serif"
                     android:textColor="#FFFFFF" />
 
-                <!-- = (Directly under 3, 6, 9 with period) -->
+                <!-- = -->
                 <TextView
                     android:id="@+id/num_key_equal"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.75"
+                    android:layout_weight="0.5"
                     android:gravity="center"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
@@ -1494,21 +1575,30 @@
                     android:id="@+id/num_key_dot"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.75"
+                    android:layout_weight="0.5"
                     android:gravity="center"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="false" android:focusableInTouchMode="false"
                     android:text="."
                     android:textSize="24sp"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="#FFFFFF"
+                    android:layout_marginEnd="3dp" />
+
+                <!-- Vertical Divider Right Rail -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="#20FFFFFF" />
 
                 <!-- Enter Blue Pill Button -->
                 <FrameLayout
                     android:id="@+id/num_key_enter"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1.5"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
                     android:background="@drawable/key_pill_accent"
                     android:clickable="true"
                     android:focusable="false" android:focusableInTouchMode="false"
@@ -1642,6 +1732,20 @@
             android:paddingEnd="6dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp">
+
+            <!-- Top Recent Emojis Strip (matching Gboard More Menu) -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:scrollbars="none"
+                android:layout_marginBottom="2dp">
+                <LinearLayout
+                    android:id="@+id/more_emoji_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical" />
+            </HorizontalScrollView>
 
             <!-- Top Header Bar with Close (X) and Quick Action Icons -->
             <LinearLayout

@@ -17,6 +17,9 @@ public final class ScreenshotManager {
         return null;
     }
     
+    /**
+     * Checks if screenshot was captured within the recent threshold (default: strictly 10 seconds).
+     */
     public final boolean isScreenshotVeryRecent(@org.jetbrains.annotations.NotNull()
     com.cleverkeyboard.app.clipboard.ScreenshotItem item, long maxSeconds) {
         return false;

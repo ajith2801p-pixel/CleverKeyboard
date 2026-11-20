@@ -31,22 +31,26 @@ fun KeyboardLivePreview(
     theme: KeyboardTheme,
     modifier: Modifier = Modifier
 ) {
+    val isApple = theme.id.contains("apple", ignoreCase = true)
     val isPhotoTheme = !theme.photoPath.isNullOrBlank()
     val bordersActive = theme.isBordersActive()
 
-    val kbBg = Color(theme.keyboardBgColor)
+    val kbBg = if (isApple) Color(0xFFD1D3D9) else Color(theme.keyboardBgColor)
     val keyBg = when {
+        isApple -> Color.White.copy(alpha = theme.keyOpacity.coerceIn(0f, 1f))
         !bordersActive -> Color.Transparent
-        else -> Color(theme.keyBgColor)
+        else -> Color(theme.keyBgColor).copy(alpha = theme.keyOpacity.coerceIn(0f, 1f))
     }
     val fnKeyBg = when {
+        theme.functionKeyColor != null -> Color(theme.functionKeyColor)
+        isApple -> Color(0xFFB0B5BF)
         !bordersActive -> Color.Transparent
-        else -> Color(theme.keyBgColor).copy(alpha = 0.85f)
+        else -> Color(theme.keyBgColor).copy(alpha = (0.85f * theme.keyOpacity).coerceIn(0f, 1f))
     }
-    val keyText = Color(theme.keyTextColor)
+    val keyText = if (isApple) Color.Black else Color(theme.keyTextColor)
     val accentColor = Color(theme.accentColor)
     val searchBlue = accentColor
-    val aiPurple = Color(0xFF6A5ACD)
+    val aiPurple = if (isApple) Color(0xFF007AFF) else Color(0xFF6A5ACD)
 
     val photoBitmap: android.graphics.Bitmap? = remember(theme.photoPath) {
         val currentPath: String? = theme.photoPath
@@ -121,12 +125,13 @@ fun KeyboardLivePreview(
         }
 
         val borderColor = if (bordersActive) {
-            if (KeyboardTheme.isColorLight(theme.keyBgColor)) Color.Black.copy(alpha = 0.20f) else Color.White.copy(alpha = 0.18f)
+            if (KeyboardTheme.isColorLight(theme.keyBgColor)) Color.Black.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.22f)
         } else Color.Transparent
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .alpha(theme.keyboardOpacity.coerceIn(0.20f, 1.0f))
                 .padding(top = 8.dp, bottom = 10.dp, start = 6.dp, end = 6.dp)
         ) {
             // =========================================================================
@@ -134,7 +139,7 @@ fun KeyboardLivePreview(
             // Left: 5 buttons (#6A5ACD), Right: 3 buttons (Emoji, ..., Mic)
             // =========================================================================
             val showLabels = theme.showAiToolbarLabels
-            val labelColor = if (isPhotoTheme) Color.White else keyText
+            val labelColor = if (theme.toolbarTextColor != null) Color(theme.toolbarTextColor) else if (isPhotoTheme) Color.White else keyText
 
             Row(
                 modifier = Modifier
@@ -225,10 +230,11 @@ fun KeyboardLivePreview(
                     .padding(bottom = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                val suggBg = if (!bordersActive) Color.Transparent else Color(theme.keyBgColor)
-                PreviewSuggestionChip(text = "I", keyBg = suggBg, textColor = keyText, hasBorder = bordersActive, borderColor = borderColor, modifier = Modifier.weight(1f))
-                PreviewSuggestionChip(text = "you", keyBg = suggBg, textColor = keyText, hasBorder = bordersActive, borderColor = borderColor, isBold = true, modifier = Modifier.weight(1.2f))
-                PreviewSuggestionChip(text = "the", keyBg = suggBg, textColor = keyText, hasBorder = bordersActive, borderColor = borderColor, modifier = Modifier.weight(1f))
+                val suggBg = if (isApple) Color.White else (if (!bordersActive) Color.Transparent else Color(theme.keyBgColor))
+                val suggTextColor = if (theme.toolbarTextColor != null) Color(theme.toolbarTextColor) else keyText
+                PreviewSuggestionChip(text = "I", keyBg = suggBg, textColor = suggTextColor, hasBorder = bordersActive || isApple, borderColor = if (isApple) Color(0xFFB8BCC6) else borderColor, modifier = Modifier.weight(1f))
+                PreviewSuggestionChip(text = "you", keyBg = suggBg, textColor = suggTextColor, hasBorder = bordersActive || isApple, borderColor = if (isApple) Color(0xFFB8BCC6) else borderColor, isBold = true, modifier = Modifier.weight(1.2f))
+                PreviewSuggestionChip(text = "the", keyBg = suggBg, textColor = suggTextColor, hasBorder = bordersActive || isApple, borderColor = if (isApple) Color(0xFFB8BCC6) else borderColor, modifier = Modifier.weight(1f))
             }
 
             // =========================================================================
@@ -240,35 +246,46 @@ fun KeyboardLivePreview(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(theme.keySpacing.dp)
                 ) {
                     numbers.forEach { num ->
                         PreviewKey(
                             label = num,
                             keyBg = keyBg,
                             keyText = keyText,
-                            hasBorder = bordersActive,
-                            borderColor = borderColor,
+                            hasBorder = bordersActive || isApple,
+                            borderThickness = theme.borderThickness,
+                            cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                            borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                             isBold = isPhotoTheme || !bordersActive,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            isApple = isApple,
+                            hasShadow = theme.keyShadowEnabled || isApple,
+                            hasTextShadow = theme.textShadowEnabled
                         )
                     }
                 }
             }
 
             // =========================================================================
+            // ROW 3: QWERTY Row (San Francisco lowercase unshifted characters)
             // =========================================================================
-            // ROW 3: QWERTY Row (with secondary symbols %, ', |, =, [, ], <, >, {, })
-            // =========================================================================
-            val row1 = listOf(
-                "Q" to "%", "W" to "'", "E" to "|", "R" to "=", "T" to "[",
-                "Y" to "]", "U" to "<", "I" to ">", "O" to "{", "P" to "}"
-            )
+            val row1 = if (isApple) {
+                listOf(
+                    "q" to null, "w" to null, "e" to null, "r" to null, "t" to null,
+                    "y" to null, "u" to null, "i" to null, "o" to null, "p" to null
+                )
+            } else {
+                listOf(
+                    "q" to "%", "w" to "'", "e" to "|", "r" to "=", "t" to "[",
+                    "y" to "]", "u" to "<", "i" to ">", "o" to "{", "p" to "}"
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(theme.keySpacing.dp)
             ) {
                 row1.forEach { (letter, sec) ->
                     PreviewKey(
@@ -276,26 +293,38 @@ fun KeyboardLivePreview(
                         secondary = sec,
                         keyBg = keyBg,
                         keyText = keyText,
-                        hasBorder = bordersActive,
-                        borderColor = borderColor,
+                        hasBorder = bordersActive || isApple,
+                        borderThickness = theme.borderThickness,
+                        cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                        borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                         isBold = isPhotoTheme || !bordersActive,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        isApple = isApple,
+                        hasShadow = theme.keyShadowEnabled || isApple,
+                        hasTextShadow = theme.textShadowEnabled
                     )
                 }
             }
 
             // =========================================================================
-            // ROW 4: ASDF Row (with secondary symbols @, #, ₹, _, &, -, +, (, ))
+            // ROW 4: ASDF Row (San Francisco lowercase unshifted characters)
             // =========================================================================
-            val row2 = listOf(
-                "A" to "@", "S" to "#", "D" to "₹", "F" to "_", "G" to "&",
-                "H" to "-", "J" to "+", "K" to "(", "L" to ")"
-            )
+            val row2 = if (isApple) {
+                listOf(
+                    "a" to null, "s" to null, "d" to null, "f" to null, "g" to null,
+                    "h" to null, "j" to null, "k" to null, "l" to null
+                )
+            } else {
+                listOf(
+                    "a" to "@", "s" to "#", "d" to "₹", "f" to "_", "g" to "&",
+                    "h" to "-", "j" to "+", "k" to "(", "l" to ")"
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp, horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(theme.keySpacing.dp)
             ) {
                 row2.forEach { (letter, sec) ->
                     PreviewKey(
@@ -303,37 +332,54 @@ fun KeyboardLivePreview(
                         secondary = sec,
                         keyBg = keyBg,
                         keyText = keyText,
-                        hasBorder = bordersActive,
-                        borderColor = borderColor,
+                        hasBorder = bordersActive || isApple,
+                        borderThickness = theme.borderThickness,
+                        cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                        borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                         isBold = isPhotoTheme || !bordersActive,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        isApple = isApple,
+                        hasShadow = theme.keyShadowEnabled || isApple,
+                        hasTextShadow = theme.textShadowEnabled
                     )
                 }
             }
 
             // =========================================================================
-            // ROW 5: ZXCV Row [Shift ^] Z X C V B N M [Backspace X]
+            // ROW 5: ZXCV Row [Shift ^] z x c v b n m [Backspace X]
             // =========================================================================
-            val row3 = listOf(
-                "Z" to "*", "X" to "\"", "C" to "'", "V" to ":", "B" to ";",
-                "N" to "!", "M" to "?"
-            )
+            val row3 = if (isApple) {
+                listOf(
+                    "z" to null, "x" to null, "c" to null, "v" to null, "b" to null,
+                    "n" to null, "m" to null
+                )
+            } else {
+                listOf(
+                    "z" to "*", "x" to "\"", "c" to "'", "v" to ":", "b" to ";",
+                    "n" to "!", "m" to "?"
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(theme.keySpacing.dp)
             ) {
-                // Shift (Active/highlighted)
+                // Shift
                 PreviewKey(
                     label = "⇧",
-                    keyBg = if (bordersActive) Color(0xFF3A3A3C) else Color.Transparent,
-                    keyText = searchBlue,
-                    hasBorder = bordersActive,
-                    borderColor = borderColor,
+                    keyBg = if (isApple) fnKeyBg else (if (bordersActive) Color(0xFF3A3A3C) else Color.Transparent),
+                    keyText = if (isApple) Color.Black else searchBlue,
+                    hasBorder = bordersActive || isApple,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                    borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                     modifier = Modifier.weight(1.5f),
                     isFunctionKey = true,
-                    isBold = true
+                    isBold = true,
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
 
                 row3.forEach { (letter, sec) ->
@@ -342,10 +388,15 @@ fun KeyboardLivePreview(
                         secondary = sec,
                         keyBg = keyBg,
                         keyText = keyText,
-                        hasBorder = bordersActive,
-                        borderColor = borderColor,
+                        hasBorder = bordersActive || isApple,
+                        borderThickness = theme.borderThickness,
+                        cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                        borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                         isBold = isPhotoTheme || !bordersActive,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        isApple = isApple,
+                        hasShadow = theme.keyShadowEnabled || isApple,
+                        hasTextShadow = theme.textShadowEnabled
                     )
                 }
 
@@ -354,34 +405,44 @@ fun KeyboardLivePreview(
                     label = "⌫",
                     keyBg = fnKeyBg,
                     keyText = keyText,
-                    hasBorder = bordersActive,
-                    borderColor = borderColor,
+                    hasBorder = bordersActive || isApple,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                    borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                     modifier = Modifier.weight(1.5f),
                     isFunctionKey = true,
-                    isBold = true
+                    isBold = true,
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
             }
 
             // =========================================================================
-            // ROW 6: Bottom Row [?123 Pill] [,] [😃] [SPACE Active Language] [.] [↵ Blue Pill]
+            // ROW 6: Bottom Row [123] [,] [😃] [SPACE] [.] [→ Action]
             // =========================================================================
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(theme.keySpacing.dp)
             ) {
-                // ?123 (Pill)
+                // 123 / ?123
                 PreviewKey(
-                    label = "?123",
-                    keyBg = Color(theme.keyBgColor).copy(alpha = 0.88f),
+                    label = if (isApple) "123" else "?123",
+                    keyBg = if (isApple) fnKeyBg else Color(theme.keyBgColor).copy(alpha = 0.88f),
                     keyText = keyText,
-                    hasBorder = false,
-                    borderColor = Color.Transparent,
+                    hasBorder = isApple,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                    borderColor = if (isApple) Color(0xFF8A8E97) else Color.Transparent,
                     modifier = Modifier.weight(1.4f),
                     isFunctionKey = true,
                     isBold = true,
-                    isPill = true
+                    isPill = !isApple,
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
 
                 // Comma (flat)
@@ -389,10 +450,15 @@ fun KeyboardLivePreview(
                     label = ",",
                     keyBg = keyBg,
                     keyText = keyText,
-                    hasBorder = bordersActive,
-                    borderColor = borderColor,
+                    hasBorder = bordersActive || isApple,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                    borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                     isBold = isPhotoTheme || !bordersActive,
-                    modifier = Modifier.weight(0.8f)
+                    modifier = Modifier.weight(0.8f),
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
 
                 // 😃 Emoji (flat)
@@ -400,32 +466,38 @@ fun KeyboardLivePreview(
                     label = "😃",
                     keyBg = keyBg,
                     keyText = keyText,
-                    hasBorder = bordersActive,
-                    borderColor = borderColor,
+                    hasBorder = bordersActive || isApple,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                    borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                     modifier = Modifier.weight(0.9f),
                     isFunctionKey = true,
-                    isBold = true
+                    isBold = true,
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
 
-                // Spacebar (Active Language Pill)
+                // Spacebar
+                val spaceCorner = if (isApple) 5.dp else 17.dp
                 Box(
                     modifier = Modifier
                         .weight(4.7f)
                         .height(34.dp)
-                        .clip(RoundedCornerShape(17.dp))
-                        .background(Color(theme.keyBgColor).copy(alpha = 0.88f))
+                        .clip(RoundedCornerShape(spaceCorner))
+                        .background(if (isApple) Color.White else (if (theme.functionKeyColor != null) Color(theme.functionKeyColor) else Color(theme.keyBgColor).copy(alpha = 0.88f)))
                         .border(
-                            if (bordersActive) 1.dp else 0.dp,
-                            if (bordersActive) borderColor else Color.Transparent,
-                            RoundedCornerShape(17.dp)
+                            (theme.borderThickness).dp,
+                            if (isApple) Color(0xFF8A8E97) else (if (bordersActive) borderColor else Color.Transparent),
+                            RoundedCornerShape(spaceCorner)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "English",
-                        color = keyText,
+                        text = if (isApple) "space" else "English",
+                        color = if (isApple) Color(0xFF8E8E93) else keyText,
                         fontSize = 11.sp,
-                        fontWeight = if (isPhotoTheme || !bordersActive) FontWeight.Bold else FontWeight.Normal
+                        fontWeight = if (isApple) FontWeight.Normal else (if (isPhotoTheme || !bordersActive) FontWeight.Bold else FontWeight.Normal)
                     )
                 }
 
@@ -434,23 +506,33 @@ fun KeyboardLivePreview(
                     label = ".",
                     keyBg = keyBg,
                     keyText = keyText,
-                    hasBorder = bordersActive,
-                    borderColor = borderColor,
+                    hasBorder = bordersActive || isApple,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
+                    borderColor = if (isApple) Color(0xFF8A8E97) else borderColor,
                     isBold = isPhotoTheme || !bordersActive,
-                    modifier = Modifier.weight(0.8f)
+                    modifier = Modifier.weight(0.8f),
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
 
-                // Enter Button (Blue Pill)
+                // Enter / Action Button
                 PreviewKey(
-                    label = "↵",
-                    keyBg = accentColor,
-                    keyText = if (KeyboardTheme.isColorLight(theme.accentColor)) Color.Black else Color.White,
+                    label = if (isApple) "→" else "↵",
+                    keyBg = if (isApple) Color(0xFF007AFF) else accentColor,
+                    keyText = Color.White,
                     hasBorder = false,
+                    borderThickness = theme.borderThickness,
+                    cornerRadiusDp = if (isApple) 5f else theme.keyCornerRadius,
                     borderColor = Color.Transparent,
                     modifier = Modifier.weight(1.4f),
                     isFunctionKey = true,
                     isBold = true,
-                    isPill = true
+                    isPill = !isApple,
+                    isApple = isApple,
+                    hasShadow = theme.keyShadowEnabled || isApple,
+                    hasTextShadow = theme.textShadowEnabled
                 )
             }
 
@@ -522,26 +604,39 @@ private fun PreviewKey(
     keyText: Color,
     modifier: Modifier = Modifier,
     hasBorder: Boolean = true,
+    borderThickness: Float = 1.0f,
+    cornerRadiusDp: Float = 8f,
     borderColor: Color = Color.White.copy(alpha = 0.15f),
     isFunctionKey: Boolean = false,
     isBold: Boolean = false,
     isPill: Boolean = false,
-    keyShape: String = KeyboardTheme.KEY_SHAPE_ROUNDED
+    keyShape: String = KeyboardTheme.KEY_SHAPE_ROUNDED,
+    isApple: Boolean = false,
+    hasShadow: Boolean = false,
+    hasTextShadow: Boolean = false
 ) {
-    val corner = when {
+    val corner = if (isApple) 5.dp else when {
         isPill -> 17.dp
         keyShape == KeyboardTheme.KEY_SHAPE_SQUARE -> 2.dp
         keyShape == KeyboardTheme.KEY_SHAPE_SUPER_ROUNDED -> 13.dp
         keyShape == KeyboardTheme.KEY_SHAPE_PILL -> 24.dp
-        else -> 8.dp
+        else -> cornerRadiusDp.dp
     }
     Box(
         modifier = modifier
             .height(34.dp)
+            .then(
+                if (hasShadow) {
+                    Modifier.background(
+                        Color.Black.copy(alpha = 0.35f),
+                        RoundedCornerShape(corner)
+                    )
+                } else Modifier
+            )
             .clip(RoundedCornerShape(corner))
             .background(keyBg)
             .border(
-                if (hasBorder) 1.dp else 0.dp,
+                if (hasBorder) borderThickness.dp else 0.dp,
                 if (hasBorder) borderColor else Color.Transparent,
                 RoundedCornerShape(corner)
             ),
@@ -552,6 +647,7 @@ private fun PreviewKey(
                 text = secondary,
                 color = keyText.copy(alpha = 0.45f),
                 fontSize = 7.5.sp,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -562,7 +658,17 @@ private fun PreviewKey(
             text = label,
             color = keyText,
             fontSize = if (label.length > 2) 11.sp else 15.sp,
-            fontWeight = if (isFunctionKey || isBold) FontWeight.Bold else FontWeight.Normal
+            fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
+            fontWeight = if (isFunctionKey || isBold) FontWeight.Bold else FontWeight.Normal,
+            style = if (hasTextShadow) {
+                androidx.compose.ui.text.TextStyle(
+                    shadow = androidx.compose.ui.graphics.Shadow(
+                        color = Color.Black.copy(alpha = 0.7f),
+                        offset = androidx.compose.ui.geometry.Offset(1f, 2f),
+                        blurRadius = 3f
+                    )
+                )
+            } else androidx.compose.ui.text.TextStyle.Default
         )
     }
 }

@@ -39,6 +39,19 @@ object ThemeManager {
     private const val KEY_KEYBOARD_HEIGHT = "keyboard_height_percent"
     private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
+    private const val KEY_BORDER_THICKNESS = "border_thickness"
+    private const val KEY_KEY_CORNER_RADIUS = "key_corner_radius"
+    private const val KEY_KEY_SPACING = "key_spacing"
+    private const val KEY_KEYBOARD_OPACITY = "keyboard_opacity"
+    private const val KEY_BACKGROUND_BLUR = "background_blur"
+    private const val KEY_KEY_SHADOW_ENABLED = "key_shadow_enabled"
+    private const val KEY_KEY_OPACITY = "key_opacity"
+    private const val KEY_KEY_PRESSED_COLOR = "key_pressed_color"
+    private const val KEY_FUNCTION_KEY_COLOR = "function_key_color"
+    private const val KEY_TOOLBAR_TEXT_COLOR = "toolbar_text_color"
+    private const val KEY_KEY_POPUP_COLOR = "key_popup_color"
+    private const val KEY_SWIPE_TRAIL_COLOR = "swipe_trail_color"
+    private const val KEY_TEXT_SHADOW_ENABLED = "text_shadow_enabled"
 
     private var sharedPreferences: SharedPreferences? = null
     private val _currentTheme = MutableStateFlow(KeyboardTheme.DARK_THEME)
@@ -90,6 +103,19 @@ object ThemeManager {
 
         val keyShape = prefs.getString(KEY_KEY_SHAPE, KeyboardTheme.KEY_SHAPE_ROUNDED) ?: KeyboardTheme.KEY_SHAPE_ROUNDED
         val kbHeight = prefs.getInt(KEY_KEYBOARD_HEIGHT, 100)
+        val borderThickness = prefs.getFloat(KEY_BORDER_THICKNESS, 1.0f)
+        val keyCornerRadius = prefs.getFloat(KEY_KEY_CORNER_RADIUS, 8f)
+        val keySpacing = prefs.getFloat(KEY_KEY_SPACING, 2.0f)
+        val keyboardOpacity = prefs.getFloat(KEY_KEYBOARD_OPACITY, 1.0f)
+        val backgroundBlur = prefs.getFloat(KEY_BACKGROUND_BLUR, 0f)
+        val keyShadowEnabled = prefs.getBoolean(KEY_KEY_SHADOW_ENABLED, false)
+        val keyOpacity = prefs.getFloat(KEY_KEY_OPACITY, 1.0f)
+        val keyPressedColor = if (prefs.contains(KEY_KEY_PRESSED_COLOR)) prefs.getInt(KEY_KEY_PRESSED_COLOR, 0) else null
+        val functionKeyColor = if (prefs.contains(KEY_FUNCTION_KEY_COLOR)) prefs.getInt(KEY_FUNCTION_KEY_COLOR, 0) else null
+        val toolbarTextColor = if (prefs.contains(KEY_TOOLBAR_TEXT_COLOR)) prefs.getInt(KEY_TOOLBAR_TEXT_COLOR, 0) else null
+        val keyPopupColor = if (prefs.contains(KEY_KEY_POPUP_COLOR)) prefs.getInt(KEY_KEY_POPUP_COLOR, 0) else null
+        val swipeTrailColor = if (prefs.contains(KEY_SWIPE_TRAIL_COLOR)) prefs.getInt(KEY_SWIPE_TRAIL_COLOR, 0) else null
+        val textShadowEnabled = prefs.getBoolean(KEY_TEXT_SHADOW_ENABLED, false)
 
         val theme = KeyboardTheme(
             id = id,
@@ -113,7 +139,20 @@ object ThemeManager {
             personalizedSuggestions = personalizedSuggestions,
             dismissButtonMode = dismissButtonMode,
             keyShape = keyShape,
-            keyboardHeightPercent = kbHeight
+            keyboardHeightPercent = kbHeight,
+            borderThickness = borderThickness,
+            keyCornerRadius = keyCornerRadius,
+            keySpacing = keySpacing,
+            keyboardOpacity = keyboardOpacity,
+            backgroundBlur = backgroundBlur,
+            keyShadowEnabled = keyShadowEnabled,
+            keyOpacity = keyOpacity,
+            keyPressedColor = keyPressedColor,
+            functionKeyColor = functionKeyColor,
+            toolbarTextColor = toolbarTextColor,
+            keyPopupColor = keyPopupColor,
+            swipeTrailColor = swipeTrailColor,
+            textShadowEnabled = textShadowEnabled
         )
         _currentTheme.value = theme
         return theme
@@ -149,6 +188,21 @@ object ThemeManager {
         val nextWordPrediction = prefs.getBoolean(KEY_NEXT_WORD_PREDICTION, true)
         val personalizedSuggestions = prefs.getBoolean(KEY_PERSONALIZED_SUGGESTIONS, true)
         val dismissButtonMode = prefs.getString(KEY_DISMISS_BUTTON_MODE, KeyboardTheme.DISMISS_AUTO) ?: KeyboardTheme.DISMISS_AUTO
+        val keyShape = prefs.getString(KEY_KEY_SHAPE, KeyboardTheme.KEY_SHAPE_ROUNDED) ?: KeyboardTheme.KEY_SHAPE_ROUNDED
+        val kbHeight = prefs.getInt(KEY_KEYBOARD_HEIGHT, 100)
+        val borderThickness = prefs.getFloat(KEY_BORDER_THICKNESS, 1.0f)
+        val keyCornerRadius = prefs.getFloat(KEY_KEY_CORNER_RADIUS, 8f)
+        val keySpacing = prefs.getFloat(KEY_KEY_SPACING, 2.0f)
+        val keyboardOpacity = prefs.getFloat(KEY_KEYBOARD_OPACITY, 1.0f)
+        val backgroundBlur = prefs.getFloat(KEY_BACKGROUND_BLUR, 0f)
+        val keyShadowEnabled = prefs.getBoolean(KEY_KEY_SHADOW_ENABLED, false)
+        val keyOpacity = prefs.getFloat(KEY_KEY_OPACITY, 1.0f)
+        val keyPressedColor = if (prefs.contains(KEY_KEY_PRESSED_COLOR)) prefs.getInt(KEY_KEY_PRESSED_COLOR, 0) else null
+        val functionKeyColor = if (prefs.contains(KEY_FUNCTION_KEY_COLOR)) prefs.getInt(KEY_FUNCTION_KEY_COLOR, 0) else null
+        val toolbarTextColor = if (prefs.contains(KEY_TOOLBAR_TEXT_COLOR)) prefs.getInt(KEY_TOOLBAR_TEXT_COLOR, 0) else null
+        val keyPopupColor = if (prefs.contains(KEY_KEY_POPUP_COLOR)) prefs.getInt(KEY_KEY_POPUP_COLOR, 0) else null
+        val swipeTrailColor = if (prefs.contains(KEY_SWIPE_TRAIL_COLOR)) prefs.getInt(KEY_SWIPE_TRAIL_COLOR, 0) else null
+        val textShadowEnabled = prefs.getBoolean(KEY_TEXT_SHADOW_ENABLED, false)
 
         return KeyboardTheme(
             id = id,
@@ -170,7 +224,22 @@ object ThemeManager {
             autoNumPadForOtp = autoNumPadForOtp,
             nextWordPrediction = nextWordPrediction,
             personalizedSuggestions = personalizedSuggestions,
-            dismissButtonMode = dismissButtonMode
+            dismissButtonMode = dismissButtonMode,
+            keyShape = keyShape,
+            keyboardHeightPercent = kbHeight,
+            borderThickness = borderThickness,
+            keyCornerRadius = keyCornerRadius,
+            keySpacing = keySpacing,
+            keyboardOpacity = keyboardOpacity,
+            backgroundBlur = backgroundBlur,
+            keyShadowEnabled = keyShadowEnabled,
+            keyOpacity = keyOpacity,
+            keyPressedColor = keyPressedColor,
+            functionKeyColor = functionKeyColor,
+            toolbarTextColor = toolbarTextColor,
+            keyPopupColor = keyPopupColor,
+            swipeTrailColor = swipeTrailColor,
+            textShadowEnabled = textShadowEnabled
         )
     }
 
@@ -207,7 +276,22 @@ object ThemeManager {
             .putString(KEY_DISMISS_BUTTON_MODE, theme.dismissButtonMode)
             .putString(KEY_KEY_SHAPE, theme.keyShape)
             .putInt(KEY_KEYBOARD_HEIGHT, theme.keyboardHeightPercent)
-            .apply()
+            .putFloat(KEY_BORDER_THICKNESS, theme.borderThickness)
+            .putFloat(KEY_KEY_CORNER_RADIUS, theme.keyCornerRadius)
+            .putFloat(KEY_KEY_SPACING, theme.keySpacing)
+            .putFloat(KEY_KEYBOARD_OPACITY, theme.keyboardOpacity)
+            .putFloat(KEY_BACKGROUND_BLUR, theme.backgroundBlur)
+            .putBoolean(KEY_KEY_SHADOW_ENABLED, theme.keyShadowEnabled)
+            .putFloat(KEY_KEY_OPACITY, theme.keyOpacity)
+            .putBoolean(KEY_TEXT_SHADOW_ENABLED, theme.textShadowEnabled)
+
+        if (theme.keyPressedColor != null) editor.putInt(KEY_KEY_PRESSED_COLOR, theme.keyPressedColor) else editor.remove(KEY_KEY_PRESSED_COLOR)
+        if (theme.functionKeyColor != null) editor.putInt(KEY_FUNCTION_KEY_COLOR, theme.functionKeyColor) else editor.remove(KEY_FUNCTION_KEY_COLOR)
+        if (theme.toolbarTextColor != null) editor.putInt(KEY_TOOLBAR_TEXT_COLOR, theme.toolbarTextColor) else editor.remove(KEY_TOOLBAR_TEXT_COLOR)
+        if (theme.keyPopupColor != null) editor.putInt(KEY_KEY_POPUP_COLOR, theme.keyPopupColor) else editor.remove(KEY_KEY_POPUP_COLOR)
+        if (theme.swipeTrailColor != null) editor.putInt(KEY_SWIPE_TRAIL_COLOR, theme.swipeTrailColor) else editor.remove(KEY_SWIPE_TRAIL_COLOR)
+
+        editor.apply()
 
         _currentTheme.value = theme
 

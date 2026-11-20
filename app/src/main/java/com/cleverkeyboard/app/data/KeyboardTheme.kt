@@ -28,7 +28,20 @@ data class KeyboardTheme(
     val isCustom: Boolean = false,
     val isFavorite: Boolean = false,
     val isDoubleSpacePeriodEnabled: Boolean = true,
-    val hiddenToolbarActions: String = ""
+    val hiddenToolbarActions: String = "",
+    val borderThickness: Float = 1.0f,
+    val keyCornerRadius: Float = 8f,
+    val keySpacing: Float = 2.0f,
+    val keyboardOpacity: Float = 1.0f,
+    val backgroundBlur: Float = 0f,
+    val keyShadowEnabled: Boolean = false,
+    val keyOpacity: Float = 1.0f,
+    val keyPressedColor: Int? = null,
+    val functionKeyColor: Int? = null,
+    val toolbarTextColor: Int? = null,
+    val keyPopupColor: Int? = null,
+    val swipeTrailColor: Int? = null,
+    val textShadowEnabled: Boolean = false
 ) {
     val keyBorders: Boolean
         get() = isBordersActive()
@@ -143,13 +156,143 @@ data class KeyboardTheme(
             gradientEndColor = Color.parseColor("#0072FF")
         )
 
+        val GRADIENT_SUNSET_GLOW = KeyboardTheme(
+            id = "grad_sunset_glow",
+            name = "Sunset Glow",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#FF416C"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#FFA07A"),
+            gradientStartColor = Color.parseColor("#FF416C"),
+            gradientEndColor = Color.parseColor("#FF4B2B")
+        )
+
+        val GRADIENT_DEEP_VIOLET = KeyboardTheme(
+            id = "grad_deep_violet",
+            name = "Deep Violet",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#0F0C29"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#C084FC"),
+            gradientStartColor = Color.parseColor("#0F0C29"),
+            gradientEndColor = Color.parseColor("#302B63")
+        )
+
+        val GRADIENT_EMERALD_DREAM = KeyboardTheme(
+            id = "grad_emerald_dream",
+            name = "Emerald Dream",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#0575E6"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#34D399"),
+            gradientStartColor = Color.parseColor("#0575E6"),
+            gradientEndColor = Color.parseColor("#00F260")
+        )
+
+        val GRADIENT_COSMIC_FUSION = KeyboardTheme(
+            id = "grad_cosmic_fusion",
+            name = "Cosmic Fusion",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#4A00E0"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#E879F9"),
+            gradientStartColor = Color.parseColor("#4A00E0"),
+            gradientEndColor = Color.parseColor("#8E2DE2")
+        )
+
+        val GRADIENT_NEON_TOKYO = KeyboardTheme(
+            id = "grad_neon_tokyo",
+            name = "Neon Tokyo",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#11998E"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#2DD4BF"),
+            gradientStartColor = Color.parseColor("#11998E"),
+            gradientEndColor = Color.parseColor("#38EF7D")
+        )
+
+        val GRADIENT_CRIMSON_BLAZE = KeyboardTheme(
+            id = "grad_crimson_blaze",
+            name = "Crimson Blaze",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#ED213A"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#FCA5A5"),
+            gradientStartColor = Color.parseColor("#ED213A"),
+            gradientEndColor = Color.parseColor("#93291E")
+        )
+
+        val GRADIENT_GOLDEN_TWILIGHT = KeyboardTheme(
+            id = "grad_golden_twilight",
+            name = "Golden Twilight",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#D97706"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#FDE68A"),
+            gradientStartColor = Color.parseColor("#B45309"),
+            gradientEndColor = Color.parseColor("#F59E0B")
+        )
+
+        val GRADIENT_MYSTIC_DUSK = KeyboardTheme(
+            id = "grad_mystic_dusk",
+            name = "Mystic Dusk",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#2C3E50"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#60A5FA"),
+            gradientStartColor = Color.parseColor("#2C3E50"),
+            gradientEndColor = Color.parseColor("#3498DB")
+        )
+
+        val GRADIENT_CYBER_NEON = KeyboardTheme(
+            id = "grad_cyber_neon",
+            name = "Cyber Neon",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#8A2387"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#F472B6"),
+            gradientStartColor = Color.parseColor("#8A2387"),
+            gradientEndColor = Color.parseColor("#E94057")
+        )
+
+        val GRADIENT_ELECTRIC_LIME = KeyboardTheme(
+            id = "grad_electric_lime",
+            name = "Electric Lime",
+            category = "Gradient Themes",
+            keyboardBgColor = Color.parseColor("#134E5E"),
+            keyBgColor = Color.parseColor("#26FFFFFF"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#4ADE80"),
+            gradientStartColor = Color.parseColor("#134E5E"),
+            gradientEndColor = Color.parseColor("#71B280")
+        )
+
         val GRADIENT_THEMES = listOf(
             GRADIENT_OCEAN_BLUE,
             GRADIENT_AURORA_GREEN,
             GRADIENT_SUNSET_ORANGE,
             GRADIENT_ROYAL_PURPLE,
             GRADIENT_PINK_BLOOM,
-            GRADIENT_SKY_CYAN
+            GRADIENT_SKY_CYAN,
+            GRADIENT_SUNSET_GLOW,
+            GRADIENT_DEEP_VIOLET,
+            GRADIENT_EMERALD_DREAM,
+            GRADIENT_COSMIC_FUSION,
+            GRADIENT_NEON_TOKYO,
+            GRADIENT_CRIMSON_BLAZE,
+            GRADIENT_GOLDEN_TWILIGHT,
+            GRADIENT_MYSTIC_DUSK,
+            GRADIENT_CYBER_NEON,
+            GRADIENT_ELECTRIC_LIME
         )
 
         // =====================================================================
@@ -487,6 +630,18 @@ data class KeyboardTheme(
         // =====================================================================
         // 6. MINIMAL & GLASS THEMES
         // =====================================================================
+        val APPLE_MINIMAL = KeyboardTheme(
+            id = "apple_minimal",
+            name = "Apple",
+            category = "Minimal & Glass Themes",
+            keyboardBgColor = Color.parseColor("#D1D3D9"),
+            keyBgColor = Color.parseColor("#FFFFFF"),
+            keyTextColor = Color.parseColor("#000000"),
+            accentColor = Color.parseColor("#007AFF"),
+            keyShape = KEY_SHAPE_ROUNDED,
+            keyBordersMode = BORDERS_ON
+        )
+
         val GLASS_FROSTED = KeyboardTheme(
             id = "glass_frosted",
             name = "Frosted Glass",
@@ -548,6 +703,7 @@ data class KeyboardTheme(
         )
 
         val GLASS_THEMES = listOf(
+            APPLE_MINIMAL,
             GLASS_FROSTED,
             GLASS_BLUR,
             GLASS_BLUE,
@@ -587,7 +743,7 @@ data class KeyboardTheme(
             accentColor = Color.parseColor("#00FF88")
         )
 
-        val DEFAULT_PRESETS = listOf(DARK_THEME, LIGHT_THEME, MIDNIGHT_BLACK, KING_BLUE, NEON_GAMER)
+        val DEFAULT_PRESETS = listOf(APPLE_MINIMAL, DARK_THEME, LIGHT_THEME, MIDNIGHT_BLACK, KING_BLUE, NEON_GAMER)
 
         // =====================================================================
         // SOLID COLOR THEMES - 18 Presets
@@ -772,12 +928,146 @@ data class KeyboardTheme(
             accentColor = Color.parseColor("#A1A1AA")
         )
 
+        val SOLID_AMOLED_BLACK = KeyboardTheme(
+            id = "solid_amoled_black",
+            name = "AMOLED Black",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#000000"),
+            keyBgColor = Color.parseColor("#121212"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#00E5FF")
+        )
+
+        val SOLID_DEEP_NAVY = KeyboardTheme(
+            id = "solid_deep_navy",
+            name = "Deep Navy",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#0A1128"),
+            keyBgColor = Color.parseColor("#1C2541"),
+            keyTextColor = Color.parseColor("#FFFFFF"),
+            accentColor = Color.parseColor("#3A86FF")
+        )
+
+        val SOLID_FOREST = KeyboardTheme(
+            id = "solid_forest",
+            name = "Forest",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#012A1C"),
+            keyBgColor = Color.parseColor("#084935"),
+            keyTextColor = Color.parseColor("#ECFDF5"),
+            accentColor = Color.parseColor("#10B981")
+        )
+
+        val SOLID_MIDNIGHT_PLUM = KeyboardTheme(
+            id = "solid_midnight_plum",
+            name = "Midnight Plum",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#1A0B2E"),
+            keyBgColor = Color.parseColor("#2F184B"),
+            keyTextColor = Color.parseColor("#F3E8FF"),
+            accentColor = Color.parseColor("#C084FC")
+        )
+
+        val SOLID_TITANIUM_GREY = KeyboardTheme(
+            id = "solid_titanium_grey",
+            name = "Titanium Grey",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#212529"),
+            keyBgColor = Color.parseColor("#343A40"),
+            keyTextColor = Color.parseColor("#F8F9FA"),
+            accentColor = Color.parseColor("#CED4DA")
+        )
+
+        val SOLID_NORDIC_FROST = KeyboardTheme(
+            id = "solid_nordic_frost",
+            name = "Nordic Frost",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#E0F2FE"),
+            keyBgColor = Color.parseColor("#BAE6FD"),
+            keyTextColor = Color.parseColor("#0369A1"),
+            accentColor = Color.parseColor("#0284C7")
+        )
+
+        val SOLID_PASTEL_SAGE = KeyboardTheme(
+            id = "solid_pastel_sage",
+            name = "Pastel Sage",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#E8F5E9"),
+            keyBgColor = Color.parseColor("#C8E6C9"),
+            keyTextColor = Color.parseColor("#1B5E20"),
+            accentColor = Color.parseColor("#4CAF50")
+        )
+
+        val SOLID_PASTEL_LILAC = KeyboardTheme(
+            id = "solid_pastel_lilac",
+            name = "Pastel Lilac",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#F3E5F5"),
+            keyBgColor = Color.parseColor("#E1BEE7"),
+            keyTextColor = Color.parseColor("#4A148C"),
+            accentColor = Color.parseColor("#9C27B0")
+        )
+
+        val SOLID_PASTEL_CORAL = KeyboardTheme(
+            id = "solid_pastel_coral",
+            name = "Pastel Coral",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#FBE9E7"),
+            keyBgColor = Color.parseColor("#FFCCBC"),
+            keyTextColor = Color.parseColor("#BF360C"),
+            accentColor = Color.parseColor("#FF5722")
+        )
+
+        val SOLID_PASTEL_BUTTER = KeyboardTheme(
+            id = "solid_pastel_butter",
+            name = "Pastel Butter",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#FFFDE7"),
+            keyBgColor = Color.parseColor("#FFF9C4"),
+            keyTextColor = Color.parseColor("#F57F17"),
+            accentColor = Color.parseColor("#FBC02D")
+        )
+
+        val SOLID_RETRO_CYAN = KeyboardTheme(
+            id = "solid_retro_cyan",
+            name = "Retro Cyan",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#164E63"),
+            keyBgColor = Color.parseColor("#155E75"),
+            keyTextColor = Color.parseColor("#CFFAFE"),
+            accentColor = Color.parseColor("#06B6D4")
+        )
+
+        val SOLID_DARK_BRONZE = KeyboardTheme(
+            id = "solid_dark_bronze",
+            name = "Dark Bronze",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#2E1805"),
+            keyBgColor = Color.parseColor("#4E2A0A"),
+            keyTextColor = Color.parseColor("#FEF3C7"),
+            accentColor = Color.parseColor("#D97706")
+        )
+
+        val SOLID_CRIMSON_VELVET = KeyboardTheme(
+            id = "solid_crimson_velvet",
+            name = "Crimson Velvet",
+            category = "Solid Colors",
+            keyboardBgColor = Color.parseColor("#3B0712"),
+            keyBgColor = Color.parseColor("#5F0F23"),
+            keyTextColor = Color.parseColor("#FFE4E6"),
+            accentColor = Color.parseColor("#E11D48")
+        )
+
         val SOLID_PRESETS = listOf(
             SOLID_BLUE, SOLID_TEAL, SOLID_GREEN, SOLID_MINT,
             SOLID_PURPLE, SOLID_LAVENDER, SOLID_PINK, SOLID_ROSE,
             SOLID_RED, SOLID_CRIMSON, SOLID_ORANGE, SOLID_CORAL,
             SOLID_AMBER, SOLID_SKY, SOLID_INDIGO, SOLID_CYBERPUNK,
-            SOLID_COFFEE, SOLID_CHARCOAL
+            SOLID_COFFEE, SOLID_CHARCOAL,
+            SOLID_AMOLED_BLACK, SOLID_DEEP_NAVY, SOLID_FOREST, SOLID_MIDNIGHT_PLUM,
+            SOLID_TITANIUM_GREY, SOLID_NORDIC_FROST, SOLID_PASTEL_SAGE, SOLID_PASTEL_LILAC,
+            SOLID_PASTEL_CORAL, SOLID_PASTEL_BUTTER, SOLID_RETRO_CYAN, SOLID_DARK_BRONZE,
+            SOLID_CRIMSON_VELVET
         )
 
         val ALL_CATEGORIZED_THEMES: Map<String, List<KeyboardTheme>> = linkedMapOf(

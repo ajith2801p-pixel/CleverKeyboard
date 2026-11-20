@@ -2973,6 +2973,7 @@ drawable ic_num_pad
 drawable ic_one_handed
 drawable ic_palette
 drawable ic_paste
+drawable ic_prompt
 drawable ic_redo
 drawable ic_reply
 drawable ic_search
@@ -3166,6 +3167,7 @@ id bottom
 id bounce
 id btn_ai_chat
 id btn_ai_copy
+id btn_ai_prompt
 id btn_ai_reply
 id btn_ai_send
 id btn_ai_sparkle
@@ -3197,6 +3199,7 @@ id btn_num_6
 id btn_num_7
 id btn_num_8
 id btn_num_9
+id btn_screenshot_chip_close
 id buttonPanel
 id cancel_button
 id center
@@ -3320,6 +3323,7 @@ id homeAsUp
 id honorRequest
 id icon
 id icon_ai_chat
+id icon_ai_prompt
 id icon_ai_reply
 id icon_ai_sparkle
 id icon_ai_translate
@@ -3395,6 +3399,7 @@ id month_navigation_fragment_toggle
 id month_navigation_next
 id month_navigation_previous
 id month_title
+id more_emoji_bar
 id more_grid_container
 id more_grid_scroll
 id more_menu_container
@@ -3520,6 +3525,7 @@ id scale
 id screen
 id screenshot_chip_container
 id screenshot_chip_thumbnail
+id screenshot_chip_title
 id scroll
 id scrollIndicatorDown
 id scrollIndicatorUp
@@ -3601,6 +3607,7 @@ id textSpacerNoTitle
 id textStart
 id textTop
 id text_ai_chat
+id text_ai_prompt
 id text_ai_reply
 id text_ai_sparkle
 id text_ai_translate

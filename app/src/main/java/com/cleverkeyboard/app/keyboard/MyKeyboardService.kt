@@ -6,6 +6,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.ContentObserver
+import android.provider.MediaStore
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -30,6 +32,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.graphics.Typeface
@@ -120,6 +123,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     // Row 0 AI buttons & labels
     private var btnAiTranslate: View? = null
+    private var btnAiPrompt: View? = null
     private var btnAiSparkle: View? = null
     private var btnAiChat: View? = null
     private var btnClipboard: View? = null
@@ -129,6 +133,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private var btnMicToolbar: View? = null
 
     private var textAiTranslate: TextView? = null
+    private var textAiPrompt: TextView? = null
     private var textAiSparkle: TextView? = null
     private var textAiChat: TextView? = null
     private var textClipboard: TextView? = null
@@ -176,6 +181,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private var clipboardScrollView: ScrollView? = null
 
     // Row 1 Suggestion Bar (5 Suggestions)
+    private var suggestionScrollView: View? = null
     private var suggestionBarContainer: LinearLayout? = null
     private var suggestion1: TextView? = null
     private var suggestion2: TextView? = null
@@ -196,8 +202,10 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     // Recent Screenshot detection in Suggestion Bar
     private var screenshotChipContainer: View? = null
     private var screenshotChipThumbnail: ImageView? = null
+    private var btnScreenshotChipClose: ImageView? = null
     private var latestScreenshotItem: ScreenshotItem? = null
     private val screenshotChipHandler = Handler(Looper.getMainLooper())
+    private var screenshotObserver: ContentObserver? = null
 
     // GIF Keyboard
     private var gifContainer: LinearLayout? = null
@@ -254,15 +262,28 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             clipboardManager?.addPrimaryClipChangedListener {
                 val clip = clipboardManager?.primaryClip
                 if (clip != null && clip.itemCount > 0) {
-                    val text = clip.getItemAt(0)?.coerceToText(this)?.toString()
-                    if (!text.isNullOrBlank()) {
-                        val info = currentInputEditorInfo
-                        val variation = (info?.inputType ?: 0) and EditorInfo.TYPE_MASK_VARIATION
-                        val isPassword = variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD ||
-                                variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
-                                variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD
-                        if (!isPassword) {
-                            ClipboardHistoryManager.addItem(this, text)
+                    val item = clip.getItemAt(0)
+                    val uri = item?.uri
+                    val desc = clip.description
+                    val isImageClip = desc != null && (0 until desc.mimeTypeCount).any { i ->
+                        desc.getMimeType(i).startsWith("image/", ignoreCase = true)
+                    }
+
+                    if (isImageClip && uri != null) {
+                        val label = desc.label?.toString() ?: "Screenshot"
+                        ClipboardHistoryManager.addImageItem(this, uri, label)
+                        checkRecentScreenshot()
+                    } else {
+                        val text = item?.coerceToText(this)?.toString()
+                        if (!text.isNullOrBlank()) {
+                            val info = currentInputEditorInfo
+                            val variation = (info?.inputType ?: 0) and EditorInfo.TYPE_MASK_VARIATION
+                            val isPassword = variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD ||
+                                    variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                                    variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD
+                            if (!isPassword) {
+                                ClipboardHistoryManager.addItem(this, text)
+                            }
                         }
                     }
                 }
@@ -295,6 +316,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         // Row 0 AI Toolbar
         aiToolbarContainer = view.findViewById(R.id.ai_toolbar_container)
         btnAiTranslate = view.findViewById(R.id.btn_ai_translate)
+        btnAiPrompt = view.findViewById(R.id.btn_ai_prompt)
         btnAiSparkle = view.findViewById(R.id.btn_ai_sparkle)
         btnAiChat = view.findViewById(R.id.btn_ai_chat)
         btnClipboard = view.findViewById(R.id.btn_clipboard)
@@ -304,6 +326,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         btnMicToolbar = view.findViewById(R.id.btn_mic_toolbar)
 
         textAiTranslate = view.findViewById(R.id.text_ai_translate)
+        textAiPrompt = view.findViewById(R.id.text_ai_prompt)
         textAiSparkle = view.findViewById(R.id.text_ai_sparkle)
         textAiChat = view.findViewById(R.id.text_ai_chat)
         textClipboard = view.findViewById(R.id.text_clipboard)
@@ -351,6 +374,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         }
 
         // Row 1 Suggestion Bar (5 Suggestions)
+        suggestionScrollView = view.findViewById(R.id.suggestion_scroll_view)
         suggestionBarContainer = view.findViewById(R.id.suggestion_bar_container)
         suggestion1 = view.findViewById(R.id.suggestion_1)
         suggestion2 = view.findViewById(R.id.suggestion_2)
@@ -368,6 +392,22 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyPreviewBubble = view.findViewById(R.id.key_preview_bubble)
         screenshotChipContainer = view.findViewById(R.id.screenshot_chip_container)
         screenshotChipThumbnail = view.findViewById(R.id.screenshot_chip_thumbnail)
+        btnScreenshotChipClose = view.findViewById(R.id.btn_screenshot_chip_close)
+
+        btnScreenshotChipClose?.setOnClickListener {
+            playKeyFeedback()
+            dismissScreenshotChip()
+        }
+
+        screenshotChipContainer?.setOnClickListener {
+            playKeyFeedback()
+            val shot = latestScreenshotItem
+            val uri = shot?.uri
+            if (uri != null) {
+                commitScreenshot(uri)
+            }
+            dismissScreenshotChip()
+        }
 
         gifContainer = view.findViewById(R.id.gif_container)
         gifSearchInput = view.findViewById(R.id.gif_search_input)
@@ -375,15 +415,6 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         btnGifBackAbc = view.findViewById(R.id.btn_gif_back_abc)
         gifCategoriesContainer = view.findViewById(R.id.gif_categories_container)
         gifGridContainer = view.findViewById(R.id.gif_grid_container)
-
-        screenshotChipContainer?.setOnClickListener {
-            playKeyFeedback()
-            val shot = latestScreenshotItem
-            if (shot != null) {
-                commitScreenshot(shot.uri)
-            }
-            screenshotChipContainer?.visibility = View.GONE
-        }
 
         view.findViewById<Button>(R.id.btn_emoji_to_gif)?.setOnClickListener {
             playKeyFeedback()
@@ -440,7 +471,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 bubble.visibility = View.VISIBLE
             } else if (!isDown) {
                 keyPreviewDismissHandler.removeCallbacks(keyPreviewDismissRunnable)
-                keyPreviewDismissHandler.postDelayed(keyPreviewDismissRunnable, 10L)
+                keyPreviewBubble?.visibility = View.GONE
             }
         }
 
@@ -498,9 +529,12 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         // Security & Privacy Guard: Protect passwords, PINs and sensitive fields
         val isSensitive = com.cleverkeyboard.app.security.SensitiveFieldGuard.isSensitiveField(info)
         if (isSensitive) {
+            suggestionScrollView?.visibility = View.GONE
             suggestionBarContainer?.visibility = View.GONE
             btnAiTranslate?.isEnabled = false
             btnAiTranslate?.alpha = 0.35f
+            btnAiPrompt?.isEnabled = false
+            btnAiPrompt?.alpha = 0.35f
             btnAiSparkle?.isEnabled = false
             btnAiSparkle?.alpha = 0.35f
             btnAiChat?.isEnabled = false
@@ -512,6 +546,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         } else {
             btnAiTranslate?.isEnabled = true
             btnAiTranslate?.alpha = 1.0f
+            btnAiPrompt?.isEnabled = true
+            btnAiPrompt?.alpha = 1.0f
             btnAiSparkle?.isEnabled = true
             btnAiSparkle?.alpha = 1.0f
             btnAiChat?.isEnabled = true
@@ -547,6 +583,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         // Update language label on spacebar
         updateLanguageDisplay(showToast = false)
+        registerScreenshotObserver()
         checkRecentScreenshot()
 
         // Auto-Capitalization for First Letter / Empty Field
@@ -575,6 +612,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     override fun onFinishInput() {
         super.onFinishInput()
+        dismissScreenshotChip()
+        unregisterScreenshotObserver()
         showQwertyKeyboard()
         deactivateEmojiSearchMode()
         resetDefaultSuggestions()
@@ -594,6 +633,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     override fun onDestroy() {
         super.onDestroy()
+        dismissScreenshotChip()
+        unregisterScreenshotObserver()
         speechRecognizer?.destroy()
         speechRecognizer = null
         serviceScope.cancel()
@@ -740,11 +781,17 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             }
         }
 
-        // 2. Number Row visibility (BUG 2: only show in QWERTY mode, hide in ?123 symbol mode)
+        // 2. Number Row visibility (only show in QWERTY mode, hide in ?123 symbol mode and all overlay panels)
+        val isOverlayOpen = emojiContainer?.visibility == View.VISIBLE ||
+                numPadContainer?.visibility == View.VISIBLE ||
+                clipboardContainer?.visibility == View.VISIBLE ||
+                gifContainer?.visibility == View.VISIBLE ||
+                moreMenuContainer?.visibility == View.VISIBLE
         val isSymbolsActive = keyboardView?.keyboard != null && keyboardView?.keyboard != qwertyKeyboard
-        numberRowContainer?.visibility = if (theme.showNumberRow && !isSymbolsActive && !isEmojiSearchMode) View.VISIBLE else View.GONE
+        numberRowContainer?.visibility = if (theme.showNumberRow && !isSymbolsActive && !isEmojiSearchMode && !isOverlayOpen) View.VISIBLE else View.GONE
 
         // 2b. AI Toolbar styling & Labels visibility
+        val isAppleTheme = theme.id.contains("apple", ignoreCase = true)
         val showLabels = theme.showAiToolbarLabels
         val toolbarHeight = if (showLabels) (52f * density).toInt() else (38f * density).toInt()
         aiToolbarContainer?.layoutParams?.height = toolbarHeight
@@ -752,11 +799,12 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         val labelsVisibility = if (showLabels) View.VISIBLE else View.GONE
         val toolbarLabels = listOf(
-            textAiTranslate, textAiSparkle, textAiChat, textClipboard, textAiReply,
+            textAiTranslate, textAiPrompt, textAiSparkle, textAiChat, textClipboard, textAiReply,
             textEmoji, textMoreDots, textMicToolbar
         )
 
-        val labelTextColor = when {
+        val labelTextColor = theme.toolbarTextColor ?: when {
+            isAppleTheme -> Color.BLACK
             isPhotoTheme -> Color.WHITE
             isColorLight(theme.keyboardBgColor) -> Color.parseColor("#333333")
             else -> Color.WHITE
@@ -767,15 +815,83 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             label?.setTextColor(labelTextColor)
             if (isPhotoTheme) {
                 label?.setShadowLayer(4f * density, 0f, 1.5f * density, Color.argb(220, 0, 0, 0))
-            } else if (!isColorLight(theme.keyboardBgColor)) {
+            } else if (!isColorLight(theme.keyboardBgColor) && !isAppleTheme) {
                 label?.setShadowLayer(3f * density, 0f, 1f * density, Color.argb(160, 0, 0, 0))
             } else {
                 label?.setShadowLayer(0f, 0f, 0f, 0)
             }
         }
 
+        // Apple Theme Toolbar Icon Styling
+        val aiIconIds = listOf(
+            R.id.icon_ai_translate,
+            R.id.icon_ai_prompt,
+            R.id.icon_ai_sparkle,
+            R.id.icon_ai_chat,
+            R.id.icon_clipboard,
+            R.id.icon_ai_reply
+        )
+        if (isAppleTheme) {
+            for (iconId in aiIconIds) {
+                keyboardRoot?.findViewById<ImageView>(iconId)?.apply {
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = 13f * density
+                        setColor(Color.WHITE)
+                        setStroke((1f * density).toInt(), Color.parseColor("#B8BCC6"))
+                    }
+                    setColorFilter(theme.toolbarTextColor ?: Color.parseColor("#1C1C1E"))
+                }
+            }
+            keyboardRoot?.findViewById<ImageView>(R.id.icon_emoji)?.apply {
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 13f * density
+                    setColor(Color.WHITE)
+                    setStroke((1f * density).toInt(), Color.parseColor("#B8BCC6"))
+                }
+                setColorFilter(theme.toolbarTextColor ?: Color.parseColor("#1C1C1E"))
+            }
+            keyboardRoot?.findViewById<ImageView>(R.id.icon_more_dots)?.apply {
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 13f * density
+                    setColor(Color.WHITE)
+                    setStroke((1f * density).toInt(), Color.parseColor("#B8BCC6"))
+                }
+                setColorFilter(theme.toolbarTextColor ?: Color.parseColor("#1C1C1E"))
+            }
+            keyboardRoot?.findViewById<ImageView>(R.id.icon_mic_toolbar)?.apply {
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 13f * density
+                    setColor(Color.parseColor("#007AFF"))
+                }
+                setColorFilter(Color.WHITE)
+            }
+        } else {
+            for (iconId in aiIconIds) {
+                keyboardRoot?.findViewById<ImageView>(iconId)?.apply {
+                    setBackgroundResource(R.drawable.ai_tool_btn_bg)
+                    if (theme.toolbarTextColor != null) setColorFilter(theme.toolbarTextColor) else clearColorFilter()
+                }
+            }
+            keyboardRoot?.findViewById<ImageView>(R.id.icon_emoji)?.apply {
+                setBackgroundResource(R.drawable.key_background)
+                if (theme.toolbarTextColor != null) setColorFilter(theme.toolbarTextColor) else clearColorFilter()
+            }
+            keyboardRoot?.findViewById<ImageView>(R.id.icon_more_dots)?.apply {
+                setBackgroundResource(R.drawable.key_background)
+                if (theme.toolbarTextColor != null) setColorFilter(theme.toolbarTextColor) else clearColorFilter()
+            }
+            keyboardRoot?.findViewById<ImageView>(R.id.icon_mic_toolbar)?.apply {
+                setBackgroundResource(R.drawable.ai_tool_btn_bg)
+                clearColorFilter()
+            }
+        }
+
         // 3. Key Borders styling for Number Row
-        val numTextColor = if (!bordersActive) Color.WHITE else theme.keyTextColor
+        val numTextColor = if (isAppleTheme) Color.BLACK else if (!bordersActive) Color.WHITE else theme.keyTextColor
 
         val numIds = listOf(
             R.id.btn_num_1 to R.id.text_num_1,
@@ -793,14 +909,21 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         for ((btnId, txtId) in numIds) {
             val btn = keyboardRoot?.findViewById<View>(btnId)
             val txt = keyboardRoot?.findViewById<TextView>(txtId)
-            val bgDrawable: Drawable = if (bordersActive) {
+            val bgDrawable: Drawable = if (isAppleTheme) {
                 GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    cornerRadius = 8f * density
+                    cornerRadius = 5f * density
+                    setColor(Color.WHITE)
+                    setStroke((1f * density).toInt(), Color.parseColor("#8A8E97"))
+                }
+            } else if (bordersActive) {
+                GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = theme.keyCornerRadius * density
                     val bg = theme.keyBgColor
                     setColor(bg)
-                    val stroke = if (isColorLight(theme.keyBgColor)) Color.argb(50, 0, 0, 0) else Color.argb(70, 120, 120, 120)
-                    setStroke((1f * density).toInt(), stroke)
+                    val stroke = if (isColorLight(theme.keyBgColor)) Color.argb(90, 0, 0, 0) else Color.argb(120, 220, 220, 220)
+                    setStroke((theme.borderThickness * density).toInt(), stroke)
                 }
             } else {
                 ColorDrawable(Color.TRANSPARENT)
@@ -808,28 +931,55 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             btn?.background = bgDrawable
             txt?.setTextColor(numTextColor)
             txt?.setShadowLayer(0f, 0f, 0f, 0)
-            txt?.typeface = if (isPhotoTheme) Typeface.create(Typeface.DEFAULT, Typeface.BOLD) else Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            txt?.typeface = Typeface.create("sans-serif", if (isPhotoTheme) Typeface.BOLD else Typeface.NORMAL)
         }
 
         // 4. Suggestion Bar styling (5 suggestions)
         val suggViews = listOf(suggestion1, suggestion2, suggestion3, suggestion4, suggestion5)
+        val suggTextColor = theme.toolbarTextColor ?: (if (isAppleTheme) Color.BLACK else numTextColor)
         for (sugg in suggViews) {
-            val bgDrawable: Drawable = if (bordersActive) {
+            val bgDrawable: Drawable = if (isAppleTheme) {
                 GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    cornerRadius = 8f * density
+                    cornerRadius = 6f * density
+                    setColor(Color.WHITE)
+                    setStroke((1f * density).toInt(), Color.parseColor("#B8BCC6"))
+                }
+            } else if (bordersActive) {
+                GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = theme.keyCornerRadius * density
                     val bg = theme.keyBgColor
                     setColor(bg)
-                    val stroke = if (isColorLight(theme.keyBgColor)) Color.argb(50, 0, 0, 0) else Color.argb(70, 120, 120, 120)
-                    setStroke((1f * density).toInt(), stroke)
+                    val stroke = if (isColorLight(theme.keyBgColor)) Color.argb(90, 0, 0, 0) else Color.argb(120, 220, 220, 220)
+                    setStroke((theme.borderThickness * density).toInt(), stroke)
                 }
             } else {
                 ColorDrawable(Color.TRANSPARENT)
             }
             sugg?.background = bgDrawable
-            sugg?.setTextColor(numTextColor)
+            sugg?.setTextColor(suggTextColor)
             sugg?.setShadowLayer(0f, 0f, 0f, 0)
-            sugg?.typeface = if (isPhotoTheme) Typeface.create(Typeface.DEFAULT, Typeface.BOLD) else Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            sugg?.typeface = Typeface.create("sans-serif", if (isPhotoTheme) Typeface.BOLD else Typeface.NORMAL)
+        }
+
+        // Key popup bubble styling
+        keyPreviewBubble?.let { bubble ->
+            val popupBg = theme.keyPopupColor ?: if (isAppleTheme) Color.WHITE else theme.keyBgColor
+            val popupText = if (theme.keyPopupColor != null) {
+                if (isColorLight(theme.keyPopupColor)) Color.BLACK else Color.WHITE
+            } else {
+                if (isAppleTheme) Color.BLACK else theme.keyTextColor
+            }
+            val bubbleDrawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 10f * density
+                setColor(popupBg)
+                setStroke((1f * density).toInt(), if (isAppleTheme) Color.parseColor("#B8BCC6") else Color.argb(80, 255, 255, 255))
+            }
+            bubble.background = bubbleDrawable
+            bubble.setTextColor(popupText)
+            bubble.typeface = Typeface.create("sans-serif", Typeface.BOLD)
         }
 
         keyboardView?.applyTheme(theme)
@@ -850,27 +1000,28 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 R.id.num_key_7, R.id.num_key_8, R.id.num_key_9,
                 R.id.num_key_comma, R.id.num_key_sym, R.id.num_key_0, R.id.num_key_equal, R.id.num_key_dot
             )
+            val numColor = if (isAppleTheme) Color.BLACK else theme.keyTextColor
             for (id in numPadTextIds) {
-                container.findViewById<TextView>(id)?.setTextColor(theme.keyTextColor)
+                container.findViewById<TextView>(id)?.setTextColor(numColor)
             }
-            container.findViewById<ImageView>(R.id.num_icon_backspace)?.setColorFilter(theme.keyTextColor)
+            container.findViewById<ImageView>(R.id.num_icon_backspace)?.setColorFilter(numColor)
 
             val abcBtn = container.findViewById<TextView>(R.id.num_key_abc)
             abcBtn?.let {
                 val pill = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    cornerRadius = 20f * density
-                    setColor(adjustAlpha(theme.keyBgColor, 0.88f))
+                    cornerRadius = if (isAppleTheme) 6f * density else 20f * density
+                    setColor(if (isAppleTheme) Color.parseColor("#B0B5BF") else adjustAlpha(theme.keyBgColor, 0.88f))
                 }
                 it.background = pill
-                it.setTextColor(theme.keyTextColor)
+                it.setTextColor(if (isAppleTheme) Color.BLACK else theme.keyTextColor)
             }
 
             val enterBtn = container.findViewById<View>(R.id.num_key_enter)
             enterBtn?.let {
                 val pill = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    cornerRadius = 20f * density
+                    cornerRadius = if (isAppleTheme) 6f * density else 20f * density
                     setColor(theme.accentColor)
                 }
                 it.background = pill
@@ -1082,8 +1233,24 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     }
 
     private fun updateSuggestions() {
+        if (screenshotChipContainer?.visibility == View.VISIBLE) {
+            return
+        }
+
+        if (isEmojiSearchMode ||
+            emojiContainer?.visibility == View.VISIBLE ||
+            numPadContainer?.visibility == View.VISIBLE ||
+            clipboardContainer?.visibility == View.VISIBLE ||
+            gifContainer?.visibility == View.VISIBLE ||
+            moreMenuContainer?.visibility == View.VISIBLE) {
+            suggestionScrollView?.visibility = View.GONE
+            suggestionBarContainer?.visibility = View.GONE
+            return
+        }
+
         val info = currentInputEditorInfo
         if (!com.cleverkeyboard.app.security.SensitiveFieldGuard.isSuggestionsAllowed(info)) {
+            suggestionScrollView?.visibility = View.GONE
             suggestionBarContainer?.visibility = View.GONE
             return
         }
@@ -1224,6 +1391,11 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             showTranslateOptions()
         }
 
+        btnAiPrompt?.setOnClickListener {
+            playKeyFeedback()
+            generatePromptFromInput()
+        }
+
         btnAiSparkle?.setOnClickListener {
             showToneSelector("WRITE")
         }
@@ -1272,6 +1444,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private fun setupAiButtonTooltips() {
         val tooltips = listOf(
             btnAiTranslate to "Translate - Text ah English, Tamil, Hindi, Spanish ku translate pannum",
+            btnAiPrompt to "Prompt Gen - Raw ideas ah 6-field structured AI prompts ah convert pannum",
             btnAiSparkle to "AI Write - Tone change pannum: Professional, Casual, Polite, Funny",
             btnAiChat to "Spelling & Grammar ah correct pannum",
             btnClipboard to "Clipboard - Copied text history ah paste pannum",
@@ -1397,6 +1570,126 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 }
             }
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Deterministic Executable Prompt Generator
+    // Converts raw user thoughts/ideas into concise, deterministic Phase 1 MVP
+    // prompts with locked single-stack, zero-dependency procedural assets, and
+    // actionable execution rules.
+    // -------------------------------------------------------------------------
+
+    private fun generatePromptFromInput() {
+        hideSubPanel()
+        val ic = currentInputConnection
+        var rawText = ic?.getSelectedText(0)?.toString()?.trim()
+        if (rawText.isNullOrBlank()) {
+            val before = ic?.getTextBeforeCursor(300, 0)?.toString()?.trim()
+            if (!before.isNullOrBlank()) {
+                val lastLine = before.lines().lastOrNull { it.isNotBlank() }?.trim()
+                rawText = lastLine ?: before
+            }
+        }
+
+        if (rawText.isNullOrBlank()) {
+            Toast.makeText(this, "💡 Type an idea first (e.g. 'build a restaurant website')", Toast.LENGTH_SHORT).show()
+            showPromptIdeasSubpanel()
+            return
+        }
+
+        val apiKey = ApiKeyManager.getApiKey(this) ?: ""
+        showStatusBanner("💡 Engineering executable prompt...", 0L)
+
+        serviceScope.launch(Dispatchers.IO) {
+            try {
+                val callResult = aiService.generatePrompt(rawText, apiKey)
+                val structuredPrompt = callResult.getOrNull()?.let {
+                    com.cleverkeyboard.app.intelligence.PromptEngineeringEngine.stripBoundaryMarkers(it)
+                }?.trim() ?: ""
+
+                withContext(Dispatchers.Main) {
+                    mainHandler.removeCallbacks(hideLoadingRunnable)
+                    aiLoadingContainer?.visibility = View.GONE
+
+                    if (structuredPrompt.isNotBlank()) {
+                        currentAiToneResult = structuredPrompt
+                        val conn = currentInputConnection
+                        if (conn != null) {
+                            conn.beginBatchEdit()
+                            try {
+                                conn.finishComposingText()
+                                val sel = conn.getSelectedText(0)?.toString()
+                                if (!sel.isNullOrEmpty()) {
+                                    conn.commitText(structuredPrompt, 1)
+                                } else {
+                                    val deleteCount = minOf(rawText.length, conn.getTextBeforeCursor(rawText.length, 0)?.length ?: rawText.length)
+                                    conn.deleteSurroundingText(deleteCount, 0)
+                                    conn.commitText(structuredPrompt, 1)
+                                }
+                            } finally {
+                                conn.endBatchEdit()
+                            }
+                        }
+
+                        // Also copy to clipboard for convenience
+                        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        cm.setPrimaryClip(ClipData.newPlainText("AI Prompt", structuredPrompt))
+                        ClipboardHistoryManager.addItem(this@MyKeyboardService, structuredPrompt)
+
+                        // Show preview in aiResultPanel
+                        aiResultText?.text = structuredPrompt
+                        aiResultPanel?.visibility = View.VISIBLE
+                        showStatusBanner("✓ Executable Prompt pasted & copied!", 2500L)
+                    } else {
+                        val err = callResult.exceptionOrNull()?.message ?: "Could not engineer prompt"
+                        Toast.makeText(this@MyKeyboardService, err, Toast.LENGTH_SHORT).show()
+                        showStatusBanner("⚠️ $err", 3000L)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Prompt Gen failed", e)
+                withContext(Dispatchers.Main) {
+                    mainHandler.removeCallbacks(hideLoadingRunnable)
+                    aiLoadingContainer?.visibility = View.GONE
+                    Toast.makeText(this@MyKeyboardService, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun showPromptIdeasSubpanel() {
+        subOptionsContainer?.removeAllViews()
+        val density = resources.displayMetrics.density
+        val ideas = listOf(
+            "Build website for restaurant",
+            "Python crypto price tracker",
+            "Request salary hike email",
+            "Workout plan for muscle gain"
+        )
+        for (idea in ideas) {
+            val btn = TextView(this).apply {
+                text = "💡 $idea"
+                textSize = 12f
+                setTextColor(Color.WHITE)
+                background = ContextCompat.getDrawable(this@MyKeyboardService, R.drawable.key_pill_background)
+                setPadding((12 * density).toInt(), (6 * density).toInt(), (12 * density).toInt(), (6 * density).toInt())
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    marginEnd = (6 * density).toInt()
+                }
+                layoutParams = lp
+                setOnClickListener {
+                    playKeyFeedback()
+                    currentInputConnection?.commitText(idea, 1)
+                    hideSubPanel()
+                    generatePromptFromInput()
+                }
+            }
+            subOptionsContainer?.addView(btn)
+        }
+        subOptionsPanel?.visibility = View.VISIBLE
     }
 
     private fun showToneOptions() {
@@ -1943,6 +2236,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
         val ic = currentInputConnection ?: return
         playKeyFeedback()
+        dismissScreenshotChip()
 
         // BUG 4 FIX: When in Emoji Search mode, route typing into emojiSearchInput
         if (isEmojiSearchMode) {
@@ -2194,6 +2488,15 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     // Panel Navigation & Specialized Mode Panels
     // =========================================================================
 
+    private fun hideNonKeyboardOverlays() {
+        suggestionScrollView?.visibility = View.GONE
+        suggestionBarContainer?.visibility = View.GONE
+        numberRowContainer?.visibility = View.GONE
+        subOptionsPanel?.visibility = View.GONE
+        aiResultPanel?.visibility = View.GONE
+        aiLoadingContainer?.visibility = View.GONE
+    }
+
     private fun showQwertyKeyboard() {
         deactivateEmojiSearchMode()
         numPadContainer?.visibility = View.GONE
@@ -2209,8 +2512,11 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             keyboardView?.keyboard = defaultTextKeyboard
         }
         val theme = ThemeManager.getTheme(this)
-        numberRowContainer?.visibility = if (theme.showNumberRow) View.VISIBLE else View.GONE
+        val isSymbolsActive = keyboardView?.keyboard != null && keyboardView?.keyboard != qwertyKeyboard && keyboardView?.keyboard != tamilKeyboard
+        numberRowContainer?.visibility = if (theme.showNumberRow && !isSymbolsActive) View.VISIBLE else View.GONE
+        suggestionScrollView?.visibility = View.VISIBLE
         suggestionBarContainer?.visibility = View.VISIBLE
+        updateSuggestions()
     }
 
     
@@ -2218,35 +2524,109 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     // Screenshot & GIF Handlers
     // =========================================================================
 
-    private fun checkRecentScreenshot() {
-        screenshotChipHandler.removeCallbacksAndMessages(null)
-        screenshotChipContainer?.visibility = View.GONE
+    private fun registerScreenshotObserver() {
+        if (screenshotObserver != null) return
+        try {
+            screenshotObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean, uri: Uri?) {
+                    super.onChange(selfChange, uri)
+                    checkRecentScreenshot()
+                }
+            }
+            contentResolver.registerContentObserver(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                true,
+                screenshotObserver!!
+            )
+        } catch (e: Exception) {
+            Log.d(TAG, "Unable to register screenshot observer: ${e.message}")
+        }
+    }
+
+    private fun unregisterScreenshotObserver() {
+        try {
+            val obs = screenshotObserver
+            if (obs != null) {
+                contentResolver.unregisterContentObserver(obs)
+            }
+            screenshotObserver = null
+        } catch (_: Exception) {}
+    }
+
+    private fun checkRecentScreenshot(retryCount: Int = 0) {
         serviceScope.launch(Dispatchers.IO) {
             val shot = ScreenshotManager.getLatestScreenshot(this@MyKeyboardService)
-            if (shot != null && ScreenshotManager.isScreenshotVeryRecent(shot, maxSeconds = 45)) {
+            // User requirement: screenshot taken within the last 10 seconds
+            if (shot != null && shot.uri != null && ScreenshotManager.isScreenshotVeryRecent(shot, maxSeconds = 10)) {
                 latestScreenshotItem = shot
+                val shotUri = shot.uri
+                // Add screenshot into clipboard history so it's also available in clipboard
+                ClipboardHistoryManager.addImageItem(this@MyKeyboardService, shotUri, shot.displayName)
+
                 withContext(Dispatchers.Main) {
                     try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            val bmp = contentResolver.loadThumbnail(shot.uri, Size(80, 80), null)
+                            val bmp = contentResolver.loadThumbnail(shotUri, Size(120, 120), null)
                             screenshotChipThumbnail?.setImageBitmap(bmp)
                         } else {
-                            screenshotChipThumbnail?.setImageURI(shot.uri)
+                            screenshotChipThumbnail?.setImageURI(shotUri)
                         }
-                        screenshotChipContainer?.visibility = View.VISIBLE
-                        // Hide automatically after 5 seconds (as user requested)
-                        screenshotChipHandler.postDelayed({
-                            screenshotChipContainer?.visibility = View.GONE
-                        }, 5000L)
-                    } catch (_: Exception) {}
+                    } catch (e: Exception) {
+                        // File may still be writing to disk, retry once after 300ms
+                        if (retryCount < 2) {
+                            screenshotChipHandler.postDelayed({
+                                checkRecentScreenshot(retryCount + 1)
+                            }, 300L)
+                            return@withContext
+                        }
+                    }
+
+                    showScreenshotChip()
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    if (screenshotChipContainer?.visibility == View.VISIBLE &&
+                        (shot == null || !ScreenshotManager.isScreenshotVeryRecent(shot, maxSeconds = 15))
+                    ) {
+                        dismissScreenshotChip()
+                    }
                 }
             }
+        }
+    }
+
+    private fun showScreenshotChip() {
+        screenshotChipHandler.removeCallbacksAndMessages(null)
+        screenshotChipContainer?.visibility = View.VISIBLE
+
+        // Temporarily hide suggestion buttons so the screenshot chip has full prominence
+        suggestion1?.visibility = View.GONE
+        suggestion2?.visibility = View.GONE
+        suggestion3?.visibility = View.GONE
+        suggestion4?.visibility = View.GONE
+        suggestion5?.visibility = View.GONE
+
+        // User requirement: show for 15 seconds, then revert to standard suggestions
+        screenshotChipHandler.postDelayed({
+            dismissScreenshotChip()
+        }, 15000L)
+    }
+
+    private fun dismissScreenshotChip() {
+        screenshotChipHandler.removeCallbacksAndMessages(null)
+        if (screenshotChipContainer?.visibility == View.VISIBLE) {
+            screenshotChipContainer?.visibility = View.GONE
+            updateSuggestions()
         }
     }
 
     private fun commitScreenshot(uri: Uri) {
         val ic = currentInputConnection ?: return
         val info = currentInputEditorInfo ?: return
+
+        try {
+            grantUriPermission(info.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        } catch (_: Exception) {}
 
         val mimeTypes = EditorInfoCompat.getContentMimeTypes(info)
         val imageSupported = mimeTypes.any { it.startsWith("image/", ignoreCase = true) || it.equals("*/*", ignoreCase = true) }
@@ -2258,6 +2638,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             val success = InputConnectionCompat.commitContent(ic, info, contentInfo, flags, null)
             if (!success) {
                 copyImageUriToClipboard(uri)
+            } else {
+                Toast.makeText(this, "Screenshot inserted", Toast.LENGTH_SHORT).show()
             }
         } else {
             copyImageUriToClipboard(uri)
@@ -2323,8 +2705,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         clipboardContainer?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
-        numberRowContainer?.visibility = View.GONE
-        suggestionBarContainer?.visibility = View.GONE
+        hideNonKeyboardOverlays()
         keyPreviewBubble?.visibility = View.GONE
         gifContainer?.visibility = View.VISIBLE
         loadGifCategories()
@@ -2438,10 +2819,11 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         deactivateEmojiSearchMode()
         emojiContainer?.visibility = View.GONE
         clipboardContainer?.visibility = View.GONE
+        gifContainer?.visibility = View.GONE
+        keyPreviewBubble?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
-        numberRowContainer?.visibility = View.GONE
-        suggestionBarContainer?.visibility = View.GONE
+        hideNonKeyboardOverlays()
         numPadContainer?.visibility = View.VISIBLE
     }
 
@@ -2453,8 +2835,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyPreviewBubble?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
-        numberRowContainer?.visibility = View.GONE
-        suggestionBarContainer?.visibility = View.GONE
+        hideNonKeyboardOverlays()
         emojiContainer?.visibility = View.VISIBLE
 
         val density = resources.displayMetrics.density
@@ -2477,9 +2858,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         val density = resources.displayMetrics.density
 
-        // Hide number row and suggestions
-        numberRowContainer?.visibility = View.GONE
-        suggestionBarContainer?.visibility = View.GONE
+        // Hide number row, suggestions and all AI subpanels
+        hideNonKeyboardOverlays()
 
         // Make emoji container compact so QWERTY keyboard fits below
         val lp = emojiContainer?.layoutParams
@@ -2527,7 +2907,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyPreviewBubble?.visibility = View.GONE
         moreMenuContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
-        numberRowContainer?.visibility = View.GONE
+        hideNonKeyboardOverlays()
         clipboardContainer?.visibility = View.VISIBLE
         populateClipboardList()
     }
@@ -2540,7 +2920,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyPreviewBubble?.visibility = View.GONE
         clipboardContainer?.visibility = View.GONE
         keyboardView?.visibility = View.GONE
-        numberRowContainer?.visibility = View.GONE
+        hideNonKeyboardOverlays()
         moreMenuContainer?.visibility = View.VISIBLE
         populateMoreMenu()
     }
@@ -2670,9 +3050,38 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             }
         }
 
-        view.findViewById<View>(R.id.num_key_backspace)?.setOnClickListener {
-            playKeyFeedback()
-            handleDelete()
+        val numBackspace = view.findViewById<View>(R.id.num_key_backspace)
+        val numDeleteHandler = Handler(Looper.getMainLooper())
+        var isHoldingNumDelete = false
+        val numDeleteRunnable = object : Runnable {
+            override fun run() {
+                if (isHoldingNumDelete) {
+                    playKeyFeedback()
+                    handleDelete()
+                    numDeleteHandler.postDelayed(this, 50L)
+                }
+            }
+        }
+        numBackspace?.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    isHoldingNumDelete = true
+                    playKeyFeedback()
+                    handleDelete()
+                    numDeleteHandler.removeCallbacks(numDeleteRunnable)
+                    numDeleteHandler.postDelayed(numDeleteRunnable, 380L)
+                    v.isPressed = true
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    isHoldingNumDelete = false
+                    numDeleteHandler.removeCallbacks(numDeleteRunnable)
+                    v.isPressed = false
+                    v.performClick()
+                    true
+                }
+                else -> false
+            }
         }
 
         view.findViewById<View>(R.id.num_key_abc)?.setOnClickListener {
@@ -2684,6 +3093,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             playKeyFeedback()
             numPadContainer?.visibility = View.GONE
             keyboardView?.visibility = View.VISIBLE
+            suggestionScrollView?.visibility = View.VISIBLE
             suggestionBarContainer?.visibility = View.VISIBLE
             keyboardView?.keyboard = symbolsKeyboard
             numberRowContainer?.visibility = View.GONE
@@ -2757,9 +3167,38 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             currentInputConnection?.commitText(" ", 1)
         }
 
-        view.findViewById<View>(R.id.btn_emoji_backspace)?.setOnClickListener {
-            playKeyFeedback()
-            handleDelete()
+        val emojiBackspace = view.findViewById<View>(R.id.btn_emoji_backspace)
+        val emojiDeleteHandler = Handler(Looper.getMainLooper())
+        var isHoldingEmojiDelete = false
+        val emojiDeleteRunnable = object : Runnable {
+            override fun run() {
+                if (isHoldingEmojiDelete) {
+                    playKeyFeedback()
+                    handleDelete()
+                    emojiDeleteHandler.postDelayed(this, 50L)
+                }
+            }
+        }
+        emojiBackspace?.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    isHoldingEmojiDelete = true
+                    playKeyFeedback()
+                    handleDelete()
+                    emojiDeleteHandler.removeCallbacks(emojiDeleteRunnable)
+                    emojiDeleteHandler.postDelayed(emojiDeleteRunnable, 380L)
+                    v.isPressed = true
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    isHoldingEmojiDelete = false
+                    emojiDeleteHandler.removeCallbacks(emojiDeleteRunnable)
+                    v.isPressed = false
+                    v.performClick()
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -2864,7 +3303,8 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private fun populateClipboardList() {
         val items = ClipboardHistoryManager.getItems(this)
         val shot = ScreenshotManager.getLatestScreenshot(this)
-        if (items.isEmpty() && shot == null) {
+        val hasRecentShot = shot != null && ScreenshotManager.isScreenshotVeryRecent(shot, maxSeconds = 120)
+        if (items.isEmpty() && !hasRecentShot) {
             clipboardEmptyView?.visibility = View.VISIBLE
             clipboardScrollView?.visibility = View.GONE
             return
@@ -2876,8 +3316,9 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         container.removeAllViews()
         val density = resources.displayMetrics.density
 
-        // Recent Screenshot Card at top of clipboard (if available)
-        if (shot != null) {
+        // Recent Screenshot Card at top of clipboard (if captured within last 2 minutes)
+        if (hasRecentShot && shot != null && shot.uri != null) {
+            val shotUri = shot.uri
             val shotCard = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -2892,8 +3333,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 isFocusable = false
                 setOnClickListener {
                     playKeyFeedback()
-                    commitScreenshot(shot.uri)
-                    Toast.makeText(this@MyKeyboardService, "Screenshot pasted", Toast.LENGTH_SHORT).show()
+                    commitScreenshot(shotUri)
                 }
             }
 
@@ -2905,9 +3345,9 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        setImageBitmap(contentResolver.loadThumbnail(shot.uri, Size(80, 80), null))
+                        setImageBitmap(contentResolver.loadThumbnail(shotUri, Size(80, 80), null))
                     } else {
-                        setImageURI(shot.uri)
+                        setImageURI(shotUri)
                     }
                 } catch (_: Exception) {}
             }
@@ -2951,6 +3391,9 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
         }
 
         for (item in items) {
+            val isItemImage = item.isImage && !item.uriString.isNullOrBlank()
+            val itemUri = if (isItemImage) Uri.parse(item.uriString) else null
+
             val card = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -2964,8 +3407,12 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 isFocusable = false
                 setOnClickListener {
                     playKeyFeedback()
-                    currentInputConnection?.commitText(item.text, 1)
-                    Toast.makeText(this@MyKeyboardService, "Pasted!", Toast.LENGTH_SHORT).show()
+                    if (isItemImage && itemUri != null) {
+                        commitScreenshot(itemUri)
+                    } else {
+                        currentInputConnection?.commitText(item.text, 1)
+                        Toast.makeText(this@MyKeyboardService, "Pasted!", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 setOnLongClickListener {
                     playKeyFeedback()
@@ -2975,6 +3422,24 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
                     Toast.makeText(this@MyKeyboardService, msg, Toast.LENGTH_SHORT).show()
                     true
                 }
+            }
+
+            if (isItemImage && itemUri != null) {
+                val itemThumb = ImageView(this).apply {
+                    val s = (36 * density).toInt()
+                    layoutParams = LinearLayout.LayoutParams(s, s).apply {
+                        marginEnd = (10 * density).toInt()
+                    }
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            setImageBitmap(contentResolver.loadThumbnail(itemUri, Size(80, 80), null))
+                        } else {
+                            setImageURI(itemUri)
+                        }
+                    } catch (_: Exception) {}
+                }
+                card.addView(itemThumb)
             }
 
             val contentLayout = LinearLayout(this).apply {
@@ -3013,7 +3478,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
             }
 
             val textTv = TextView(this).apply {
-                text = item.text
+                text = if (isItemImage) "📸 ${item.text.ifBlank { "Screenshot" }}" else item.text
                 textSize = 13f
                 setTextColor(Color.WHITE)
                 maxLines = 2
@@ -3078,14 +3543,41 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     private fun populateMoreMenu() {
         val quickBar = keyboardRoot?.findViewById<LinearLayout>(R.id.more_quick_bar)
+        val emojiBar = keyboardRoot?.findViewById<LinearLayout>(R.id.more_emoji_bar)
         val gridContainer = keyboardRoot?.findViewById<LinearLayout>(R.id.more_grid_container) ?: return
         val subpanel = keyboardRoot?.findViewById<LinearLayout>(R.id.more_subpanel_container) ?: return
         quickBar?.removeAllViews()
+        emojiBar?.removeAllViews()
         gridContainer.removeAllViews()
         subpanel.visibility = View.GONE
         subpanel.removeAllViews()
 
         val density = resources.displayMetrics.density
+
+        // Top Recent Emojis Strip (matching Gboard More Menu screenshot)
+        val recentEmojis = listOf("😂", "😘", "😃", "❤️", "😭", "🫂", "🤍", "💌", "👏", "💯", "🔥", "✨", "🙏", "😍")
+        for (emoji in recentEmojis) {
+            val emojiView = TextView(this).apply {
+                text = emoji
+                textSize = 19f
+                gravity = Gravity.CENTER
+                setPadding((8 * density).toInt(), (2 * density).toInt(), (8 * density).toInt(), (2 * density).toInt())
+                background = ContextCompat.getDrawable(this@MyKeyboardService, R.drawable.key_background)
+                isClickable = true
+                isFocusable = false
+                setOnClickListener {
+                    playKeyFeedback()
+                    currentInputConnection?.commitText(emoji, 1)
+                }
+            }
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            ).apply {
+                marginEnd = (4 * density).toInt()
+            }
+            emojiBar?.addView(emojiView, lp)
+        }
 
         // Quick Icon Strip (Header)
         val quickActions = listOf(
@@ -3108,6 +3600,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         // 2-Column Grid Cards (matching user screenshot)
         val cards = listOf(
+            Triple("Prompt Gen", "💡") { generatePromptFromInput() },
             Triple("Theme", "🎨") { showThemesSubpanel(subpanel) },
             Triple("Emoji", "😊") { showEmojiKeyboard() },
             Triple("GIF", "🎬") { showGifKeyboard() },
@@ -3575,6 +4068,7 @@ class MyKeyboardService : InputMethodService(), KeyboardView.OnKeyboardActionLis
     override fun onPress(primaryCode: Int) {}
     override fun onRelease(primaryCode: Int) {}
     override fun onText(text: CharSequence?) {
+        dismissScreenshotChip()
         currentInputConnection?.commitText(text, 1)
     }
     override fun swipeLeft() {}

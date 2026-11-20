@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.cleverkeyboard.app.SwipeTypingTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-19T12:30:36" hostname="Ajith-Macbook-Air.local" time="0.002">
+<testsuite name="com.cleverkeyboard.app.SwipeTypingTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-20T05:43:44" hostname="Ajith-Macbook-Air.local" time="0.001">
   <properties/>
   <testcase name="testSwipeHelloMatchesHello" classname="com.cleverkeyboard.app.SwipeTypingTest" time="0.0"/>
   <testcase name="testSwipeWorldMatchesWorld" classname="com.cleverkeyboard.app.SwipeTypingTest" time="0.001"/>
-  <testcase name="testShortTrajectoryReturnsEmpty" classname="com.cleverkeyboard.app.SwipeTypingTest" time="0.001"/>
+  <testcase name="testShortTrajectoryReturnsEmpty" classname="com.cleverkeyboard.app.SwipeTypingTest" time="0.0"/>
   <testcase name="testSwipeCleverMatchesClever" classname="com.cleverkeyboard.app.SwipeTypingTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

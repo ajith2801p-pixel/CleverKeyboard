@@ -43,6 +43,7 @@ drawable ic_num_pad
 drawable ic_one_handed
 drawable ic_palette
 drawable ic_paste
+drawable ic_prompt
 drawable ic_redo
 drawable ic_reply
 drawable ic_search
@@ -70,6 +71,7 @@ id ai_toolbar_left
 id ai_toolbar_right
 id btn_ai_chat
 id btn_ai_copy
+id btn_ai_prompt
 id btn_ai_reply
 id btn_ai_send
 id btn_ai_sparkle
@@ -101,6 +103,7 @@ id btn_num_6
 id btn_num_7
 id btn_num_8
 id btn_num_9
+id btn_screenshot_chip_close
 id clipboard_container
 id clipboard_empty_view
 id clipboard_items_container
@@ -119,6 +122,7 @@ id gif_grid_container
 id gif_scroll_view
 id gif_search_input
 id icon_ai_chat
+id icon_ai_prompt
 id icon_ai_reply
 id icon_ai_sparkle
 id icon_ai_translate
@@ -135,6 +139,7 @@ id keyboard_bottom_dismiss_bar
 id keyboard_container_layout
 id keyboard_root
 id keyboard_view
+id more_emoji_bar
 id more_grid_container
 id more_grid_scroll
 id more_menu_container
@@ -169,6 +174,7 @@ id num_pad_container
 id number_row_container
 id screenshot_chip_container
 id screenshot_chip_thumbnail
+id screenshot_chip_title
 id sub_options_container
 id sub_options_panel
 id suggestion_1
@@ -179,6 +185,7 @@ id suggestion_5
 id suggestion_bar_container
 id suggestion_scroll_view
 id text_ai_chat
+id text_ai_prompt
 id text_ai_reply
 id text_ai_sparkle
 id text_ai_translate

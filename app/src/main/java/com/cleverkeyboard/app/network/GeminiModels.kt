@@ -25,7 +25,7 @@ data class GenerationConfig(
     @SerializedName("temperature")
     val temperature: Float? = 0.4f,
     @SerializedName("maxOutputTokens")
-    val maxOutputTokens: Int? = 1024,
+    val maxOutputTokens: Int? = 8192,
     @SerializedName("responseMimeType")
     val responseMimeType: String? = null
 )

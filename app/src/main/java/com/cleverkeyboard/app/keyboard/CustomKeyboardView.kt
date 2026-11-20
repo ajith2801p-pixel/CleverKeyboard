@@ -42,7 +42,9 @@ class CustomKeyboardView @JvmOverloads constructor(
     }
 
     private val keyRect = RectF()
+    private val keyShadowRect = RectF()
     private val textBounds = Rect()
+    private val keyShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var iconShift: Drawable? = null
     private var iconShiftLocked: Drawable? = null
@@ -484,9 +486,9 @@ class CustomKeyboardView @JvmOverloads constructor(
         keyPaint.color = theme.keyBgColor
         functionKeyPaint.color = adjustAlpha(theme.keyBgColor, 0.85f)
         textPaint.color = theme.keyTextColor
-        textPaint.typeface = Typeface.create(Typeface.DEFAULT, if (isPhotoTheme) Typeface.BOLD else Typeface.NORMAL)
+        textPaint.typeface = Typeface.create("sans-serif", if (isPhotoTheme) Typeface.BOLD else Typeface.NORMAL)
         accentKeyPaint.color = theme.accentColor
-        swipePaint.color = adjustAlpha(theme.accentColor, 0.70f)
+        swipePaint.color = theme.swipeTrailColor ?: adjustAlpha(theme.accentColor, 0.70f)
 
         invalidate()
     }
@@ -498,9 +500,10 @@ class CustomKeyboardView @JvmOverloads constructor(
 
         // Draw overall keyboard background if not photo theme
         if (!isPhotoTheme) {
+            val kbOpacity = currentTheme.keyboardOpacity.coerceIn(0.20f, 1.0f)
             if (currentTheme.hasGradient) {
-                val start = currentTheme.gradientStartColor!!
-                val end = currentTheme.gradientEndColor!!
+                val start = adjustAlpha(currentTheme.gradientStartColor!!, kbOpacity)
+                val end = adjustAlpha(currentTheme.gradientEndColor!!, kbOpacity)
                 val shader = LinearGradient(
                     0f, 0f, 0f, height.toFloat(),
                     start, end, Shader.TileMode.CLAMP
@@ -509,23 +512,29 @@ class CustomKeyboardView @JvmOverloads constructor(
                 canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
                 bgPaint.shader = null
             } else {
-                canvas.drawColor(currentTheme.keyboardBgColor)
+                canvas.drawColor(adjustAlpha(currentTheme.keyboardBgColor, kbOpacity))
             }
         }
 
         val keys = keyboard?.keys ?: return
         val isShifted = keyboard?.isShifted == true
 
-        // Configurable key shape: Square, Rounded, Super Rounded, Pill
+        val isAppleTheme = currentTheme.id.contains("apple", ignoreCase = true)
+        val appleKeyRadius = 5f * density
+
+        // Configurable key shape & corner radius slider
         val baseCornerRadius = when (currentTheme.keyShape) {
             KeyboardTheme.KEY_SHAPE_SQUARE -> 2f * density
             KeyboardTheme.KEY_SHAPE_SUPER_ROUNDED -> 13f * density
             KeyboardTheme.KEY_SHAPE_PILL -> 24f * density
-            else -> 8f * density
+            else -> currentTheme.keyCornerRadius * density
         }
-        val cornerRadius = baseCornerRadius
-        val paddingHorizontal = 2f * density
-        val paddingVertical = 2.5f * density
+        val cornerRadius = if (isAppleTheme) appleKeyRadius else baseCornerRadius
+        val paddingHorizontal = if (isAppleTheme) 2.5f * density else (currentTheme.keySpacing * density)
+        val paddingVertical = if (isAppleTheme) 3f * density else (currentTheme.keySpacing * 1.25f * density)
+
+        borderPaint.strokeWidth = currentTheme.borderThickness * density
+        swipePaint.color = currentTheme.swipeTrailColor ?: currentTheme.accentColor
 
         for (key in keys) {
             val keyLeft = key.x + paddingHorizontal
@@ -546,28 +555,69 @@ class CustomKeyboardView @JvmOverloads constructor(
             val isSpace = primaryCode == 32
             val isPillKey = isEnter || isSpace || isSymbols || isSymbolShift || isNumPadKey || (isShift && (isShiftLocked || isShifted))
 
-            val pillRadius = keyRect.height() / 2f
-            val drawRadius = if (isPillKey) pillRadius else cornerRadius
+            val pillRadius = if (isAppleTheme) appleKeyRadius else keyRect.height() / 2f
+            val drawRadius = if (isAppleTheme) appleKeyRadius else (if (isPillKey) pillRadius else cornerRadius)
+
+            // Optional Key Drop Shadow
+            if (currentTheme.keyShadowEnabled || isAppleTheme) {
+                val shadowColor = if (isAppleTheme) {
+                    if (isEnter) Color.parseColor("#0056B3") else Color.parseColor("#8A8E97")
+                } else {
+                    if (isColorLight(currentTheme.keyboardBgColor)) Color.argb(80, 0, 0, 0) else Color.argb(140, 0, 0, 0)
+                }
+                keyShadowPaint.color = shadowColor
+                keyShadowRect.set(keyRect.left, keyRect.top + 1f * density, keyRect.right, keyRect.bottom + 1.3f * density)
+                canvas.drawRoundRect(keyShadowRect, drawRadius, drawRadius, keyShadowPaint)
+            }
 
             // 1. Draw Key Background
-            if (isEnter) {
+            if (isAppleTheme) {
+                if (isEnter) {
+                    // Enter / Action Key: Apple iOS Signature Blue (#007AFF)
+                    keyPaint.color = if (key.pressed) (currentTheme.keyPressedColor ?: Color.parseColor("#0056B3")) else Color.parseColor("#007AFF")
+                    canvas.drawRoundRect(keyRect, appleKeyRadius, appleKeyRadius, keyPaint)
+                } else if (isSpace) {
+                    // Spacebar: Pure White (#FFFFFF)
+                    val spaceBg = if (isCursorDragActive) Color.parseColor("#007AFF") else (if (key.pressed) (currentTheme.keyPressedColor ?: Color.parseColor("#D8DBE2")) else (currentTheme.functionKeyColor ?: Color.WHITE))
+                    keyPaint.color = spaceBg
+                    canvas.drawRoundRect(keyRect, appleKeyRadius, appleKeyRadius, keyPaint)
+                } else if (isSymbols || isSymbolShift || isNumPadKey || isShift || isDelete || isGlobe) {
+                    // Function Keys: Soft slate grey (#B0B5BF), turns white on press / active
+                    val fnBase = currentTheme.functionKeyColor ?: Color.parseColor("#B0B5BF")
+                    val isShiftActive = isShift && (isShiftLocked || isShifted)
+                    val fnColor = if (isShiftActive || key.pressed) (currentTheme.keyPressedColor ?: Color.WHITE) else fnBase
+                    keyPaint.color = fnColor
+                    canvas.drawRoundRect(keyRect, appleKeyRadius, appleKeyRadius, keyPaint)
+                } else {
+                    // Standard letter keys: Crisp Pure White (#FFFFFF), soft grey on press
+                    var letterBg = if (key.pressed) (currentTheme.keyPressedColor ?: Color.parseColor("#D8DBE2")) else Color.WHITE
+                    if (currentTheme.keyOpacity < 1.0f) {
+                        letterBg = adjustAlpha(letterBg, currentTheme.keyOpacity)
+                    }
+                    keyPaint.color = letterBg
+                    canvas.drawRoundRect(keyRect, appleKeyRadius, appleKeyRadius, keyPaint)
+                }
+            } else if (isEnter) {
                 // Enter / Search Key: prominent theme accent pill
-                keyPaint.color = currentTheme.accentColor
+                val enterColor = if (key.pressed && currentTheme.keyPressedColor != null) currentTheme.keyPressedColor!! else currentTheme.accentColor
+                keyPaint.color = if (currentTheme.keyOpacity < 1.0f) adjustAlpha(enterColor, currentTheme.keyOpacity) else enterColor
                 canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
             } else if (isSpace) {
                 // Spacebar: Rounded pill background
-                if (isCursorDragActive) {
-                    keyPaint.color = currentTheme.accentColor
+                val spaceColor = if (isCursorDragActive) {
+                    currentTheme.accentColor
                 } else if (key.pressed) {
-                    keyPaint.color = blendColors(currentTheme.keyBgColor, Color.WHITE, 0.20f)
+                    currentTheme.keyPressedColor ?: blendColors(currentTheme.keyBgColor, Color.WHITE, 0.20f)
                 } else {
-                    keyPaint.color = adjustAlpha(currentTheme.keyBgColor, 0.88f)
+                    currentTheme.functionKeyColor ?: adjustAlpha(currentTheme.keyBgColor, 0.88f)
                 }
+                keyPaint.color = if (currentTheme.keyOpacity < 1.0f) adjustAlpha(spaceColor, currentTheme.keyOpacity) else spaceColor
                 canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
-            } else if (isSymbols || isSymbolShift || isNumPadKey) {
-                // Function Pill Keys (?123, ABC, =\<, 12/34)
-                val baseColor = adjustAlpha(currentTheme.keyBgColor, 0.88f)
-                keyPaint.color = if (key.pressed) blendColors(baseColor, Color.WHITE, 0.25f) else baseColor
+            } else if (isSymbols || isSymbolShift || isNumPadKey || isDelete || isGlobe) {
+                // Function Pill Keys (?123, ABC, =\<, 12/34, delete, globe)
+                val baseColor = currentTheme.functionKeyColor ?: adjustAlpha(currentTheme.keyBgColor, 0.88f)
+                val fnFill = if (key.pressed) (currentTheme.keyPressedColor ?: blendColors(baseColor, Color.WHITE, 0.25f)) else baseColor
+                keyPaint.color = if (currentTheme.keyOpacity < 1.0f) adjustAlpha(fnFill, currentTheme.keyOpacity) else fnFill
                 canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
             } else if (isShift && (isShiftLocked || isShifted)) {
                 // Active Shift Key pill highlight
@@ -576,21 +626,22 @@ class CustomKeyboardView @JvmOverloads constructor(
                 } else {
                     blendColors(currentTheme.keyBgColor, currentTheme.accentColor, 0.20f)
                 }
-                keyPaint.color = if (key.pressed) blendColors(shiftColor, Color.WHITE, 0.25f) else shiftColor
+                val shiftFill = if (key.pressed) (currentTheme.keyPressedColor ?: blendColors(shiftColor, Color.WHITE, 0.25f)) else shiftColor
+                keyPaint.color = if (currentTheme.keyOpacity < 1.0f) adjustAlpha(shiftFill, currentTheme.keyOpacity) else shiftFill
                 canvas.drawRoundRect(keyRect, pillRadius, pillRadius, keyPaint)
             } else if (bordersActive) {
-                // ON (Board): Solid background + 1dp border
+                // ON (Board): Solid background + border
                 val baseColor = when {
-                    isShift || isDelete || isGlobe -> adjustAlpha(currentTheme.keyBgColor, 0.88f)
+                    isShift -> currentTheme.functionKeyColor ?: adjustAlpha(currentTheme.keyBgColor, 0.88f)
                     else -> currentTheme.keyBgColor
                 }
-                val fillColor = if (key.pressed) blendColors(baseColor, Color.WHITE, 0.25f) else baseColor
-                keyPaint.color = fillColor
+                val fillColor = if (key.pressed) (currentTheme.keyPressedColor ?: blendColors(baseColor, Color.WHITE, 0.25f)) else baseColor
+                keyPaint.color = if (currentTheme.keyOpacity < 1.0f) adjustAlpha(fillColor, currentTheme.keyOpacity) else fillColor
                 canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, keyPaint)
 
                 val borderColor = when {
-                    isColorLight(currentTheme.keyBgColor) -> Color.argb(50, 0, 0, 0)
-                    else -> Color.argb(70, 120, 120, 120)
+                    isColorLight(currentTheme.keyBgColor) -> Color.argb(90, 0, 0, 0)
+                    else -> Color.argb(120, 220, 220, 220)
                 }
                 borderPaint.color = borderColor
                 canvas.drawRoundRect(keyRect, cornerRadius, cornerRadius, borderPaint)
@@ -598,41 +649,51 @@ class CustomKeyboardView @JvmOverloads constructor(
                 // OFF (Flat / Borderless): Clean floating characters on background
                 // Soft tactile highlight pill when pressed
                 if (key.pressed) {
-                    val pressColor = if (isColorLight(currentTheme.keyBgColor)) Color.argb(75, 0, 0, 0) else Color.argb(60, 255, 255, 255)
+                    val pressColor = currentTheme.keyPressedColor ?: (if (isColorLight(currentTheme.keyBgColor)) Color.argb(75, 0, 0, 0) else Color.argb(60, 255, 255, 255))
                     keyPaint.color = pressColor
                     canvas.drawRoundRect(keyRect, 8f * density, 8f * density, keyPaint)
                 }
             }
 
-            // Text / Icon styling: Uses currentTheme.keyTextColor
-            val primaryTextColor = currentTheme.keyTextColor
+            // Text / Icon styling: San Francisco Style Font across all themes
+            val primaryTextColor = if (isAppleTheme) Color.BLACK else currentTheme.keyTextColor
 
-            textPaint.clearShadowLayer()
-            textPaint.typeface = if (isPhotoTheme) {
-                Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            if (currentTheme.textShadowEnabled) {
+                val shadowColor = if (isColorLight(primaryTextColor)) Color.argb(180, 0, 0, 0) else Color.argb(180, 255, 255, 255)
+                textPaint.setShadowLayer(3f * density, 0f, 1.5f * density, shadowColor)
             } else {
-                Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                textPaint.clearShadowLayer()
             }
+            textPaint.typeface = Typeface.create("sans-serif", if (isPhotoTheme) Typeface.BOLD else Typeface.NORMAL)
 
             when {
                 isShift -> {
                     val icon = if (isShiftLocked) iconShiftLocked else iconShift
-                    val iconTint = if (isShiftLocked || isShifted) currentTheme.accentColor else primaryTextColor
+                    val iconTint = if (isAppleTheme) Color.BLACK else if (isShiftLocked || isShifted) currentTheme.accentColor else primaryTextColor
                     drawTintedIcon(canvas, icon, keyRect, iconTint)
                 }
 
                 isDelete -> {
-                    drawTintedIcon(canvas, iconDelete, keyRect, primaryTextColor)
+                    val delTint = if (isAppleTheme) Color.BLACK else primaryTextColor
+                    drawTintedIcon(canvas, iconDelete, keyRect, delTint)
                 }
 
                 isEnter -> {
-                    val icon = if (isActionSearch) iconSearch else iconEnter
-                    val enterTint = if (isColorLight(currentTheme.accentColor)) Color.BLACK else Color.WHITE
-                    drawTintedIcon(canvas, icon, keyRect, enterTint)
+                    if (isAppleTheme && !isActionSearch) {
+                        textPaint.color = Color.WHITE
+                        textPaint.textSize = key.height * 0.42f
+                        textPaint.typeface = Typeface.create("sans-serif", Typeface.BOLD)
+                        drawCenteredText(canvas, "→", keyRect, textPaint)
+                    } else {
+                        val icon = if (isActionSearch) iconSearch else iconEnter
+                        val enterTint = if (isColorLight(currentTheme.accentColor)) Color.BLACK else Color.WHITE
+                        drawTintedIcon(canvas, icon, keyRect, enterTint)
+                    }
                 }
 
                 isGlobe -> {
-                    drawTintedIcon(canvas, iconGlobe, keyRect, primaryTextColor)
+                    val globeTint = if (isAppleTheme) Color.BLACK else primaryTextColor
+                    drawTintedIcon(canvas, iconGlobe, keyRect, globeTint)
                 }
 
                 isEmojiKey -> {
@@ -661,17 +722,21 @@ class CustomKeyboardView @JvmOverloads constructor(
                         textPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                         drawCenteredText(canvas, "◀   Cursor   ▶", keyRect, textPaint)
                     } else {
-                        textPaint.color = primaryTextColor
+                        textPaint.color = if (isAppleTheme) Color.parseColor("#8E8E93") else primaryTextColor
                         textPaint.textSize = key.height * 0.28f
-                        val label = if (spaceLabel.isNotBlank()) spaceLabel else "English"
+                        val label = if (isAppleTheme) "space" else (if (spaceLabel.isNotBlank()) spaceLabel else "English")
                         drawCenteredText(canvas, label, keyRect, textPaint)
                     }
                 }
 
                 key.label != null -> {
                     var label = key.label.toString()
-                    if (isShifted && label.length == 1 && label[0].isLetter()) {
+                    if (isAppleTheme && (label == "?123" || key.codes.contains(-2))) {
+                        label = "123"
+                    } else if (isShifted && label.length == 1 && label[0].isLetter()) {
                         label = label.uppercase()
+                    } else if (!isShifted && label.length == 1 && label[0].isLetter()) {
+                        label = label.lowercase()
                     }
 
                     textPaint.color = primaryTextColor
@@ -679,21 +744,23 @@ class CustomKeyboardView @JvmOverloads constructor(
                     textPaint.textSize = textSize
                     drawCenteredText(canvas, label, keyRect, textPaint)
 
-                    // Secondary character hint at top right (Gboard style)
-                    val secondary = getSecondaryCharacterForKey(key)
-                    if (secondary != null && !isShifted) {
-                        val secPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                            this.textSize = key.height * 0.22f
-                            color = adjustAlpha(primaryTextColor, 0.45f)
-                            textAlign = Paint.Align.RIGHT
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                    // Secondary character hint at top right (Gboard style - suppressed in Apple theme for pure minimalism)
+                    if (!isAppleTheme) {
+                        val secondary = getSecondaryCharacterForKey(key)
+                        if (secondary != null && !isShifted) {
+                            val secPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                                this.textSize = key.height * 0.22f
+                                color = adjustAlpha(primaryTextColor, 0.45f)
+                                textAlign = Paint.Align.RIGHT
+                                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                            }
+                            canvas.drawText(
+                                secondary.toString(),
+                                keyRect.right - 3.5f * density,
+                                keyRect.top + key.height * 0.28f,
+                                secPaint
+                            )
                         }
-                        canvas.drawText(
-                            secondary.toString(),
-                            keyRect.right - 3.5f * density,
-                            keyRect.top + key.height * 0.28f,
-                            secPaint
-                        )
                     }
                 }
 

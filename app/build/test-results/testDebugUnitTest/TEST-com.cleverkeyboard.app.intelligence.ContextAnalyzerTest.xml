@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-19T12:30:36" hostname="Ajith-Macbook-Air.local" time="0.006">
+<testsuite name="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-20T05:43:44" hostname="Ajith-Macbook-Air.local" time="0.005">
   <properties/>
-  <testcase name="testSentenceWithActiveWord" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.005"/>
+  <testcase name="testSentenceWithActiveWord" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.004"/>
   <testcase name="testSentenceWithCompletedWordAndSpace" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.0"/>
   <testcase name="testTanglishLanguageDetection" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.0"/>
-  <testcase name="testTamilScriptDetection" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.001"/>
+  <testcase name="testTamilScriptDetection" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.0"/>
   <testcase name="testEmptyContext" classname="com.cleverkeyboard.app.intelligence.ContextAnalyzerTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

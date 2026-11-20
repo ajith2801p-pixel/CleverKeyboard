@@ -30,9 +30,9 @@ class AiService private constructor() {
         }
 
         val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .addInterceptor(loggingInterceptor)
             .build()
 
@@ -58,7 +58,11 @@ class AiService private constructor() {
         }
     }
 
-    private suspend fun executePrompt(promptText: String, apiKey: String): Result<String> {
+    private suspend fun executePrompt(
+        promptText: String,
+        apiKey: String,
+        maxTokens: Int = 8192
+    ): Result<String> {
         return withContext(Dispatchers.IO) {
             if (apiKey.isBlank()) {
                 return@withContext Result.failure(IllegalArgumentException("Gemini API Key is missing. Please set it in Settings."))
@@ -70,7 +74,7 @@ class AiService private constructor() {
                         parts = listOf(Part(text = promptText))
                     )
                 ),
-                generationConfig = GenerationConfig(temperature = 0.3f)
+                generationConfig = GenerationConfig(temperature = 0.3f, maxOutputTokens = maxTokens)
             )
 
             var lastError: Exception? = null
@@ -157,6 +161,113 @@ class AiService private constructor() {
     suspend fun generateReplyWithTone(text: String, tone: String, apiKey: String): Result<String> {
         val prompt = buildReplyPrompt(text, tone)
         return executePrompt(prompt, apiKey).map { cleanResultText(it) }
+    }
+
+    /**
+     * Compact, Deterministic, and Executable 6-Section Prompt Generator.
+     * Enforces the 5 refactoring rules:
+     * 1. Single-Stack Lock-In (ONE modern tool per layer; zero "or" branching)
+     * 2. Phase-1 MVP Scoping (3–4 critical runnable files; advanced features deferred to Phase 2)
+     * 3. Zero-Dependency Runnability (Procedural geometry/textures + self-contained seed data; zero remote 404s)
+     * 4. Compact 6-Section Structure (Role, Objective, Stack, Features, Guardrails, Execution Rules)
+     * 5. Actionable Execution Rule (Complete runnable code, exact file paths, terminal run commands)
+     */
+    suspend fun generatePrompt(rawIdea: String, apiKey: String): Result<String> {
+        val trimmed = rawIdea.trim()
+        if (trimmed.isBlank()) {
+            return Result.success(com.cleverkeyboard.app.intelligence.PromptEngineeringEngine.generateStructuredPrompt(""))
+        }
+
+        if (apiKey.isBlank()) {
+            // Instant offline fallback engine
+            return Result.success(com.cleverkeyboard.app.intelligence.PromptEngineeringEngine.generateStructuredPrompt(trimmed))
+        }
+
+        val metaPrompt = """
+            You are an elite Principal AI Prompt Engineer and Lead Software Architect.
+            Transform this raw user idea into a concise, deterministic, production-ready coding prompt:
+            "$trimmed"
+
+            You MUST structure the generated prompt into EXACTLY 6 COMPACT, NON-REPETITIVE SECTIONS adhering strictly to the following 5 rules:
+
+            RULE 1: SINGLE-STACK LOCK-IN
+            Commit decisively to ONE modern, cohesive technology per layer. Strictly forbid slash-separated or "or" alternatives (NEVER write "Express (or NestJS)" or "Tailwind / CSS Modules" or "PostgreSQL or MongoDB"). Choose the single best stack for the idea.
+
+            RULE 2: PHASE-1 MVP SCOPING & UPCOMING ROADMAP
+            For complex applications, scope the immediate deliverable strictly to a working "Phase 1 MVP" consisting of 3–4 critical runnable files.
+            In Section 2 (Core Objective):
+            - Explicitly specify the exact Phase 1 deliverables across 3–4 runnable files.
+            - Include a concise 2-bullet "Upcoming Phases Roadmap" right below it (e.g., Phase 2: Backend API & Database; Phase 3: Payments, Admin & Polish).
+            - Instruct the target AI: "After outputting Phase 1 code, end with a 1-sentence prompt the user can reply with to trigger Phase 2 (e.g., 'Reply with \"Proceed to Phase 2\" to scaffold the backend API, database schema, and server endpoints.')."
+
+            RULE 3: ZERO-DEPENDENCY RUNNABILITY & DISPOSAL
+            Strictly forbid un-hosted external assets (no remote .glb models, external CDN textures, or broken URLs). Require procedural generation (e.g. Three.js primitive geometries + canvas textures) and self-contained local seed data so code runs out of the box without 404s.
+
+            RULE 4: COMPACT 6-SECTION STRUCTURE
+            Structure the prompt strictly with these 6 markdown headers:
+            # [Project Title] — Phase 1 MVP Specification
+
+            ## 1. Role
+            [Specific high-seniority engineering persona]
+
+            ## 2. Core Objective (Phase 1 MVP Scope)
+            [Clear primary deliverable for Phase 1 MVP, explicit list of 3-4 files to produce, 2-bullet Upcoming Phases Roadmap (Phase 2 & Phase 3), and 1-sentence prompt rule to trigger Phase 2]
+
+            ## 3. Locked Tech Stack
+            [Single, unambiguous tool per layer with exact package names]
+
+            ## 4. Key Features & UX
+            [Core interactive workflows, procedural assets, UI HUD, and embedded seed data]
+
+            ## 5. Technical & Fallback Guardrails
+            [Performance standards; for WebGL/3D: explicit viewport resize handling updating camera.aspect and renderer.setSize(), and resource disposal (geometry.dispose(), material.dispose(), texture.dispose()) strictly on component unmount in useEffect; zero external 404 dependencies; and 2D/accessible fallback]
+
+            ## 6. Execution & Output Rules
+            [Explicit instruction: output full runnable code with exact file paths and terminal setup commands, zero placeholders or truncations]
+
+            RULE 5: CONCISE & DETERMINISTIC
+            Keep the prompt dense, actionable, and strictly under 500 words. Do not repeat constraints across sections. Output ONLY the engineered prompt directly starting with `# `. Never wrap or prepend/append stray boundary characters such as 'B' or 'E'. Zero chatter, zero boundary markers.
+        """.trimIndent()
+
+        val apiResult = executePrompt(metaPrompt, apiKey, maxTokens = 4096)
+        return if (apiResult.isSuccess && !apiResult.getOrNull().isNullOrBlank()) {
+            val cleaned = cleanResultText(apiResult.getOrNull()!!)
+            val verified = validateAndCleanPrompt(cleaned, trimmed)
+            Result.success(verified)
+        } else {
+            // Graceful fallback to offline engine
+            Result.success(com.cleverkeyboard.app.intelligence.PromptEngineeringEngine.generateStructuredPrompt(trimmed))
+        }
+    }
+
+    /**
+     * Backward-compatible aliases for existing callers.
+     */
+    suspend fun generate12FieldPrompt(rawIdea: String, apiKey: String): Result<String> {
+        return generatePrompt(rawIdea, apiKey)
+    }
+
+    suspend fun generate6FieldPrompt(rawIdea: String, apiKey: String): Result<String> {
+        return generatePrompt(rawIdea, apiKey)
+    }
+
+    /**
+     * Validates that the generated prompt contains the necessary sections and strips stray boundary characters.
+     * Falls back to the deterministic offline engine if the LLM output is malformed or truncated.
+     */
+    private fun validateAndCleanPrompt(text: String, rawIdea: String): String {
+        val trimmed = cleanResultText(text)
+        val hasRole = trimmed.contains("## 1.") || trimmed.contains("## 1 ")
+        val hasObjective = trimmed.contains("## 2.") || trimmed.contains("## 2 ")
+        val hasStack = trimmed.contains("## 3.") || trimmed.contains("## 3 ")
+        val hasExecution = trimmed.contains("## 6.") || trimmed.contains("## 6 ")
+
+        return if (hasRole && hasObjective && hasStack && hasExecution) {
+            trimmed
+        } else {
+            // Fall back to the guaranteed offline engine
+            com.cleverkeyboard.app.intelligence.PromptEngineeringEngine.generateStructuredPrompt(rawIdea)
+        }
     }
 
     private fun buildReplyPrompt(inputText: String, tone: String): String {
@@ -639,24 +750,7 @@ class AiService private constructor() {
     }
 
     private fun cleanResultText(raw: String): String {
-        var cleaned = raw.trim()
-        while (
-            (cleaned.startsWith("**") && cleaned.endsWith("**") && cleaned.length >= 4) ||
-            (cleaned.startsWith("*") && cleaned.endsWith("*") && cleaned.length >= 2) ||
-            (cleaned.startsWith("\"") && cleaned.endsWith("\"") && cleaned.length >= 2) ||
-            (cleaned.startsWith("'") && cleaned.endsWith("'") && cleaned.length >= 2)
-        ) {
-            if (cleaned.startsWith("**") && cleaned.endsWith("**") && cleaned.length >= 4) {
-                cleaned = cleaned.substring(2, cleaned.length - 2).trim()
-            } else if (cleaned.startsWith("*") && cleaned.endsWith("*") && cleaned.length >= 2) {
-                cleaned = cleaned.substring(1, cleaned.length - 1).trim()
-            } else if (cleaned.startsWith("\"") && cleaned.endsWith("\"") && cleaned.length >= 2) {
-                cleaned = cleaned.substring(1, cleaned.length - 1).trim()
-            } else if (cleaned.startsWith("'") && cleaned.endsWith("'") && cleaned.length >= 2) {
-                cleaned = cleaned.substring(1, cleaned.length - 1).trim()
-            }
-        }
-        return cleaned.trim()
+        return com.cleverkeyboard.app.intelligence.PromptEngineeringEngine.stripBoundaryMarkers(raw)
     }
 
     private fun parseJsonArrayReplies(rawText: String): List<String> {

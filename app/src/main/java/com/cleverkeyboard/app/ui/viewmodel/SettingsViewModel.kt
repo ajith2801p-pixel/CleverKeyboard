@@ -21,7 +21,12 @@ enum class ColorTarget {
     KEYBOARD_BG,
     KEY_BG,
     KEY_TEXT,
-    ACCENT
+    ACCENT,
+    KEY_PRESSED,
+    FUNCTION_KEYS,
+    TOOLBAR_TEXT,
+    KEY_POPUP,
+    SWIPE_TRAIL
 }
 
 data class SettingsUiState(
@@ -455,6 +460,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             ColorTarget.KEY_BG -> current.copy(id = themeId, name = themeName, keyBgColor = colorInt)
             ColorTarget.KEY_TEXT -> current.copy(id = themeId, name = themeName, keyTextColor = colorInt)
             ColorTarget.ACCENT -> current.copy(id = themeId, name = themeName, accentColor = colorInt)
+            ColorTarget.KEY_PRESSED -> current.copy(id = themeId, name = themeName, keyPressedColor = colorInt)
+            ColorTarget.FUNCTION_KEYS -> current.copy(id = themeId, name = themeName, functionKeyColor = colorInt)
+            ColorTarget.TOOLBAR_TEXT -> current.copy(id = themeId, name = themeName, toolbarTextColor = colorInt)
+            ColorTarget.KEY_POPUP -> current.copy(id = themeId, name = themeName, keyPopupColor = colorInt)
+            ColorTarget.SWIPE_TRAIL -> current.copy(id = themeId, name = themeName, swipeTrailColor = colorInt)
         }
 
         val context = getApplication<Application>()
@@ -465,6 +475,75 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             selectedPresetId = themeId,
             activeColorTarget = null
         )
+    }
+
+    fun setKeyBordersEnabled(enabled: Boolean) {
+        val mode = if (enabled) KeyboardTheme.BORDERS_ON else KeyboardTheme.BORDERS_OFF
+        setKeyBordersMode(mode)
+    }
+
+    fun setBorderThickness(thickness: Float) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(borderThickness = thickness.coerceIn(0.5f, 3.0f))
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setKeyCornerRadius(radius: Float) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(keyCornerRadius = radius.coerceIn(0f, 24f))
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setKeySpacing(spacing: Float) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(keySpacing = spacing.coerceIn(1.0f, 6.0f))
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setKeyboardOpacity(opacity: Float) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(keyboardOpacity = opacity.coerceIn(0.20f, 1.0f))
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setBackgroundBlur(blur: Float) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(backgroundBlur = blur.coerceIn(0f, 50f), photoBlur = blur.coerceIn(0f, 50f))
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setKeyShadowEnabled(enabled: Boolean) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(keyShadowEnabled = enabled)
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setKeyOpacity(opacity: Float) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(keyOpacity = opacity.coerceIn(0.0f, 1.0f))
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
+    }
+
+    fun setTextShadowEnabled(enabled: Boolean) {
+        val current = _uiState.value.currentTheme
+        val updated = current.copy(textShadowEnabled = enabled)
+        val context = getApplication<Application>()
+        ThemeManager.saveTheme(context, updated)
+        _uiState.value = _uiState.value.copy(currentTheme = updated)
     }
 
     fun refreshKeyboardStatus() {
